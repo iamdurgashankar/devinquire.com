@@ -1,6 +1,6 @@
 # Devinquire Agency Web Application
 
-A modern full-stack agency web application for website development, web applications, component development, mobile applications, SEO services, logo/banner design, and a dynamic blog section.
+A modern React-based agency web application for website development, web applications, component development, mobile applications, SEO services, logo/banner design, and a dynamic blog section.
 
 ## 🚀 Live Demo
 
@@ -9,12 +9,11 @@ Visit [devinquire.com](https://devinquire.com) to see the live application.
 ## ✨ Features
 
 - **Agency Services**: Complete showcase of development services
-- **Dynamic Blog**: Content management with image upload capabilities
+- **Dynamic Blog**: Content management with mock data
 - **Admin Dashboard**: Full admin interface for blog management
 - **Responsive Design**: Mobile-first approach with Tailwind CSS
-- **Authentication**: Firebase-based user authentication
+- **Authentication**: Mock authentication system
 - **Modern UI**: Beautiful animations with Framer Motion
-- **RESTful API**: Clean Node.js backend with Express
 
 ## 🛠️ Tech Stack
 
@@ -24,14 +23,6 @@ Visit [devinquire.com](https://devinquire.com) to see the live application.
 - **Tailwind CSS** - Utility-first CSS framework
 - **React Router** - Client-side routing
 - **Framer Motion** - Animation library
-- **Firebase** - Authentication and backend services
-
-### Backend
-
-- **Node.js** - JavaScript runtime
-- **Express.js** - Web application framework
-- **Multer** - File upload handling
-- **CORS** - Cross-origin resource sharing
 
 ### Deployment
 
@@ -46,7 +37,7 @@ Visit [devinquire.com](https://devinquire.com) to see the live application.
 - npm or yarn
 - Git
 
-### Frontend Setup
+### Setup
 
 ```bash
 # Install dependencies
@@ -59,22 +50,6 @@ npm start
 npm run build
 ```
 
-### Backend Setup
-
-```bash
-# Navigate to backend directory
-cd backend
-
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
-# Start production server
-npm start
-```
-
 ## 🌐 Deployment
 
 This project is configured for automatic deployment to devinquire.com using GitHub Actions and Hostinger.
@@ -82,29 +57,15 @@ This project is configured for automatic deployment to devinquire.com using GitH
 ### Quick Setup:
 
 1. **Push to GitHub**: Upload your code to a GitHub repository
-2. **Configure Hostinger**: Follow the [Hostinger Setup Guide](./HOSTINGER_SETUP.md)
-3. **Set Secrets**: Add required FTP credentials to GitHub Secrets
-4. **Deploy**: Push to main branch triggers automatic deployment
-
-For detailed deployment instructions, see [HOSTINGER_SETUP.md](./HOSTINGER_SETUP.md).
+2. **Configure Hostinger**: Add FTP credentials to GitHub Secrets
+3. **Deploy**: Push to main branch triggers automatic deployment
 
 ## 🔧 Environment Variables
 
 ### Frontend (.env)
 
 ```
-REACT_APP_API_URL=http://localhost:5000
-REACT_APP_FIREBASE_API_KEY=your_firebase_key
-REACT_APP_FIREBASE_AUTH_DOMAIN=your_firebase_domain
-REACT_APP_FIREBASE_PROJECT_ID=your_project_id
-```
-
-### Backend (.env)
-
-```
-NODE_ENV=development
-PORT=5000
-JWT_SECRET=your_jwt_secret
+REACT_APP_API_URL=http://localhost:3000
 ```
 
 ## 📁 Project Structure
@@ -115,17 +76,11 @@ devinquire/
 │   ├── components/         # Reusable components
 │   ├── pages/             # Page components
 │   ├── contexts/          # React contexts
-│   ├── services/          # API services
+│   ├── services/          # Mock API services
 │   └── firebase.js        # Firebase configuration
-├── backend/               # Node.js backend
-│   ├── routes/           # API routes
-│   ├── uploads/          # File uploads
-│   ├── blogData.js       # In-memory data storage
-│   └── index.js          # Server entry point
 ├── public/               # Static assets
 ├── .github/              # GitHub Actions workflows
-├── scripts/              # Deployment scripts
-└── docs/                 # Documentation
+└── README.md             # Documentation
 ```
 
 ## 🔄 Continuous Deployment
@@ -133,7 +88,6 @@ devinquire/
 The project uses GitHub Actions for automatic deployment:
 
 - **Frontend**: Deploys on changes to `src/`, `public/`, or `package.json`
-- **Backend**: Deploys on changes to `backend/` directory
 - **Domain**: Automatically updates devinquire.com
 
 ## 🛠️ Development
@@ -141,33 +95,18 @@ The project uses GitHub Actions for automatic deployment:
 ### Available Scripts
 
 ```bash
-# Frontend
 npm start          # Start development server
 npm run build      # Build for production
 npm test           # Run tests
-
-# Backend
-cd backend
-npm run dev        # Start development server
-npm start          # Start production server
 ```
 
-### API Endpoints
+### Mock Data
 
-```
-GET    /api/health          # Health check
-GET    /api/blog            # Get all blog posts
-GET    /api/blog/:id        # Get single blog post
-POST   /api/blog            # Create new blog post
-PUT    /api/blog/:id        # Update blog post
-DELETE /api/blog/:id        # Delete blog post
-```
+The application uses mock data for demonstration purposes:
 
-### Code Style
-
-- **Frontend**: ESLint + Prettier
-- **Backend**: Standard JavaScript
-- **CSS**: Tailwind CSS utility classes
+- **Authentication**: Mock login/register system
+- **Blog Posts**: Sample blog posts with categories
+- **Admin Dashboard**: Mock statistics and user management
 
 ## 🤝 Contributing
 
@@ -183,36 +122,29 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- **Documentation**: [HOSTINGER_SETUP.md](./HOSTINGER_SETUP.md)
 - **Issues**: [GitHub Issues](https://github.com/yourusername/devinquire/issues)
 - **Email**: support@devinquire.com
 
 ## 🎯 Roadmap
 
-- [ ] Database integration (MongoDB/PostgreSQL)
+- [ ] Real backend integration
+- [ ] Database integration
 - [ ] Advanced admin features
 - [ ] SEO optimization
 - [ ] Performance monitoring
 - [ ] Analytics integration
 - [ ] Multi-language support
-- [ ] Email notifications
-- [ ] Social media integration
 
 ## 🔧 Recent Changes
 
-### v1.1.0 - Project Cleanup
+### v2.0.0 - Simplified Deployment
 
-- ✅ Removed unused PHP files and configurations
-- ✅ Cleaned up mixed backend technologies
-- ✅ Improved Node.js backend structure
-- ✅ Enhanced error handling and validation
-- ✅ Streamlined deployment configuration
-- ✅ Removed security vulnerabilities (exposed credentials)
+- ✅ Removed backend complexity
+- ✅ Simplified to static React deployment
+- ✅ Mock data for demonstration
+- ✅ Clean GitHub Actions workflow
+- ✅ Optimized for Hostinger hosting
 
 ---
 
 **Built with ❤️ by the Devinquire Team**
-# Updated for deployment
-# Ready for deployment
-# Ready for live deployment to devinquire.com
-# Deployment triggered - Sat Jun 21 19:56:05 IST 2025

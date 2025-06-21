@@ -6,20 +6,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Debug - List files
-        run: |
-          echo "Current directory: $(pwd)"
-          echo "Files in root:"
-          ls -la
-          echo "Files in public:"
-          ls -la public/ || echo "public directory not found"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -27,100 +19,24 @@ jobs:
           node-version: "18"
           cache: "npm"
 
-      - name: Debug - Check package files
-        run: |
-          echo "package.json exists: $(test -f package.json && echo 'YES' || echo 'NO')"
-          echo "package-lock.json exists: $(test -f package-lock.json && echo 'YES' || echo 'NO')"
-          if [ -f package-lock.json ]; then
-            echo "package-lock.json size: $(wc -c < package-lock.json) bytes"
-            echo "First few lines of package-lock.json:"
-            head -5 package-lock.json
-          fi
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Install frontend dependencies
-        run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm install
-          fi
-
-      - name: Build frontend
+      - name: Build React app
         run: npm run build
         env:
           CI: false
 
-      - name: Install backend dependencies
-        working-directory: ./backend
-        run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm install
-          fi
-
-      - name: Create deployment package
-        run: |
-          # Create a deployment directory
-          mkdir -p deployment
-
-          # Copy frontend build
-          cp -r build/* deployment/
-
-          # Copy backend files
-          mkdir -p deployment/backend
-          cp -r backend/* deployment/backend/
-
-          # Copy configuration files
-          cp package.json deployment/
-          cp package-lock.json deployment/
-          cp .gitignore deployment/
-          cp README.md deployment/
-
-          # Create .htaccess for React Router
-          cat > deployment/.htaccess << 'EOF'
-          RewriteEngine On
-          RewriteBase /
-          RewriteRule ^index\.html$ - [L]
-          RewriteCond %{REQUEST_FILENAME} !-f
-          RewriteCond %{REQUEST_FILENAME} !-d
-          RewriteRule . /index.html [L]
-
-          # Security headers
-          Header always set X-Content-Type-Options nosniff
-          Header always set X-Frame-Options DENY
-          Header always set X-XSS-Protection "1; mode=block"
-
-          # Cache static assets
-          <FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg)$">
-              ExpiresActive On
-              ExpiresDefault "access plus 1 year"
-          </FilesMatch>
-          EOF
-
-          # Set proper permissions for deployment files
-          chmod -R 644 deployment/*
-          chmod 755 deployment/
-          find deployment/ -type d -exec chmod 755 {} \;
-          find deployment/ -name "*.sh" -exec chmod 755 {} \;
-
-          echo "✅ Deployment package created successfully!"
-          echo "📁 Files in deployment directory:"
-          ls -la deployment/
-
-      - name: Deploy to Hostinger via FTP
+      - name: Deploy to Hostinger
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.HOSTINGER_FTP_SERVER }}
           username: ${{ secrets.HOSTINGER_FTP_USERNAME }}
           password: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
-          local-dir: ./deployment/
+          local-dir: ./build/
           server-dir: ${{ secrets.HOSTINGER_SERVER_DIR }}
           exclude: |
             **/.git*
             **/.git*/**
             **/node_modules/**
             **/.env*
-            **/README.md
-            **/.gitignore
-          dangerous-clean-slate: false

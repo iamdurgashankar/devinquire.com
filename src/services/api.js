@@ -1,10 +1,45 @@
-// API service for PHP backend
-const API_BASE_URL = "https://devinquire.com/backend/api"; // Change this to your Hostinger domain
-
+// Mock API service for static deployment
 class ApiService {
   constructor() {
-    this.baseURL = API_BASE_URL;
     this.token = localStorage.getItem("authToken");
+    this.mockPosts = [
+      {
+        id: 1,
+        title: "Welcome to Devinquire",
+        content:
+          "Welcome to our development agency! We specialize in creating modern web applications and providing comprehensive development services.",
+        category: "Web Development",
+        status: "published",
+        created_at: "2024-01-15T10:00:00.000Z",
+        updated_at: "2024-01-15T10:00:00.000Z",
+        views: 150,
+        likes: 12,
+      },
+      {
+        id: 2,
+        title: "Getting Started with React",
+        content:
+          "React is a powerful JavaScript library for building user interfaces. Learn the basics and best practices for modern web development.",
+        category: "React",
+        status: "published",
+        created_at: "2024-01-16T14:30:00.000Z",
+        updated_at: "2024-01-16T14:30:00.000Z",
+        views: 89,
+        likes: 8,
+      },
+      {
+        id: 3,
+        title: "SEO Best Practices for 2024",
+        content:
+          "Search engine optimization is crucial for online success. Discover the latest SEO strategies and techniques for better rankings.",
+        category: "SEO",
+        status: "published",
+        created_at: "2024-01-17T09:15:00.000Z",
+        updated_at: "2024-01-17T09:15:00.000Z",
+        views: 234,
+        likes: 18,
+      },
+    ];
   }
 
   setToken(token) {
@@ -16,162 +51,161 @@ class ApiService {
     }
   }
 
-  getHeaders() {
-    const headers = {
-      "Content-Type": "application/json",
-    };
-
-    if (this.token) {
-      headers["Authorization"] = `Bearer ${this.token}`;
-    }
-
-    return headers;
-  }
-
-  async request(endpoint, options = {}) {
-    const url = `${this.baseURL}${endpoint}`;
-    const config = {
-      headers: this.getHeaders(),
-      ...options,
-    };
-
-    try {
-      const response = await fetch(url, config);
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "API request failed");
-      }
-
-      return data;
-    } catch (error) {
-      console.error("API Error:", error);
-      throw error;
-    }
-  }
-
   // Authentication
   async login(email, password) {
-    const response = await this.request("/auth/login.php", {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-    });
+    // Mock login - accept any email/password for demo
+    const mockUser = {
+      id: 1,
+      name: "Admin User",
+      email: email,
+      role: "admin",
+    };
 
-    if (response.success && response.data.token) {
-      this.setToken(response.data.token);
-    }
+    const mockToken = "mock-jwt-token-" + Date.now();
+    this.setToken(mockToken);
 
-    return response;
+    return {
+      success: true,
+      message: "Login successful",
+      data: {
+        user: mockUser,
+        token: mockToken,
+      },
+    };
   }
 
-  async register(name, email, password, confirmPassword) {
-    const response = await this.request("/auth/register.php", {
-      method: "POST",
-      body: JSON.stringify({ name, email, password, confirmPassword }),
-    });
+  async register(name, email, password) {
+    // Mock registration
+    const mockUser = {
+      id: 2,
+      name: name,
+      email: email,
+      role: "author",
+    };
 
-    if (response.success && response.data.token) {
-      this.setToken(response.data.token);
-    }
+    const mockToken = "mock-jwt-token-" + Date.now();
+    this.setToken(mockToken);
 
-    return response;
+    return {
+      success: true,
+      message: "Registration successful",
+      data: {
+        user: mockUser,
+        token: mockToken,
+      },
+    };
   }
 
   async logout() {
     this.setToken(null);
-    return { success: true };
+    return { success: true, message: "Logout successful" };
   }
 
   // Posts
   async getPosts(page = 1, limit = 10, category = null, status = null) {
-    const params = new URLSearchParams({
-      page: page.toString(),
-      limit: limit.toString(),
-    });
+    let filteredPosts = [...this.mockPosts];
 
-    if (category) params.append("category", category);
-    if (status) params.append("status", status);
+    if (category) {
+      filteredPosts = filteredPosts.filter(
+        (post) => post.category === category
+      );
+    }
 
-    return await this.request(`/posts/index.php?${params.toString()}`);
+    if (status) {
+      filteredPosts = filteredPosts.filter((post) => post.status === status);
+    }
+
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginatedPosts = filteredPosts.slice(startIndex, endIndex);
+
+    return {
+      success: true,
+      data: {
+        posts: paginatedPosts,
+        total: filteredPosts.length,
+        page: page,
+        limit: limit,
+        totalPages: Math.ceil(filteredPosts.length / limit),
+      },
+    };
   }
 
   async getPost(id) {
-    return await this.request(`/posts/index.php?id=${id}`);
+    const post = this.mockPosts.find((p) => p.id === parseInt(id));
+    if (!post) {
+      throw new Error("Post not found");
+    }
+    return { success: true, data: post };
   }
 
   async createPost(postData) {
-    return await this.request("/posts/index.php", {
-      method: "POST",
-      body: JSON.stringify(postData),
-    });
+    const newPost = {
+      id: Date.now(),
+      ...postData,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      views: 0,
+      likes: 0,
+    };
+
+    this.mockPosts.unshift(newPost);
+    return { success: true, data: newPost };
   }
 
   async updatePost(id, postData) {
-    return await this.request(`/posts/index.php?id=${id}`, {
-      method: "PUT",
-      body: JSON.stringify(postData),
-    });
+    const index = this.mockPosts.findIndex((p) => p.id === parseInt(id));
+    if (index === -1) {
+      throw new Error("Post not found");
+    }
+
+    this.mockPosts[index] = {
+      ...this.mockPosts[index],
+      ...postData,
+      updated_at: new Date().toISOString(),
+    };
+
+    return { success: true, data: this.mockPosts[index] };
   }
 
   async deletePost(id) {
-    return await this.request(`/posts/index.php?id=${id}`, {
-      method: "DELETE",
-    });
+    const index = this.mockPosts.findIndex((p) => p.id === parseInt(id));
+    if (index === -1) {
+      throw new Error("Post not found");
+    }
+
+    const deletedPost = this.mockPosts.splice(index, 1)[0];
+    return { success: true, data: deletedPost };
   }
 
   // Image upload
   async uploadImage(file) {
-    const formData = new FormData();
-    formData.append("image", file);
-
-    const url = `${this.baseURL}/upload/image.php`;
-    const config = {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${this.token}`,
+    // Mock image upload - return a placeholder URL
+    return {
+      success: true,
+      data: {
+        filename: `mock-image-${Date.now()}.jpg`,
+        url: "https://via.placeholder.com/400x300/3B82F6/FFFFFF?text=Uploaded+Image",
       },
-      body: formData,
     };
-
-    try {
-      const response = await fetch(url, config);
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Upload failed");
-      }
-
-      return data;
-    } catch (error) {
-      console.error("Upload Error:", error);
-      throw error;
-    }
   }
 
   // Dashboard stats
   async getDashboardStats() {
-    const posts = await this.getPosts(1, 1000); // Get all posts for stats
-
-    if (!posts.success) {
-      throw new Error("Failed to fetch posts for stats");
-    }
-
-    const allPosts = posts.data.posts;
     const now = new Date();
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-    // Calculate stats
-    const totalPosts = allPosts.length;
-    const recentPosts = allPosts.filter(
+    const totalPosts = this.mockPosts.length;
+    const recentPosts = this.mockPosts.filter(
       (post) => new Date(post.created_at) > weekAgo
     ).length;
 
     const categories = {};
-    allPosts.forEach((post) => {
+    this.mockPosts.forEach((post) => {
       categories[post.category] = (categories[post.category] || 0) + 1;
     });
 
-    const recentActivity = allPosts.slice(0, 5);
+    const recentActivity = this.mockPosts.slice(0, 5);
 
     return {
       success: true,
@@ -180,15 +214,13 @@ class ApiService {
         recentPosts,
         categories,
         recentActivity,
-        totalViews: "2.4K", // Placeholder
+        totalViews: "2.4K",
       },
     };
   }
 
   // User profile
   async updateProfile(profileData) {
-    // This would need a separate endpoint in the PHP backend
-    // For now, return a mock response
     return {
       success: true,
       message: "Profile updated successfully",
@@ -198,16 +230,11 @@ class ApiService {
 
   // Check if token is valid
   async validateToken() {
-    try {
-      const response = await this.request("/auth/validate.php");
-      return response.success;
-    } catch (error) {
-      return false;
-    }
+    return {
+      success: !!this.token,
+      data: this.token ? { valid: true } : { valid: false },
+    };
   }
 }
 
-// Create singleton instance
-const apiService = new ApiService();
-
-export default apiService;
+export default new ApiService();
