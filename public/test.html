@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hostinger Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            color: #fff;
+            margin-bottom: 20px;
+        }
+        .status {
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: inline-block;
+            margin: 10px 0;
+        }
+        .info {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Devinquire Hostinger Test</h1>
+        <div class="status">✅ Hostinger Hosting is Working!</div>
+        
+        <div class="info">
+            <h3>Server Information:</h3>
+            <p><strong>Domain:</strong> devinquire.com</p>
+            <p><strong>Server:</strong> Hostinger</p>
+            <p><strong>Status:</strong> Active</p>
+            <p><strong>Time:</strong> <span id="time"></span></p>
+        </div>
+        
+        <div class="info">
+            <h3>Next Steps:</h3>
+            <p>✅ Basic hosting is working</p>
+            <p>🔄 React app deployment in progress</p>
+            <p>📱 Your site will be live soon!</p>
+        </div>
+        
+        <p><a href="/" style="color: #fff; text-decoration: underline;">← Back to main site</a></p>
+    </div>
+
+    <script>
+        document.getElementById('time').textContent = new Date().toLocaleString();
+    </script>
+</body>
+</html> 

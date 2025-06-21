@@ -13,14 +13,37 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Debug - List files
+        run: |
+          echo "Current directory: $(pwd)"
+          echo "Files in root:"
+          ls -la
+          echo "Files in public:"
+          ls -la public/ || echo "public directory not found"
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "18"
           cache: "npm"
 
+      - name: Debug - Check package files
+        run: |
+          echo "package.json exists: $(test -f package.json && echo 'YES' || echo 'NO')"
+          echo "package-lock.json exists: $(test -f package-lock.json && echo 'YES' || echo 'NO')"
+          if [ -f package-lock.json ]; then
+            echo "package-lock.json size: $(wc -c < package-lock.json) bytes"
+            echo "First few lines of package-lock.json:"
+            head -5 package-lock.json
+          fi
+
       - name: Install frontend dependencies
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
       - name: Build frontend
         run: npm run build
@@ -29,7 +52,12 @@ jobs:
 
       - name: Install backend dependencies
         working-directory: ./backend
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
       - name: Create deployment package
         run: |
@@ -50,12 +78,35 @@ jobs:
           cp README.md deployment/
 
           # Create .htaccess for React Router
-          echo 'RewriteEngine On
+          cat > deployment/.htaccess << 'EOF'
+          RewriteEngine On
           RewriteBase /
           RewriteRule ^index\.html$ - [L]
           RewriteCond %{REQUEST_FILENAME} !-f
           RewriteCond %{REQUEST_FILENAME} !-d
-          RewriteRule . /index.html [L]' > deployment/.htaccess
+          RewriteRule . /index.html [L]
+
+          # Security headers
+          Header always set X-Content-Type-Options nosniff
+          Header always set X-Frame-Options DENY
+          Header always set X-XSS-Protection "1; mode=block"
+
+          # Cache static assets
+          <FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg)$">
+              ExpiresActive On
+              ExpiresDefault "access plus 1 year"
+          </FilesMatch>
+          EOF
+
+          # Set proper permissions for deployment files
+          chmod -R 644 deployment/*
+          chmod 755 deployment/
+          find deployment/ -type d -exec chmod 755 {} \;
+          find deployment/ -name "*.sh" -exec chmod 755 {} \;
+
+          echo "✅ Deployment package created successfully!"
+          echo "📁 Files in deployment directory:"
+          ls -la deployment/
 
       - name: Deploy to Hostinger via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -72,3 +123,4 @@ jobs:
             **/.env*
             **/README.md
             **/.gitignore
+          dangerous-clean-slate: false
