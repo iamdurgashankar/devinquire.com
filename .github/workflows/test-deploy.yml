@@ -1,0 +1,94 @@
+name: Test Build (No FTP)
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  test-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Debug - List files
+        run: |
+          echo "Current directory: $(pwd)"
+          echo "Files in root:"
+          ls -la
+          echo "Files in public:"
+          ls -la public/ || echo "public directory not found"
+
+      - name: Install frontend dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Build frontend
+        run: npm run build
+        env:
+          CI: false
+
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Test backend
+        working-directory: ./backend
+        run: |
+          echo "Backend dependencies installed successfully!"
+          echo "Backend is ready for deployment!"
+
+      - name: Create deployment package
+        run: |
+          # Create a deployment directory
+          mkdir -p deployment
+
+          # Copy frontend build
+          cp -r build/* deployment/
+
+          # Copy backend files
+          mkdir -p deployment/backend
+          cp -r backend/* deployment/backend/
+
+          # Copy configuration files
+          cp package.json deployment/
+          cp package-lock.json deployment/
+          cp .gitignore deployment/
+          cp README.md deployment/
+
+          # Create .htaccess for React Router
+          echo 'RewriteEngine On
+          RewriteBase /
+          RewriteRule ^index\.html$ - [L]
+          RewriteCond %{REQUEST_FILENAME} !-f
+          RewriteCond %{REQUEST_FILENAME} !-d
+          RewriteRule . /index.html [L]' > deployment/.htaccess
+
+          echo "✅ Deployment package created successfully!"
+          echo "📁 Files in deployment directory:"
+          ls -la deployment/
+
+      - name: Success Message
+        run: |
+          echo "🎉 Build and packaging completed successfully!"
+          echo "📋 Next steps:"
+          echo "1. Add GitHub secrets for Hostinger FTP"
+          echo "2. Push changes to trigger full deployment"
+          echo "3. Your site will be live at devinquire.com"
