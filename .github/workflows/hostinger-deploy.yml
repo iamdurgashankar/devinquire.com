@@ -1,0 +1,74 @@
+name: Deploy to Hostinger
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+        env:
+          CI: false
+
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: npm ci
+
+      - name: Create deployment package
+        run: |
+          # Create a deployment directory
+          mkdir -p deployment
+
+          # Copy frontend build
+          cp -r build/* deployment/
+
+          # Copy backend files
+          mkdir -p deployment/backend
+          cp -r backend/* deployment/backend/
+
+          # Copy configuration files
+          cp package.json deployment/
+          cp package-lock.json deployment/
+          cp .gitignore deployment/
+          cp README.md deployment/
+
+          # Create .htaccess for React Router
+          echo 'RewriteEngine On
+          RewriteBase /
+          RewriteRule ^index\.html$ - [L]
+          RewriteCond %{REQUEST_FILENAME} !-f
+          RewriteCond %{REQUEST_FILENAME} !-d
+          RewriteRule . /index.html [L]' > deployment/.htaccess
+
+      - name: Deploy to Hostinger via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.HOSTINGER_FTP_SERVER }}
+          username: ${{ secrets.HOSTINGER_FTP_USERNAME }}
+          password: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
+          local-dir: ./deployment/
+          server-dir: ${{ secrets.HOSTINGER_SERVER_DIR }}
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/.env*
+            **/README.md
+            **/.gitignore

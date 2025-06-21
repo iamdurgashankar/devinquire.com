@@ -1,0 +1,297 @@
+import React, { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+
+export default function UserProfile() {
+  const { currentUser } = useAuth();
+  const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const [profileData, setProfileData] = useState({
+    displayName: currentUser?.displayName || '',
+    email: currentUser?.email || '',
+    bio: 'Passionate developer and content creator',
+    website: 'https://devinquire.com',
+    location: 'San Francisco, CA',
+    twitter: '@devinquire',
+    github: 'github.com/devinquire'
+  });
+
+  const handleSave = async () => {
+    setLoading(true);
+    // In a real app, you would update the user profile here
+    setTimeout(() => {
+      setIsEditing(false);
+      setLoading(false);
+    }, 1000);
+  };
+
+  const handleCancel = () => {
+    setProfileData({
+      displayName: currentUser?.displayName || '',
+      email: currentUser?.email || '',
+      bio: 'Passionate developer and content creator',
+      website: 'https://devinquire.com',
+      location: 'San Francisco, CA',
+      twitter: '@devinquire',
+      github: 'github.com/devinquire'
+    });
+    setIsEditing(false);
+  };
+
+  return (
+    <div className="p-6">
+      {/* Profile Header */}
+      <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-8 text-white mb-8">
+        <div className="flex items-center space-x-6">
+          <div className="relative">
+            <img
+              src={currentUser?.photoURL || `https://ui-avatars.com/api/?name=${currentUser?.displayName || 'Admin'}&background=6366f1&color=fff&size=120`}
+              alt="Profile"
+              className="w-24 h-24 rounded-full border-4 border-white shadow-lg"
+            />
+            <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
+              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+            </div>
+          </div>
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold mb-2">{currentUser?.displayName || 'Admin User'}</h1>
+            <p className="text-blue-100 mb-2">{currentUser?.email}</p>
+            <p className="text-blue-100">Administrator • DevInquire</p>
+          </div>
+          <div className="hidden md:block">
+            <button
+              onClick={() => setIsEditing(!isEditing)}
+              className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200"
+            >
+              {isEditing ? 'Cancel' : 'Edit Profile'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Profile Information */}
+        <div className="lg:col-span-2">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">Profile Information</h2>
+              <button
+                onClick={() => setIsEditing(!isEditing)}
+                className="md:hidden bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+              >
+                {isEditing ? 'Cancel' : 'Edit'}
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              {/* Display Name */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Display Name
+                </label>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={profileData.displayName}
+                    onChange={(e) => setProfileData({...profileData, displayName: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                ) : (
+                  <p className="text-gray-900 font-medium">{profileData.displayName}</p>
+                )}
+              </div>
+
+              {/* Email */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email Address
+                </label>
+                <p className="text-gray-900">{profileData.email}</p>
+                <p className="text-sm text-gray-500 mt-1">Email cannot be changed</p>
+              </div>
+
+              {/* Bio */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Bio
+                </label>
+                {isEditing ? (
+                  <textarea
+                    rows={3}
+                    value={profileData.bio}
+                    onChange={(e) => setProfileData({...profileData, bio: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                ) : (
+                  <p className="text-gray-900">{profileData.bio}</p>
+                )}
+              </div>
+
+              {/* Website */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Website
+                </label>
+                {isEditing ? (
+                  <input
+                    type="url"
+                    value={profileData.website}
+                    onChange={(e) => setProfileData({...profileData, website: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                ) : (
+                  <a href={profileData.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700">
+                    {profileData.website}
+                  </a>
+                )}
+              </div>
+
+              {/* Location */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Location
+                </label>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={profileData.location}
+                    onChange={(e) => setProfileData({...profileData, location: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                ) : (
+                  <p className="text-gray-900">{profileData.location}</p>
+                )}
+              </div>
+
+              {/* Social Links */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Twitter
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={profileData.twitter}
+                      onChange={(e) => setProfileData({...profileData, twitter: e.target.value})}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  ) : (
+                    <p className="text-gray-900">{profileData.twitter}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    GitHub
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={profileData.github}
+                      onChange={(e) => setProfileData({...profileData, github: e.target.value})}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  ) : (
+                    <p className="text-gray-900">{profileData.github}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              {isEditing && (
+                <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                  <button
+                    onClick={handleCancel}
+                    className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSave}
+                    disabled={loading}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 disabled:opacity-50"
+                  >
+                    {loading ? 'Saving...' : 'Save Changes'}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Account Settings */}
+        <div className="space-y-6">
+          {/* Account Status */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Account Status</h3>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Email Verified</span>
+                <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                  Verified
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Account Type</span>
+                <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                  Administrator
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Member Since</span>
+                <span className="text-sm text-gray-900">
+                  {currentUser?.metadata?.creationTime ? 
+                    new Date(currentUser.metadata.creationTime).toLocaleDateString() : 
+                    'N/A'
+                  }
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+            <div className="space-y-3">
+              <button className="w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200 group">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors duration-200">
+                    <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                  </div>
+                  <span className="text-sm font-medium text-gray-900">Change Password</span>
+                </div>
+              </button>
+              
+              <button className="w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200 group">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors duration-200">
+                    <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM4 19h6v-2H4v2zM4 15h6v-2H4v2zM4 11h6V9H4v2zM4 7h6V5H4v2z" />
+                    </svg>
+                  </div>
+                  <span className="text-sm font-medium text-gray-900">Activity Log</span>
+                </div>
+              </button>
+              
+              <button className="w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200 group">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors duration-200">
+                    <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                  <span className="text-sm font-medium text-gray-900">Preferences</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+} 
