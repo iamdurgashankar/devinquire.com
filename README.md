@@ -214,3 +214,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Built with ❤️ by the Devinquire Team**
 # Updated for deployment
 # Ready for deployment
+# Ready for live deployment to devinquire.com
