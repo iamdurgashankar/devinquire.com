@@ -24,16 +24,20 @@ export function AuthProvider({ children }) {
 
   const validateAndSetUser = async (token) => {
     try {
-      // For now, we'll decode the JWT token to get user info
-      // In a real app, you'd validate with the server
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      const user = {
-        id: payload.user_id,
-        email: payload.email,
-        displayName: payload.email.split("@")[0], // Fallback
-        photoURL: null,
-      };
-      setCurrentUser(user);
+      // Get current user from localStorage
+      const user = await apiService.getCurrentUser();
+      if (user) {
+        setCurrentUser({
+          id: user.id,
+          email: user.email,
+          displayName: user.name,
+          photoURL: null,
+          role: user.role,
+        });
+      } else {
+        // Clear invalid token
+        localStorage.removeItem("authToken");
+      }
     } catch (error) {
       console.error("Token validation error:", error);
       localStorage.removeItem("authToken");
@@ -47,8 +51,10 @@ export function AuthProvider({ children }) {
     try {
       const response = await apiService.login(email, password);
       if (response.success) {
-        setCurrentUser(response.data.user);
-        return response.data.user;
+        setCurrentUser(response.user);
+        // Store current user email for password changes
+        localStorage.setItem("currentUserEmail", email);
+        return response.user;
       } else {
         throw new Error(response.message || "Login failed");
       }
@@ -61,15 +67,15 @@ export function AuthProvider({ children }) {
   // Register new user
   async function signUp(name, email, password, confirmPassword) {
     try {
-      const response = await apiService.register(
-        name,
-        email,
-        password,
-        confirmPassword
-      );
+      if (password !== confirmPassword) {
+        throw new Error("Passwords do not match");
+      }
+
+      const response = await apiService.register(name, email, password);
       if (response.success) {
-        setCurrentUser(response.data.user);
-        return response.data.user;
+        // Don't automatically log in the user since account needs approval
+        // Just return the response without setting currentUser
+        return response;
       } else {
         throw new Error(response.message || "Registration failed");
       }
@@ -79,10 +85,48 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // Change password
+  async function changePassword(
+    currentPassword,
+    newPassword,
+    confirmNewPassword
+  ) {
+    try {
+      if (!currentUser) {
+        throw new Error("No user logged in");
+      }
+
+      if (newPassword !== confirmNewPassword) {
+        throw new Error("New passwords do not match");
+      }
+
+      if (newPassword.length < 6) {
+        throw new Error("New password must be at least 6 characters long");
+      }
+
+      const response = await apiService.changePassword(
+        currentUser.email,
+        currentPassword,
+        newPassword
+      );
+
+      if (response.success) {
+        return response;
+      } else {
+        throw new Error(response.message || "Password change failed");
+      }
+    } catch (error) {
+      console.error("Password change error:", error);
+      throw error;
+    }
+  }
+
   // Sign out
   function logout() {
     try {
       apiService.logout();
+      localStorage.removeItem("currentUserEmail");
+      localStorage.removeItem("userProfile");
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
@@ -94,6 +138,7 @@ export function AuthProvider({ children }) {
     currentUser,
     signInWithEmail,
     signUp,
+    changePassword,
     logout,
   };
 

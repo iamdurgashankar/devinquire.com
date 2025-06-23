@@ -39,20 +39,20 @@ const Contact = () => {
     {
       icon: "📍",
       title: "Address",
-      details: "123 Tech Street, Silicon Valley, CA 94025, USA",
+      details: "Bengaluru, Karnataka, India",
       link: "https://maps.google.com"
     },
     {
       icon: "📧",
       title: "Email",
-      details: "hello@devinquire.com",
-      link: "mailto:hello@devinquire.com"
+      details: "contact@devinquire.com",
+      link: "mailto:contact@devinquire.com"
     },
     {
       icon: "📞",
       title: "Phone",
-      details: "+1 (555) 123-4567",
-      link: "tel:+15551234567"
+      details: "+91 8260761291",
+      link: "tel:+918260761291"
     },
     {
       icon: "🌐",

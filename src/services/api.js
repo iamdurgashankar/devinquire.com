@@ -1,4 +1,6 @@
-// Mock API service for static deployment
+const API_BASE = "https://devinquire.com/api";
+
+// Database API service for Hostinger hosting
 class ApiService {
   constructor() {
     this.token = localStorage.getItem("authToken");
@@ -40,6 +42,72 @@ class ApiService {
         likes: 18,
       },
     ];
+
+    // Initialize database
+    this.initializeDatabase();
+  }
+
+  // Initialize database with default admin user
+  initializeDatabase() {
+    const db = this.getDatabase();
+
+    // Create default admin user if not exists
+    if (!db.users || db.users.length === 0) {
+      db.users = [
+        {
+          id: 1,
+          name: "Admin User",
+          email: "admin@devinquire.com",
+          password: this.hashPassword("admin123"),
+          role: "admin",
+          status: "approved", // Admin is pre-approved
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+      ];
+      this.saveDatabase(db);
+    }
+
+    // Initialize pending users if not exists
+    if (!db.pendingUsers) {
+      db.pendingUsers = [];
+      this.saveDatabase(db);
+    }
+  }
+
+  // Reset database (for development/testing)
+  resetDatabase() {
+    localStorage.removeItem("devinquireDB");
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("currentUserEmail");
+    console.log(
+      "Database reset successfully! Default admin credentials: admin@devinquire.com / admin123"
+    );
+    window.location.reload();
+  }
+
+  // Get database from localStorage
+  getDatabase() {
+    const db = localStorage.getItem("devinquireDB");
+    return db ? JSON.parse(db) : { users: [], pendingUsers: [] };
+  }
+
+  // Save database to localStorage
+  saveDatabase(db) {
+    localStorage.setItem("devinquireDB", JSON.stringify(db));
+  }
+
+  // Simple password hashing (for demo purposes)
+  hashPassword(password) {
+    // In a real app, use proper hashing like bcrypt
+    return btoa(password + "salt"); // Simple base64 encoding with salt
+  }
+
+  // Verify password
+  verifyPassword(password, hashedPassword) {
+    // For demo purposes, we'll compare the hashed versions
+    const hashedInput = this.hashPassword(password);
+    return hashedInput === hashedPassword;
   }
 
   setToken(token) {
@@ -51,54 +119,116 @@ class ApiService {
     }
   }
 
-  // Authentication
+  // Login
   async login(email, password) {
-    // Mock login - accept any email/password for demo
-    const mockUser = {
-      id: 1,
-      name: "Admin User",
-      email: email,
-      role: "admin",
-    };
-
-    const mockToken = "mock-jwt-token-" + Date.now();
-    this.setToken(mockToken);
-
-    return {
-      success: true,
-      message: "Login successful",
-      data: {
-        user: mockUser,
-        token: mockToken,
-      },
-    };
+    const res = await fetch(`${API_BASE}/login.php`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: email, password }),
+      credentials: "include",
+    });
+    return res.json();
   }
 
+  // Register
   async register(name, email, password) {
-    // Mock registration
-    const mockUser = {
-      id: 2,
-      name: name,
-      email: email,
-      role: "author",
-    };
-
-    const mockToken = "mock-jwt-token-" + Date.now();
-    this.setToken(mockToken);
-
-    return {
-      success: true,
-      message: "Registration successful",
-      data: {
-        user: mockUser,
-        token: mockToken,
-      },
-    };
+    const res = await fetch(`${API_BASE}/signup.php`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: email, // or use a separate username field if you have one
+        email,
+        password,
+        name,
+        role: "user",
+      }),
+      credentials: "include",
+    });
+    return res.json();
   }
 
+  // Get current user from session
+  async getCurrentUser() {
+    const res = await fetch(`${API_BASE}/session.php`, {
+      credentials: "include",
+    });
+    const session = await res.json();
+    if (!session.loggedIn) return null;
+    // Fetch user profile by id
+    const profileRes = await fetch(
+      `${API_BASE}/profile.php?id=${session.user_id}`,
+      { credentials: "include" }
+    );
+    return profileRes.json();
+  }
+
+  // Logout
   async logout() {
-    this.setToken(null);
+    await fetch(`${API_BASE}/logout.php`, { credentials: "include" });
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("currentUserEmail");
+    localStorage.removeItem("userProfile");
     return { success: true, message: "Logout successful" };
+  }
+
+  // Get all users (admin)
+  async getAllUsers() {
+    const res = await fetch(`${API_BASE}/get_users.php`, {
+      credentials: "include",
+    });
+    return res.json();
+  }
+
+  // Delete user (admin)
+  async deleteUser(userId) {
+    const res = await fetch(`${API_BASE}/delete_user.php`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: userId }),
+      credentials: "include",
+    });
+    return res.json();
+  }
+
+  // Update profile (name, password, etc.)
+  async updateProfile(profileData) {
+    const res = await fetch(`${API_BASE}/profile.php`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(profileData),
+      credentials: "include",
+    });
+    return res.json();
+  }
+
+  // Get pending users (admin)
+  async getPendingUsers() {
+    const res = await fetch(`${API_BASE}/get_pending_users.php`, {
+      credentials: "include",
+    });
+    return res.json();
+  }
+
+  // Approve user (admin)
+  async approveUser(userId) {
+    const res = await fetch(`${API_BASE}/approve_user.php`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: userId }),
+      credentials: "include",
+    });
+    return res.json();
+  }
+
+  // Reject user (admin)
+  async rejectUser(userId) {
+    const res = await fetch(`${API_BASE}/reject_user.php`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: userId }),
+      credentials: "include",
+    });
+    return res.json();
   }
 
   // Posts
@@ -207,6 +337,11 @@ class ApiService {
 
     const recentActivity = this.mockPosts.slice(0, 5);
 
+    // Get user stats
+    const db = this.getDatabase();
+    const totalUsers = db.users.length;
+    const pendingUsers = db.pendingUsers.length;
+
     return {
       success: true,
       data: {
@@ -215,16 +350,9 @@ class ApiService {
         categories,
         recentActivity,
         totalViews: "2.4K",
+        totalUsers,
+        pendingUsers,
       },
-    };
-  }
-
-  // User profile
-  async updateProfile(profileData) {
-    return {
-      success: true,
-      message: "Profile updated successfully",
-      data: profileData,
     };
   }
 
@@ -235,6 +363,28 @@ class ApiService {
       data: this.token ? { valid: true } : { valid: false },
     };
   }
+
+  // Get email notifications (localStorage fallback)
+  async getEmailNotifications() {
+    // Try to load from localStorage
+    const notifications = JSON.parse(
+      localStorage.getItem("emailNotifications") || "[]"
+    );
+    return { success: true, data: notifications };
+  }
 }
 
-export default new ApiService();
+const apiService = new ApiService();
+export default apiService;
+
+// Global function to reset database (for development/testing)
+// Call this in browser console: window.resetDatabase()
+window.resetDatabase = function () {
+  localStorage.removeItem("devinquireDB");
+  localStorage.removeItem("authToken");
+  localStorage.removeItem("currentUserEmail");
+  console.log(
+    "Database reset successfully! Default admin credentials: admin@devinquire.com / admin123"
+  );
+  window.location.reload();
+};

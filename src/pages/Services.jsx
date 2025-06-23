@@ -6,7 +6,7 @@ const services = [
     title: "Website Development",
     description: "Custom websites built with modern technologies and responsive design",
     features: ["Responsive Design", "SEO Optimized", "Fast Loading", "Modern UI/UX", "Content Management", "Analytics Integration"],
-    price: "Starting from $2,500",
+    // price: "Starting from $2,500",
     technologies: ["React", "Next.js", "Node.js", "MongoDB", "AWS", "Vercel"]
   },
   {
@@ -14,7 +14,7 @@ const services = [
     title: "Web Application Development",
     description: "Full-stack web applications with advanced functionality and scalability",
     features: ["Custom Backend", "Database Design", "API Development", "User Authentication", "Real-time Features", "Cloud Deployment"],
-    price: "Starting from $8,000",
+    // price: "Starting from $8,000",
     technologies: ["React", "Vue.js", "Express.js", "PostgreSQL", "Redis", "Docker"]
   },
   {
@@ -22,7 +22,7 @@ const services = [
     title: "Component Development",
     description: "Reusable UI components and libraries for consistent design systems",
     features: ["React Components", "Vue Components", "Design System", "Documentation", "Testing", "Version Control"],
-    price: "Starting from $1,500",
+    // price: "Starting from $1,500",
     technologies: ["Storybook", "Jest", "TypeScript", "Styled Components", "Framer Motion", "Git"]
   },
   {
@@ -30,7 +30,7 @@ const services = [
     title: "Mobile Application Development",
     description: "Native and cross-platform mobile apps for iOS and Android",
     features: ["iOS Development", "Android Development", "Cross-platform", "Push Notifications", "Offline Support", "App Store Deployment"],
-    price: "Starting from $15,000",
+    //price: "Starting from $15,000",
     technologies: ["React Native", "Flutter", "Swift", "Kotlin", "Firebase", "App Store"]
   },
   {
@@ -38,7 +38,7 @@ const services = [
     title: "SEO Services",
     description: "Search engine optimization to improve your online visibility and rankings",
     features: ["Keyword Research", "On-page SEO", "Technical SEO", "Content Strategy", "Link Building", "Performance Monitoring"],
-    price: "Starting from $500/month",
+    //price: "Starting from $500/month",
     technologies: ["Google Analytics", "Search Console", "Ahrefs", "SEMrush", "Core Web Vitals", "Schema Markup"]
   },
   {
@@ -46,7 +46,7 @@ const services = [
     title: "Logo & Banner Design",
     description: "Professional branding and visual design for your business",
     features: ["Logo Design", "Brand Guidelines", "Social Media Graphics", "Print Materials", "Web Graphics", "Animation"],
-    price: "Starting from $800",
+    //price: "Starting from $800",
     technologies: ["Adobe Illustrator", "Photoshop", "Figma", "After Effects", "InDesign", "Sketch"]
   },
   {
@@ -54,7 +54,7 @@ const services = [
     title: "Blog & Content Management",
     description: "Content creation and management systems for your digital presence",
     features: ["Content Strategy", "Blog Writing", "CMS Setup", "SEO Content", "Social Media", "Analytics"],
-    price: "Starting from $300/month",
+    //price: "Starting from $300/month",
     technologies: ["WordPress", "Ghost", "Strapi", "Contentful", "Hugo", "Gatsby"]
   }
 ];

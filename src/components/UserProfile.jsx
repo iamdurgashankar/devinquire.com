@@ -1,32 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function UserProfile() {
-  const { currentUser } = useAuth();
+  const { currentUser, changePassword } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  const [profileData, setProfileData] = useState({
-    displayName: currentUser?.displayName || '',
-    email: currentUser?.email || '',
-    bio: 'Passionate developer and content creator',
-    website: 'https://devinquire.com',
-    location: 'San Francisco, CA',
-    twitter: '@devinquire',
-    github: 'github.com/devinquire'
+  const [message, setMessage] = useState('');
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmNewPassword: ''
   });
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
-  const handleSave = async () => {
-    setLoading(true);
-    // In a real app, you would update the user profile here
-    setTimeout(() => {
-      setIsEditing(false);
-      setLoading(false);
-    }, 1000);
-  };
-
-  const handleCancel = () => {
-    setProfileData({
+  // Initialize profile data from localStorage or default values
+  const [profileData, setProfileData] = useState(() => {
+    const saved = localStorage.getItem('userProfile');
+    if (saved) {
+      return JSON.parse(saved);
+    }
+    return {
       displayName: currentUser?.displayName || '',
       email: currentUser?.email || '',
       bio: 'Passionate developer and content creator',
@@ -34,12 +28,206 @@ export default function UserProfile() {
       location: 'San Francisco, CA',
       twitter: '@devinquire',
       github: 'github.com/devinquire'
-    });
+    };
+  });
+
+  // Update profile data when currentUser changes
+  useEffect(() => {
+    if (currentUser) {
+      setProfileData(prev => ({
+        ...prev,
+        displayName: currentUser.displayName || prev.displayName,
+        email: currentUser.email || prev.email
+      }));
+    }
+  }, [currentUser]);
+
+  const handleSave = async () => {
+    setLoading(true);
+    setMessage('');
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Save to localStorage for persistence
+      localStorage.setItem('userProfile', JSON.stringify(profileData));
+      
+      setMessage('Profile updated successfully!');
+      setIsEditing(false);
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setMessage(''), 3000);
+    } catch (error) {
+      setMessage('Error updating profile. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancel = () => {
+    // Restore original data from localStorage
+    const saved = localStorage.getItem('userProfile');
+    if (saved) {
+      setProfileData(JSON.parse(saved));
+    } else {
+      setProfileData({
+        displayName: currentUser?.displayName || '',
+        email: currentUser?.email || '',
+        bio: 'Passionate developer and content creator',
+        website: 'https://devinquire.com',
+        location: 'San Francisco, CA',
+        twitter: '@devinquire',
+        github: 'github.com/devinquire'
+      });
+    }
     setIsEditing(false);
+    setMessage('');
+  };
+
+  // Password change functionality
+  const handlePasswordChange = async () => {
+    setPasswordLoading(true);
+    setMessage('');
+    
+    try {
+      await changePassword(
+        passwordData.currentPassword,
+        passwordData.newPassword,
+        passwordData.confirmNewPassword
+      );
+      
+      setMessage('Password changed successfully!');
+      setShowPasswordModal(false);
+      setPasswordData({
+        currentPassword: '',
+        newPassword: '',
+        confirmNewPassword: ''
+      });
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setMessage(''), 3000);
+    } catch (error) {
+      setMessage(error.message || 'Error changing password. Please try again.');
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
+  const handlePasswordCancel = () => {
+    setShowPasswordModal(false);
+    setPasswordData({
+      currentPassword: '',
+      newPassword: '',
+      confirmNewPassword: ''
+    });
+    setMessage('');
+  };
+
+  // Quick action handlers
+  const handleChangePassword = () => {
+    setShowPasswordModal(true);
+  };
+
+  const handleActivityLog = () => {
+    setMessage('Activity log would show recent account activity.');
+    setTimeout(() => setMessage(''), 3000);
+  };
+
+  const handlePreferences = () => {
+    setMessage('Preferences panel would open here.');
+    setTimeout(() => setMessage(''), 3000);
   };
 
   return (
     <div className="p-6">
+      {/* Success/Error Message */}
+      {message && (
+        <div className={`mb-4 p-4 rounded-lg ${
+          message.includes('Error') 
+            ? 'bg-red-100 text-red-700 border border-red-200' 
+            : 'bg-green-100 text-green-700 border border-green-200'
+        }`}>
+          {message}
+        </div>
+      )}
+
+      {/* Password Change Modal */}
+      {showPasswordModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Change Password</h3>
+              <button
+                onClick={handlePasswordCancel}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Current Password
+                </label>
+                <input
+                  type="password"
+                  value={passwordData.currentPassword}
+                  onChange={(e) => setPasswordData({...passwordData, currentPassword: e.target.value})}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter current password"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  New Password
+                </label>
+                <input
+                  type="password"
+                  value={passwordData.newPassword}
+                  onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value})}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter new password"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Confirm New Password
+                </label>
+                <input
+                  type="password"
+                  value={passwordData.confirmNewPassword}
+                  onChange={(e) => setPasswordData({...passwordData, confirmNewPassword: e.target.value})}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Confirm new password"
+                />
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-4 mt-6">
+              <button
+                onClick={handlePasswordCancel}
+                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handlePasswordChange}
+                disabled={passwordLoading || !passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmNewPassword}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 disabled:opacity-50"
+              >
+                {passwordLoading ? 'Changing...' : 'Change Password'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Profile Header */}
       <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-8 text-white mb-8">
         <div className="flex items-center space-x-6">
@@ -56,8 +244,8 @@ export default function UserProfile() {
             </div>
           </div>
           <div className="flex-1">
-            <h1 className="text-3xl font-bold mb-2">{currentUser?.displayName || 'Admin User'}</h1>
-            <p className="text-blue-100 mb-2">{currentUser?.email}</p>
+            <h1 className="text-3xl font-bold mb-2">{profileData.displayName || 'Admin User'}</h1>
+            <p className="text-blue-100 mb-2">{profileData.email}</p>
             <p className="text-blue-100">Administrator • DevInquire</p>
           </div>
           <div className="hidden md:block">
@@ -255,7 +443,10 @@ export default function UserProfile() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
             <div className="space-y-3">
-              <button className="w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200 group">
+              <button 
+                onClick={handleChangePassword}
+                className="w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200 group"
+              >
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors duration-200">
                     <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -266,7 +457,10 @@ export default function UserProfile() {
                 </div>
               </button>
               
-              <button className="w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200 group">
+              <button 
+                onClick={handleActivityLog}
+                className="w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200 group"
+              >
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors duration-200">
                     <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -277,7 +471,10 @@ export default function UserProfile() {
                 </div>
               </button>
               
-              <button className="w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200 group">
+              <button 
+                onClick={handlePreferences}
+                className="w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200 group"
+              >
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors duration-200">
                     <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

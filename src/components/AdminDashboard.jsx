@@ -3,11 +3,14 @@ import { useAuth } from '../contexts/AuthContext';
 import BlogManager from './BlogManager';
 import UserProfile from './UserProfile';
 import DashboardStats from './DashboardStats';
+import UserManager from './UserManager';
+import NotificationManager from './NotificationManager';
 
 export default function AdminDashboard() {
   const { currentUser, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -17,80 +20,84 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    // If switching to blog tab, don't show create form by default
+    if (tab !== 'blog') {
+      setShowCreateForm(false);
+    }
+  };
+
+  const handleQuickAction = (action) => {
+    switch (action) {
+      case 'create-post':
+        setActiveTab('blog');
+        setShowCreateForm(true);
+        break;
+      case 'manage-users':
+        setActiveTab('users');
+        break;
+      case 'view-profile':
+        setActiveTab('profile');
+        break;
+      default:
+        setActiveTab('dashboard');
+    }
+  };
+
   const tabs = [
     { id: 'dashboard', name: 'Dashboard', icon: '📊' },
     { id: 'blog', name: 'Blog Management', icon: '📝' },
+    // Only show User Management for admin
+    ...(currentUser && currentUser.role === 'admin' ? [
+      { id: 'users', name: 'User Management', icon: '👤' }
+    ] : []),
+    { id: 'notifications', name: 'Notifications', icon: '📧' },
     { id: 'profile', name: 'Profile', icon: '👤' }
   ];
 
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <DashboardStats />;
+        return <DashboardStats onTabChange={(tab) => {
+          if (tab === 'blog') {
+            setShowCreateForm(true);
+          }
+          handleTabChange(tab);
+        }} />;
       case 'blog':
-        return <BlogManager />;
+        return <BlogManager showCreateForm={showCreateForm} />;
+      case 'users':
+        // Only render UserManager for admin
+        return currentUser && currentUser.role === 'admin' ? <UserManager /> : null;
+      case 'notifications':
+        return <NotificationManager />;
       case 'profile':
         return <UserProfile />;
       default:
-        return <DashboardStats />;
+        return <DashboardStats onTabChange={(tab) => {
+          if (tab === 'blog') {
+            setShowCreateForm(true);
+          }
+          handleTabChange(tab);
+        }} />;
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo and Title */}
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold">
-                  D
-                </div>
-                <span className="text-xl font-bold text-gray-900">DevInquire Admin</span>
-              </div>
-            </div>
-
-            {/* User Menu */}
-            <div className="flex items-center space-x-4">
-              <div className="hidden md:flex items-center space-x-2 text-sm text-gray-600">
-                <span>Welcome,</span>
-                <span className="font-medium text-gray-900">{currentUser?.displayName || currentUser?.email}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <img
-                  src={currentUser?.photoURL || `https://ui-avatars.com/api/?name=${currentUser?.displayName || 'Admin'}&background=6366f1&color=fff`}
-                  alt="Profile"
-                  className="w-8 h-8 rounded-full"
-                />
-                <button
-                  onClick={handleLogout}
-                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
-                >
-                  Logout
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
       <div className="flex">
         {/* Sidebar */}
         <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <div className="h-full flex flex-col">
             {/* Sidebar Header */}
             <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">Navigation</h2>
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold">
+                  D
+                </div>
+                <span className="text-lg font-semibold text-gray-900">DevInquire Admin</span>
+              </div>
               <button
                 onClick={() => setSidebarOpen(false)}
                 className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
@@ -107,7 +114,7 @@ export default function AdminDashboard() {
                 <button
                   key={tab.id}
                   onClick={() => {
-                    setActiveTab(tab.id);
+                    handleTabChange(tab.id);
                     setSidebarOpen(false);
                   }}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-all duration-200 group ${
@@ -125,10 +132,10 @@ export default function AdminDashboard() {
               ))}
             </nav>
 
-            {/* Sidebar Footer */}
+            {/* Sidebar Footer with User Info and Logout */}
             <div className="p-4 border-t border-gray-200">
               <div className="bg-blue-50 rounded-lg p-4">
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-3 mb-3">
                   <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
                     {currentUser?.displayName?.charAt(0) || 'A'}
                   </div>
@@ -137,6 +144,12 @@ export default function AdminDashboard() {
                     <p className="text-xs text-gray-500">{currentUser?.email}</p>
                   </div>
                 </div>
+                <button
+                  onClick={handleLogout}
+                  className="w-full bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+                >
+                  Logout
+                </button>
               </div>
             </div>
           </div>
@@ -144,19 +157,19 @@ export default function AdminDashboard() {
 
         {/* Main Content */}
         <div className="flex-1 lg:ml-0">
-          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {/* Page Header */}
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                {tabs.find(tab => tab.id === activeTab)?.name}
-              </h1>
-              <p className="text-gray-600">
-                {activeTab === 'dashboard' && 'Overview of your website performance and content'}
-                {activeTab === 'blog' && 'Create, edit, and manage your blog posts'}
-                {activeTab === 'profile' && 'Manage your account settings and preferences'}
-              </p>
-            </div>
+          {/* Mobile Menu Button */}
+          <div className="lg:hidden p-4">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
 
+          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {/* Content */}
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
               {renderContent()}

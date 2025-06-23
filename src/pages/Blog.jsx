@@ -1,73 +1,6 @@
 import { Link } from "react-router-dom";
-
-const blogPosts = [
-  {
-    id: 1,
-    title: "The Future of Web Development: Trends to Watch in 2024",
-    excerpt: "Explore the latest trends in web development, from AI-powered tools to advanced CSS techniques that are shaping the future of the web.",
-    author: "Sarah Johnson",
-    date: "March 15, 2024",
-    category: "Web Development",
-    readTime: "5 min read",
-    image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-    tags: ["AI", "CSS", "JavaScript", "Trends"]
-  },
-  {
-    id: 2,
-    title: "Building Scalable React Applications: Best Practices",
-    excerpt: "Learn the essential best practices for building scalable React applications that can grow with your business needs.",
-    author: "Michael Chen",
-    date: "March 12, 2024",
-    category: "React",
-    readTime: "8 min read",
-    image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-    tags: ["React", "Performance", "Architecture", "Best Practices"]
-  },
-  {
-    id: 3,
-    title: "SEO Strategies That Actually Work in 2024",
-    excerpt: "Discover proven SEO strategies that will help your website rank higher in search engines and drive more organic traffic.",
-    author: "Emily Rodriguez",
-    date: "March 10, 2024",
-    category: "SEO",
-    readTime: "6 min read",
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-    tags: ["SEO", "Marketing", "Google", "Traffic"]
-  },
-  {
-    id: 4,
-    title: "Mobile-First Design: Why It's More Important Than Ever",
-    excerpt: "Understand why mobile-first design is crucial for modern web applications and how to implement it effectively.",
-    author: "David Kim",
-    date: "March 8, 2024",
-    category: "UI/UX",
-    readTime: "7 min read",
-    image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-    tags: ["Mobile", "Design", "Responsive", "UX"]
-  },
-  {
-    id: 5,
-    title: "Performance Optimization Techniques for Modern Websites",
-    excerpt: "Learn advanced techniques to optimize your website's performance and provide a better user experience.",
-    author: "Alex Thompson",
-    date: "March 5, 2024",
-    category: "Performance",
-    readTime: "10 min read",
-    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-    tags: ["Performance", "Speed", "Optimization", "Core Web Vitals"]
-  },
-  {
-    id: 6,
-    title: "The Complete Guide to API Development",
-    excerpt: "A comprehensive guide to building robust and scalable APIs that power modern web applications.",
-    author: "Lisa Wang",
-    date: "March 3, 2024",
-    category: "Backend",
-    readTime: "12 min read",
-    image: "https://images.unsplash.com/photo-1551650975-87deedd944c3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-    tags: ["API", "Backend", "Node.js", "Database"]
-  }
-];
+import { useState, useEffect } from "react";
+import apiService from "../services/api";
 
 const categories = [
   "All",
@@ -81,6 +14,60 @@ const categories = [
 ];
 
 export default function Blog() {
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [blogPosts, setBlogPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Load published posts from API
+  useEffect(() => {
+    loadPosts();
+  }, []);
+
+  const loadPosts = async () => {
+    try {
+      setLoading(true);
+      const response = await apiService.getPosts(1, 100, null, 'published');
+      if (response.success) {
+        // Transform API data to match blog format
+        const transformedPosts = response.data.posts.map(post => ({
+          id: post.id,
+          title: post.title,
+          excerpt: post.excerpt,
+          author: post.author_name || 'Admin User',
+          date: new Date(post.created_at).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          }),
+          category: post.category,
+          readTime: post.readTime || '5 min read',
+          image: post.featured_image || `https://images.unsplash.com/photo-1461749280684-dccba630e2f6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80`,
+          tags: Array.isArray(post.tags) ? post.tags : []
+        }));
+        setBlogPosts(transformedPosts);
+      } else {
+        console.error('Failed to load posts:', response.message);
+      }
+    } catch (error) {
+      console.error('Error loading posts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Filter posts based on selected category
+  const filteredPosts = selectedCategory === "All" 
+    ? blogPosts 
+    : blogPosts.filter(post => post.category === selectedCategory);
+
+  // Get featured post (first post from filtered results)
+  const featuredPost = filteredPosts[0];
+  
+  // Get remaining posts for the grid (excluding featured post)
+  const gridPosts = filteredPosts.length > 1 
+    ? filteredPosts.slice(1) 
+    : [];
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
@@ -114,14 +101,15 @@ export default function Blog() {
             {categories.map((category, index) => (
               <button
                 key={index}
-                className={`group px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 ${
-                  index === 0
+                onClick={() => setSelectedCategory(category)}
+                className={`group relative px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 ${
+                  selectedCategory === category
                     ? "bg-blue-600 text-white shadow-lg"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-md"
                 }`}
               >
                 {category}
-                {index === 0 && (
+                {selectedCategory === category && (
                   <div className="absolute -inset-1 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
                 )}
               </button>
@@ -130,69 +118,83 @@ export default function Blog() {
         </div>
       </section>
 
+      {/* Loading State */}
+      {loading && (
+        <section className="py-16 bg-white relative overflow-hidden">
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading blog posts...</p>
+          </div>
+        </section>
+      )}
+
       {/* Featured Post */}
-      <section className="py-16 bg-white relative overflow-hidden">
-        {/* Background decoration */}
-        <div className="absolute inset-0">
-          <div className="absolute top-20 left-20 w-32 h-32 bg-blue-100/50 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 right-20 w-40 h-40 bg-purple-100/50 rounded-full blur-3xl"></div>
-        </div>
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8 animate-fade-in-up">Featured Post</h2>
-          <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 overflow-hidden border border-gray-100">
-            <div className="md:flex">
-              <div className="md:w-1/2 relative overflow-hidden">
-                <img
-                  src={blogPosts[0].image}
-                  alt={blogPosts[0].title}
-                  className="w-full h-64 md:h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              </div>
-              <div className="md:w-1/2 p-8">
-                <div className="flex items-center space-x-4 mb-4">
-                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium group-hover:bg-blue-200 transition-colors duration-300">
-                    {blogPosts[0].category}
-                  </span>
-                  <span className="text-gray-500 text-sm group-hover:text-gray-700 transition-colors duration-300">{blogPosts[0].readTime}</span>
+      {!loading && featuredPost && (
+        <section className="py-16 bg-white relative overflow-hidden">
+          {/* Background decoration */}
+          <div className="absolute inset-0">
+            <div className="absolute top-20 left-20 w-32 h-32 bg-blue-100/50 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-20 right-20 w-40 h-40 bg-purple-100/50 rounded-full blur-3xl"></div>
+          </div>
+          
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-8 animate-fade-in-up">
+              {selectedCategory === "All" ? "Featured Post" : `${selectedCategory} Posts`}
+            </h2>
+            <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 overflow-hidden border border-gray-100">
+              <div className="md:flex">
+                <div className="md:w-1/2 relative overflow-hidden">
+                  <img
+                    src={featuredPost.image}
+                    alt={featuredPost.title}
+                    className="w-full h-64 md:h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-blue-600 transition-colors duration-300">
-                  {blogPosts[0].title}
-                </h3>
-                <p className="text-gray-600 mb-6 group-hover:text-gray-700 transition-colors duration-300">{blogPosts[0].excerpt}</p>
-                
-                {/* Tags */}
-                <div className="flex flex-wrap gap-2 mb-6">
-                  {blogPosts[0].tags.map((tag, tagIndex) => (
-                    <span key={tagIndex} className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded group-hover:bg-blue-100 group-hover:text-blue-700 transition-all duration-300">
-                      #{tag}
+                <div className="md:w-1/2 p-8">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium group-hover:bg-blue-200 transition-colors duration-300">
+                      {featuredPost.category}
                     </span>
-                  ))}
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold group-hover:scale-110 transition-transform duration-300">
-                      {blogPosts[0].author.split(' ').map(n => n[0]).join('')}
-                    </div>
-                    <div>
-                      <div className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors duration-300">{blogPosts[0].author}</div>
-                      <div className="text-sm text-gray-500">{blogPosts[0].date}</div>
-                    </div>
+                    <span className="text-gray-500 text-sm group-hover:text-gray-700 transition-colors duration-300">{featuredPost.readTime}</span>
                   </div>
-                  <Link
-                    to={`/blog/${blogPosts[0].id}`}
-                    className="group/link bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105"
-                  >
-                    Read More
-                  </Link>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-blue-600 transition-colors duration-300">
+                    {featuredPost.title}
+                  </h3>
+                  <p className="text-gray-600 mb-6 group-hover:text-gray-700 transition-colors duration-300">{featuredPost.excerpt}</p>
+                  
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    {featuredPost.tags.slice(0, 4).map((tag, tagIndex) => (
+                      <span key={tagIndex} className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded group-hover:bg-blue-100 group-hover:text-blue-700 transition-all duration-300">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold group-hover:scale-110 transition-transform duration-300">
+                        {featuredPost.author.split(' ').map(n => n[0]).join('')}
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors duration-300">{featuredPost.author}</div>
+                        <div className="text-sm text-gray-500">{featuredPost.date}</div>
+                      </div>
+                    </div>
+                    <Link
+                      to={`/blog/${featuredPost.id}`}
+                      className="group/link bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105"
+                    >
+                      Read More
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Blog Posts Grid */}
       <section className="py-16 relative">
@@ -203,60 +205,75 @@ export default function Blog() {
         </div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8 animate-fade-in-up">Latest Posts</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {blogPosts.slice(1).map((post) => (
-              <article key={post.id} className="group bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 border border-gray-100">
-                <div className="relative overflow-hidden">
-                  <img
-                    src={post.image}
-                    alt={post.title}
-                    className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                </div>
-                <div className="p-6">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium group-hover:bg-blue-200 transition-colors duration-300">
-                      {post.category}
-                    </span>
-                    <span className="text-gray-500 text-sm group-hover:text-gray-700 transition-colors duration-300">{post.readTime}</span>
+          <h2 className="text-3xl font-bold text-gray-900 mb-8 animate-fade-in-up">
+            {selectedCategory === "All" ? "Latest Posts" : `More ${selectedCategory} Posts`}
+          </h2>
+          {gridPosts.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {gridPosts.map((post) => (
+                <article key={post.id} className="group bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 border border-gray-100">
+                  <div className="relative overflow-hidden">
+                    <img
+                      src={post.image}
+                      alt={post.title}
+                      className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors duration-300">
-                    {post.title}
-                  </h3>
-                  <p className="text-gray-600 mb-4 line-clamp-3 group-hover:text-gray-700 transition-colors duration-300">{post.excerpt}</p>
-                  
-                  {/* Tags */}
-                  <div className="flex flex-wrap gap-1 mb-4">
-                    {post.tags.slice(0, 3).map((tag, tagIndex) => (
-                      <span key={tagIndex} className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded group-hover:bg-blue-100 group-hover:text-blue-700 transition-all duration-300">
-                        #{tag}
+                  <div className="p-6">
+                    <div className="flex items-center space-x-4 mb-4">
+                      <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium group-hover:bg-blue-200 transition-colors duration-300">
+                        {post.category}
                       </span>
-                    ))}
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold group-hover:scale-110 transition-transform duration-300">
-                        {post.author.split(' ').map(n => n[0]).join('')}
-                      </div>
-                      <div>
-                        <div className="font-medium text-gray-900 text-sm group-hover:text-blue-600 transition-colors duration-300">{post.author}</div>
-                        <div className="text-xs text-gray-500">{post.date}</div>
-                      </div>
+                      <span className="text-gray-500 text-sm group-hover:text-gray-700 transition-colors duration-300">{post.readTime}</span>
                     </div>
-                    <Link
-                      to={`/blog/${post.id}`}
-                      className="text-blue-600 hover:text-blue-700 font-medium text-sm group-hover:translate-x-1 transition-transform duration-300"
-                    >
-                      Read More →
-                    </Link>
+                    <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors duration-300">
+                      {post.title}
+                    </h3>
+                    <p className="text-gray-600 mb-4 line-clamp-3 group-hover:text-gray-700 transition-colors duration-300">{post.excerpt}</p>
+                    
+                    {/* Tags */}
+                    <div className="flex flex-wrap gap-1 mb-4">
+                      {post.tags.slice(0, 3).map((tag, tagIndex) => (
+                        <span key={tagIndex} className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded group-hover:bg-blue-100 group-hover:text-blue-700 transition-all duration-300">
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold group-hover:scale-110 transition-transform duration-300">
+                          {post.author.split(' ').map(n => n[0]).join('')}
+                        </div>
+                        <div>
+                          <div className="font-medium text-gray-900 text-sm group-hover:text-blue-600 transition-colors duration-300">{post.author}</div>
+                          <div className="text-xs text-gray-500">{post.date}</div>
+                        </div>
+                      </div>
+                      <Link
+                        to={`/blog/${post.id}`}
+                        className="text-blue-600 hover:text-blue-700 font-medium text-sm group-hover:translate-x-1 transition-transform duration-300"
+                      >
+                        Read More →
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              </article>
-            ))}
-          </div>
+                </article>
+              ))}
+            </div>
+          ) : !loading && (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">📝</div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No posts found</h3>
+              <p className="text-gray-600">
+                {selectedCategory === "All" 
+                  ? "No published posts available yet." 
+                  : `No published posts in the ${selectedCategory} category.`
+                }
+              </p>
+            </div>
+          )}
         </div>
       </section>
 

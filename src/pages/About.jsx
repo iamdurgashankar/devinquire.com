@@ -6,7 +6,7 @@ const About = () => {
 
   const teamMembers = [
     {
-      name: "Sarah Johnson",
+      name: "Reshma Ray",
       role: "Founder & CEO",
       image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face",
       bio: "Full-stack developer with 8+ years of experience in modern web technologies.",
@@ -14,7 +14,7 @@ const About = () => {
       social: { linkedin: "#", twitter: "#", github: "#" }
     },
     {
-      name: "Michael Chen",
+      name: "Durga Shankar",
       role: "Lead Developer",
       image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
       bio: "Passionate about creating scalable solutions and mentoring junior developers.",
@@ -22,7 +22,7 @@ const About = () => {
       social: { linkedin: "#", twitter: "#", github: "#" }
     },
     {
-      name: "Emily Rodriguez",
+      name: "Karishma Ray",
       role: "UI/UX Designer",
       image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
       bio: "Creative designer focused on user-centered design and accessibility.",
@@ -30,7 +30,7 @@ const About = () => {
       social: { linkedin: "#", twitter: "#", behance: "#" }
     },
     {
-      name: "David Kim",
+      name: "Hari Shankar",
       role: "DevOps Engineer",
       image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
       bio: "Infrastructure expert ensuring smooth deployments and system reliability.",
@@ -40,9 +40,9 @@ const About = () => {
   ];
 
   const stats = [
-    { number: "500+", label: "Projects Completed" },
+    { number: "100+", label: "Projects Completed" },
     { number: "50+", label: "Happy Clients" },
-    { number: "5+", label: "Years Experience" },
+    { number: "6+", label: "Years Experience" },
     { number: "24/7", label: "Support Available" }
   ];
 
