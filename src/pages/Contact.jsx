@@ -23,16 +23,27 @@ const Contact = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simulate form submission
-    setTimeout(() => {
+    setSubmitStatus(null);
+
+    try {
+      const response = await fetch('/api/contact.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      const result = await response.json();
+      if (response.ok && result.success) {
+        setSubmitStatus('success');
+        setFormData({ name: '', email: '', subject: '', message: '' });
+      } else {
+        setSubmitStatus(result.message || 'error');
+      }
+    } catch (error) {
+      setSubmitStatus('Failed to send. Please try again later.');
+    } finally {
       setIsSubmitting(false);
-      setSubmitStatus('success');
-      setFormData({ name: '', email: '', subject: '', message: '' });
-      
-      // Reset status after 3 seconds
-      setTimeout(() => setSubmitStatus(null), 3000);
-    }, 2000);
+      setTimeout(() => setSubmitStatus(null), 4000);
+    }
   };
 
   const contactInfo = [
@@ -131,6 +142,16 @@ const Contact = () => {
                   className="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg"
                 >
                   ✅ Thank you! Your message has been sent successfully. We'll get back to you soon.
+                </motion.div>
+              )}
+
+              {submitStatus && submitStatus !== 'success' && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg"
+                >
+                  ❌ {submitStatus}
                 </motion.div>
               )}
 

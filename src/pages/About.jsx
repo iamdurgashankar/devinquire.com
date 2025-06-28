@@ -8,7 +8,7 @@ const About = () => {
     {
       name: "Reshma Ray",
       role: "Founder & CEO",
-      image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face",
+      image: "",
       bio: "Full-stack developer with 8+ years of experience in modern web technologies.",
       skills: ["React", "Node.js", "Python", "AWS"],
       social: { linkedin: "#", twitter: "#", github: "#" }
@@ -16,7 +16,7 @@ const About = () => {
     {
       name: "Durga Shankar",
       role: "Lead Developer",
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+      image: "",
       bio: "Passionate about creating scalable solutions and mentoring junior developers.",
       skills: ["JavaScript", "TypeScript", "Docker", "Kubernetes"],
       social: { linkedin: "#", twitter: "#", github: "#" }
@@ -24,7 +24,7 @@ const About = () => {
     {
       name: "Karishma Ray",
       role: "UI/UX Designer",
-      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
+      image: "",
       bio: "Creative designer focused on user-centered design and accessibility.",
       skills: ["Figma", "Adobe XD", "Prototyping", "User Research"],
       social: { linkedin: "#", twitter: "#", behance: "#" }
@@ -32,7 +32,7 @@ const About = () => {
     {
       name: "Hari Shankar",
       role: "DevOps Engineer",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
+      image: "",
       bio: "Infrastructure expert ensuring smooth deployments and system reliability.",
       skills: ["AWS", "Terraform", "Jenkins", "Monitoring"],
       social: { linkedin: "#", twitter: "#", github: "#" }

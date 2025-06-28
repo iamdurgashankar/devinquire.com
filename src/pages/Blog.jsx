@@ -17,6 +17,9 @@ export default function Blog() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [blogPosts, setBlogPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [subscriberEmail, setSubscriberEmail] = useState("");
+  const [subStatus, setSubStatus] = useState(null);
+  const [subLoading, setSubLoading] = useState(false);
 
   // Load published posts from API
   useEffect(() => {
@@ -67,6 +70,31 @@ export default function Blog() {
   const gridPosts = filteredPosts.length > 1 
     ? filteredPosts.slice(1) 
     : [];
+
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    setSubStatus(null);
+    setSubLoading(true);
+    try {
+      const response = await fetch("/api/subscribe.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: subscriberEmail }),
+      });
+      const result = await response.json();
+      if (response.ok && result.success) {
+        setSubStatus("success");
+        setSubscriberEmail("");
+      } else {
+        setSubStatus(result.message || "error");
+      }
+    } catch (error) {
+      setSubStatus("Failed to subscribe. Please try again later.");
+    } finally {
+      setSubLoading(false);
+      setTimeout(() => setSubStatus(null), 4000);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -290,18 +318,36 @@ export default function Blog() {
           <p className="text-xl text-gray-300 mb-8 animate-fade-in-up" style={{animationDelay: '0.2s'}}>
             Get the latest insights and tutorials delivered to your inbox.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+          {subStatus === 'success' && (
+            <div className="mb-4 p-4 bg-green-100 text-green-700 rounded-lg border border-green-200 text-center">
+              ✅ Thank you for subscribing!
+            </div>
+          )}
+          {subStatus && subStatus !== 'success' && (
+            <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-lg border border-red-200 text-center">
+              ❌ {subStatus}
+            </div>
+          )}
+          <form className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto" onSubmit={handleSubscribe}>
             <input
               type="email"
               placeholder="Enter your email"
               className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transform hover:scale-105 transition-transform duration-300"
+              value={subscriberEmail}
+              onChange={e => setSubscriberEmail(e.target.value)}
+              required
+              disabled={subLoading}
             />
-            <button className="group relative bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 overflow-hidden">
-              <span className="relative z-10">Subscribe</span>
+            <button
+              type="submit"
+              className="group relative bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={subLoading}
+            >
+              <span className="relative z-10">{subLoading ? 'Subscribing...' : 'Subscribe'}</span>
               <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <div className="absolute -inset-1 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
             </button>
-          </div>
+          </form>
         </div>
       </section>
     </div>
