@@ -78,11 +78,17 @@ export default function BlogManager({ showCreateForm = false }) {
     setLoading(true);
 
     try {
+      console.log('BlogManager: Starting form submission...');
+      console.log('BlogManager: Form data:', formData);
+      console.log('BlogManager: Current user:', currentUser);
+
       let imageUrl = formData.featured_image;
       
       // Upload new image if selected
       if (imageUpload) {
+        console.log('BlogManager: Uploading image...');
         imageUrl = await handleImageUpload(imageUpload);
+        console.log('BlogManager: Image uploaded:', imageUrl);
       }
 
       const postData = {
@@ -97,25 +103,33 @@ export default function BlogManager({ showCreateForm = false }) {
         readTime: Math.ceil(formData.content.split(' ').length / 200) + ' min read'
       };
 
+      console.log('BlogManager: Prepared post data:', postData);
+
       let response;
       if (editingPost) {
         // Update existing post
+        console.log('BlogManager: Updating existing post with ID:', editingPost.id);
         response = await apiService.updatePost(editingPost.id, postData);
       } else {
         // Create new post
+        console.log('BlogManager: Creating new post...');
         response = await apiService.createPost(postData);
       }
 
+      console.log('BlogManager: API response:', response);
+
       if (response.success) {
+        console.log('BlogManager: Post saved successfully!');
         // Reset form and reload posts
         resetForm();
         await loadPosts();
         setShowForm(false);
       } else {
+        console.error('BlogManager: API returned error:', response.message);
         throw new Error(response.message || 'Failed to save post');
       }
     } catch (error) {
-      console.error('Error saving post:', error);
+      console.error('BlogManager: Error saving post:', error);
       alert('Error saving post. Please try again.');
     } finally {
       setLoading(false);

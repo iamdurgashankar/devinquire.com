@@ -13,6 +13,7 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Admin from "./pages/Admin";
 import Register from "./pages/Register";
+import Login from "./pages/Login";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -21,10 +22,11 @@ function AppContent() {
   const location = useLocation();
   const isAdminPage = location.pathname === "/admin";
   const isRegisterPage = location.pathname === "/register";
+  const isLoginPage = location.pathname === "/login";
 
   return (
     <>
-      {!isAdminPage && !isRegisterPage && <Navbar />}
+      {!isAdminPage && !isRegisterPage && !isLoginPage && <Navbar />}
       <div className="min-h-screen">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -56,6 +58,14 @@ function AppContent() {
             }
           />
           <Route
+            path="/login"
+            element={
+              <ErrorBoundary>
+                <Login />
+              </ErrorBoundary>
+            }
+          />
+          <Route
             path="/admin"
             element={
               <ErrorBoundary>
@@ -65,7 +75,7 @@ function AppContent() {
           />
         </Routes>
       </div>
-      {!isAdminPage && !isRegisterPage && <Footer />}
+      {!isAdminPage && !isRegisterPage && !isLoginPage && <Footer />}
     </>
   );
 }

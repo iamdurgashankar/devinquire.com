@@ -1,17 +1,15 @@
 <?php
-header('Access-Control-Allow-Origin: https://devinquire.com');
-header('Access-Control-Allow-Credentials: true');
-header('Access-Control-Allow-Headers: Content-Type');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
+require 'db.php';
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    echo json_encode(['success' => false, 'message' => 'Invalid request method']);
     exit();
 }
-require 'db.php';
+
 $data = json_decode(file_get_contents('php://input'), true);
 
 // Input validation
-if (!is_array($data) || empty($data['username']) || empty($data['email']) || empty($data['password']) || empty($data['name']) || empty($data['role'])) {
+if (!is_array($data) || empty($data['username']) || empty($data['email']) || empty($data['password']) || empty($data['name'])) {
     echo json_encode(['success' => false, 'message' => 'Missing required fields.']);
     exit();
 }
@@ -20,7 +18,7 @@ $username = $data['username'];
 $email = $data['email'];
 $password = password_hash($data['password'], PASSWORD_DEFAULT);
 $name = $data['name'];
-$role = $data['role']; // 'user' or 'admin'
+$role = $data['role'] ?? 'user'; // Default to 'user' if not specified
 $status = 'pending';
 
 try {
@@ -36,7 +34,11 @@ try {
     // Insert new user with status 'pending'
     $stmt = $pdo->prepare("INSERT INTO users (username, email, password_hash, name, role, status, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())");
     $stmt->execute([$username, $email, $password, $name, $role, $status]);
-    echo json_encode(['success' => true]);
+    
+    echo json_encode([
+        'success' => true, 
+        'message' => 'Registration successful! Your account is pending admin approval.'
+    ]);
 } catch (Exception $e) {
     echo json_encode(['success' => false, 'message' => 'Registration failed: ' . $e->getMessage()]);
 }

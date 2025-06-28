@@ -25,19 +25,30 @@ export default function UserManager() {
   const loadUsers = async () => {
     setLoading(true);
     try {
+      console.log('UserManager: Loading users...');
       const [pendingResponse, usersResponse] = await Promise.all([
         apiService.getPendingUsers(),
         apiService.getAllUsers()
       ]);
 
+      console.log('UserManager: Pending response:', pendingResponse);
+      console.log('UserManager: Users response:', usersResponse);
+
       if (pendingResponse.success) {
-        setPendingUsers(pendingResponse.data);
+        setPendingUsers(pendingResponse.data || []);
+      } else {
+        console.error('UserManager: Pending users failed:', pendingResponse);
+        setPendingUsers([]);
       }
 
       if (usersResponse.success) {
-        setAllUsers(usersResponse.data);
+        setAllUsers(usersResponse.data || []);
+      } else {
+        console.error('UserManager: All users failed:', usersResponse);
+        setAllUsers([]);
       }
     } catch (error) {
+      console.error('UserManager: Error loading users:', error);
       setMessage('Error loading users: ' + error.message);
     } finally {
       setLoading(false);

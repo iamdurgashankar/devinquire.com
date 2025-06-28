@@ -1,150 +1,229 @@
-# Devinquire Agency Web Application
+# DevInquire - Development Agency Website
 
-A modern React-based agency web application for website development, web applications, component development, mobile applications, SEO services, logo/banner design, and a dynamic blog section.
+A modern web application for a development agency with user authentication, admin panel, and blog management.
 
-## 🚀 Live Demo
+## Features
 
-Visit [devinquire.com](https://devinquire.com) to see the live application.
+- **User Authentication**: Login/Register with role-based access
+- **Admin Panel**: User management, blog management, and dashboard
+- **Responsive Design**: Modern UI with Tailwind CSS
+- **Blog System**: Create, edit, and manage blog posts
+- **User Management**: Approve/reject new user registrations
 
-## ✨ Features
+## Prerequisites
 
-- **Agency Services**: Complete showcase of development services
-- **Dynamic Blog**: Content management with mock data
-- **Admin Dashboard**: Full admin interface for blog management
-- **Responsive Design**: Mobile-first approach with Tailwind CSS
-- **Authentication**: Mock authentication system
-- **Modern UI**: Beautiful animations with Framer Motion
+- Node.js (v14 or higher)
+- PHP (v7.4 or higher) - for local API development
+- MySQL database (for production)
 
-## 🛠️ Tech Stack
+## Installation & Setup
 
-### Frontend
-
-- **React 18** - Modern React with hooks
-- **Tailwind CSS** - Utility-first CSS framework
-- **React Router** - Client-side routing
-- **Framer Motion** - Animation library
-
-### Deployment
-
-- **GitHub Actions** - Continuous deployment
-- **Hostinger** - Web hosting with custom domain
-
-## 📦 Installation
-
-### Prerequisites
-
-- Node.js 18+
-- npm or yarn
-- Git
-
-### Setup
+### 1. Clone the repository
 
 ```bash
-# Install dependencies
+git clone <repository-url>
+cd devinquire
+```
+
+### 2. Install dependencies
+
+```bash
 npm install
+```
 
-# Start development server
+### 3. Install PHP (if not already installed)
+
+#### macOS:
+
+```bash
+# Using Homebrew
+brew install php
+
+# Or using MAMP/XAMPP
+# Download from https://www.mamp.info/ or https://www.apachefriends.org/
+```
+
+#### Windows:
+
+```bash
+# Download from https://windows.php.net/download/
+# Or use XAMPP: https://www.apachefriends.org/
+```
+
+#### Linux (Ubuntu/Debian):
+
+```bash
+sudo apt update
+sudo apt install php php-cli php-common
+```
+
+### 4. Database Setup
+
+#### For Local Development:
+
+The application uses localStorage for local development, so no database setup is required.
+
+#### For Production:
+
+1. Create a MySQL database
+2. Update the database configuration in `api/db.php`
+3. Import the database schema (if provided)
+
+### 5. Environment Configuration
+
+The application automatically detects the environment:
+
+- **Development**: Uses `http://localhost:8000/api`
+- **Production**: Uses `https://devinquire.com/api`
+
+## Running the Application
+
+### Option 1: Quick Start (Recommended)
+
+Use the provided setup scripts:
+
+#### macOS/Linux:
+
+```bash
+./dev-setup.sh
+```
+
+#### Windows:
+
+```bash
+dev-setup.bat
+```
+
+### Option 2: Manual Setup
+
+#### Local Development
+
+1. **Start the PHP API server** (in one terminal):
+
+```bash
+npm run server
+```
+
+This starts a PHP server on `http://localhost:8000` serving the API files.
+
+2. **Start the React development server** (in another terminal):
+
+```bash
 npm start
+```
 
-# Build for production
+This starts the React app on `http://localhost:3000`.
+
+3. **Access the application**:
+
+- Frontend: http://localhost:3000
+- API: http://localhost:8000/api
+
+### Option 3: Frontend Only (No PHP Required)
+
+If you don't have PHP installed or want to test just the frontend:
+
+1. **Start only the React development server**:
+
+```bash
+npm start
+```
+
+2. **The application will work with mock data** and localStorage for authentication.
+
+### Production
+
+1. **Build the React application**:
+
+```bash
 npm run build
 ```
 
-## 🌐 Deployment
+2. **Deploy the files**:
 
-This project is configured for automatic deployment to devinquire.com using GitHub Actions and Hostinger.
+- Upload the `build` folder contents to your web server
+- Upload the `api` folder to your server's API directory
+- Ensure the API base URL in `src/services/api.js` points to your production domain
 
-### Quick Setup:
+## Default Admin Credentials
 
-1. **Push to GitHub**: Upload your code to a GitHub repository
-2. **Configure Hostinger**: Add FTP credentials to GitHub Secrets
-3. **Deploy**: Push to main branch triggers automatic deployment
+For local development, the default admin credentials are:
 
-## 🔧 Environment Variables
+- **Email**: admin@devinquire.com
+- **Password**: admin123
 
-### Frontend (.env)
+## API Endpoints
 
-```
-REACT_APP_API_URL=http://localhost:3000
-```
+The application includes the following API endpoints:
 
-## 📁 Project Structure
+- `POST /api/login.php` - User login
+- `POST /api/signup.php` - User registration
+- `GET /api/session.php` - Get current session
+- `POST /api/logout.php` - User logout
+- `GET /api/get_users.php` - Get all users (admin)
+- `POST /api/delete_user.php` - Delete user (admin)
+- `GET /api/get_pending_users.php` - Get pending users (admin)
+- `POST /api/approve_user.php` - Approve user (admin)
+- `POST /api/reject_user.php` - Reject user (admin)
+- `GET /api/profile.php` - Get user profile
+- `POST /api/profile.php` - Update user profile
+
+## Project Structure
 
 ```
 devinquire/
-├── src/                    # React frontend
-│   ├── components/         # Reusable components
-│   ├── pages/             # Page components
-│   ├── contexts/          # React contexts
-│   ├── services/          # Mock API services
-│   └── firebase.js        # Firebase configuration
-├── public/               # Static assets
-├── .github/              # GitHub Actions workflows
-└── README.md             # Documentation
+├── api/                 # PHP API files
+├── public/             # Static files
+├── src/                # React source code
+│   ├── components/     # React components
+│   ├── contexts/       # React contexts
+│   ├── pages/          # Page components
+│   └── services/       # API services
+├── package.json        # Node.js dependencies
+├── dev-setup.sh        # Development setup script (macOS/Linux)
+├── dev-setup.bat       # Development setup script (Windows)
+└── README.md          # This file
 ```
 
-## 🔄 Continuous Deployment
+## Troubleshooting
 
-The project uses GitHub Actions for automatic deployment:
+### Common Issues
 
-- **Frontend**: Deploys on changes to `src/`, `public/`, or `package.json`
-- **Domain**: Automatically updates devinquire.com
+1. **PHP not found**: Install PHP using the instructions above
+2. **API Connection Error**: Make sure the PHP server is running on port 8000
+3. **CORS Issues**: The PHP server includes CORS headers for local development
+4. **Login Not Working**: Check that the API endpoints are accessible
 
-## 🛠️ Development
+### Reset Database (Local Development)
 
-### Available Scripts
+If you need to reset the local database:
+
+1. Open the browser console
+2. Run: `localStorage.clear()`
+3. Refresh the page
+
+Or use the reset button in the admin panel.
+
+### Port Already in Use
+
+If port 8000 is already in use:
 
 ```bash
-npm start          # Start development server
-npm run build      # Build for production
-npm test           # Run tests
+# Find the process using port 8000
+lsof -i :8000
+
+# Kill the process
+kill -9 <PID>
 ```
 
-### Mock Data
-
-The application uses mock data for demonstration purposes:
-
-- **Authentication**: Mock login/register system
-- **Blog Posts**: Sample blog posts with categories
-- **Admin Dashboard**: Mock statistics and user management
-
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Make your changes
+4. Test locally
+5. Submit a pull request
 
-## 📝 License
+## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/yourusername/devinquire/issues)
-- **Email**: support@devinquire.com
-
-## 🎯 Roadmap
-
-- [ ] Real backend integration
-- [ ] Database integration
-- [ ] Advanced admin features
-- [ ] SEO optimization
-- [ ] Performance monitoring
-- [ ] Analytics integration
-- [ ] Multi-language support
-
-## 🔧 Recent Changes
-
-### v2.0.0 - Simplified Deployment
-
-- ✅ Removed backend complexity
-- ✅ Simplified to static React deployment
-- ✅ Mock data for demonstration
-- ✅ Clean GitHub Actions workflow
-- ✅ Optimized for Hostinger hosting
-
----
-
-**Built with ❤️ by the Devinquire Team**
+This project is licensed under the MIT License.

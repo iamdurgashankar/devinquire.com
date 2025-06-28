@@ -13,18 +13,12 @@ export function AuthProvider({ children }) {
 
   // Check if user is already logged in on app start
   useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    if (token) {
-      // Validate token and get user info
-      validateAndSetUser(token);
-    } else {
-      setLoading(false);
-    }
+    validateAndSetUser();
   }, []);
 
-  const validateAndSetUser = async (token) => {
+  const validateAndSetUser = async () => {
     try {
-      // Get current user from localStorage
+      // Always try to get current user from server first (for production)
       const user = await apiService.getCurrentUser();
       if (user) {
         setCurrentUser({
@@ -35,11 +29,28 @@ export function AuthProvider({ children }) {
           role: user.role,
         });
       } else {
-        // Clear invalid token
-        localStorage.removeItem("authToken");
+        // If server session is not available, check localStorage (for development)
+        const token = localStorage.getItem("authToken");
+        if (token) {
+          // This will only work in localStorage mode (development)
+          const localUser = await apiService.getCurrentUser();
+          if (localUser) {
+            setCurrentUser({
+              id: localUser.id,
+              email: localUser.email,
+              displayName: localUser.name,
+              photoURL: null,
+              role: localUser.role,
+            });
+          } else {
+            // Clear invalid token
+            localStorage.removeItem("authToken");
+          }
+        }
       }
     } catch (error) {
-      console.error("Token validation error:", error);
+      console.error("Session validation error:", error);
+      // Clear any invalid tokens
       localStorage.removeItem("authToken");
     } finally {
       setLoading(false);
@@ -51,10 +62,17 @@ export function AuthProvider({ children }) {
     try {
       const response = await apiService.login(email, password);
       if (response.success) {
-        setCurrentUser(response.user);
+        const user = {
+          id: response.user.id,
+          email: response.user.email,
+          displayName: response.user.name,
+          photoURL: null,
+          role: response.user.role,
+        };
+        setCurrentUser(user);
         // Store current user email for password changes
         localStorage.setItem("currentUserEmail", email);
-        return response.user;
+        return user;
       } else {
         throw new Error(response.message || "Login failed");
       }

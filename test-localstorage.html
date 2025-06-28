@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LocalStorage Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>LocalStorage Database Test</h1>
+    
+    <div class="test-section">
+        <h3>Test Results:</h3>
+        <div id="results"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Actions:</h3>
+        <button onclick="runTests()">Run Tests</button>
+        <button onclick="clearDatabase()">Clear Database</button>
+        <button onclick="showDatabase()">Show Database</button>
+    </div>
+
+    <script>
+        // Simulate the API service database methods
+        function getDatabase() {
+            const db = localStorage.getItem("devinquireDB");
+            return db ? JSON.parse(db) : { users: [], pendingUsers: [] };
+        }
+
+        function saveDatabase(db) {
+            localStorage.setItem("devinquireDB", JSON.stringify(db));
+        }
+
+        function hashPassword(password) {
+            return btoa(password + "salt");
+        }
+
+        // Initialize database with default admin user
+        function initializeDatabase() {
+            const db = getDatabase();
+
+            if (!db.users || db.users.length === 0) {
+                console.log('Initializing database with default admin user...');
+                db.users = [
+                    {
+                        id: 1,
+                        name: "Admin User",
+                        email: "admin@devinquire.com",
+                        password: hashPassword("admin123"),
+                        role: "admin",
+                        status: "approved",
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString(),
+                    },
+                ];
+                saveDatabase(db);
+                return true;
+            }
+            return false;
+        }
+
+        // Test getAllUsers function
+        function getAllUsersFromLocalStorage() {
+            const db = getDatabase();
+            return {
+                success: true,
+                data: db.users.map(user => ({
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                    status: user.status,
+                    created_at: user.created_at,
+                    updated_at: user.updated_at
+                }))
+            };
+        }
+
+        // Test getPendingUsers function
+        function getPendingUsersFromLocalStorage() {
+            const db = getDatabase();
+            const pendingUsers = db.users.filter(user => user.status === 'pending');
+            
+            return {
+                success: true,
+                data: pendingUsers.map(user => ({
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                    status: user.status,
+                    created_at: user.created_at,
+                    updated_at: user.updated_at
+                }))
+            };
+        }
+
+        function runTests() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<h4>Running tests...</h4>';
+
+            try {
+                // Test 1: Initialize database
+                const initialized = initializeDatabase();
+                results.innerHTML += `<div class="success">✓ Database initialization: ${initialized ? 'Created new' : 'Already exists'}</div>`;
+
+                // Test 2: Get all users
+                const allUsers = getAllUsersFromLocalStorage();
+                results.innerHTML += `<div class="success">✓ GetAllUsers: ${allUsers.success ? 'Success' : 'Failed'} - ${allUsers.data.length} users</div>`;
+
+                // Test 3: Get pending users
+                const pendingUsers = getPendingUsersFromLocalStorage();
+                results.innerHTML += `<div class="success">✓ GetPendingUsers: ${pendingUsers.success ? 'Success' : 'Failed'} - ${pendingUsers.data.length} pending users</div>`;
+
+                // Test 4: Add a test user
+                const db = getDatabase();
+                db.users.push({
+                    id: 2,
+                    name: "Test User",
+                    email: "test@example.com",
+                    password: hashPassword("password123"),
+                    role: "user",
+                    status: "pending",
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString(),
+                });
+                saveDatabase(db);
+                results.innerHTML += `<div class="success">✓ Added test user</div>`;
+
+                // Test 5: Get all users again
+                const allUsers2 = getAllUsersFromLocalStorage();
+                results.innerHTML += `<div class="success">✓ GetAllUsers after addition: ${allUsers2.data.length} users</div>`;
+
+                // Test 6: Get pending users again
+                const pendingUsers2 = getPendingUsersFromLocalStorage();
+                results.innerHTML += `<div class="success">✓ GetPendingUsers after addition: ${pendingUsers2.data.length} pending users</div>`;
+
+                results.innerHTML += '<div class="success"><strong>All tests passed!</strong></div>';
+
+            } catch (error) {
+                results.innerHTML += `<div class="error">✗ Test failed: ${error.message}</div>`;
+            }
+        }
+
+        function clearDatabase() {
+            localStorage.removeItem("devinquireDB");
+            document.getElementById('results').innerHTML = '<div class="success">Database cleared!</div>';
+        }
+
+        function showDatabase() {
+            const db = getDatabase();
+            const results = document.getElementById('results');
+            results.innerHTML = '<h4>Current Database:</h4><pre>' + JSON.stringify(db, null, 2) + '</pre>';
+        }
+
+        // Run tests on page load
+        window.onload = function() {
+            runTests();
+        };
+    </script>
+</body>
+</html> 

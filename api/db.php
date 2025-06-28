@@ -3,6 +3,13 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+// Configure session settings for better security and compatibility
+ini_set('session.cookie_httponly', 1);
+ini_set('session.cookie_secure', 0); // Set to 1 in production with HTTPS
+ini_set('session.cookie_samesite', 'Lax');
+ini_set('session.gc_maxlifetime', 3600); // 1 hour
+ini_set('session.cookie_lifetime', 0); // Session cookie
+
 $host = 'localhost';
 $db   = 'u180145459_Deviq_dashbrd';
 $user = 'u180145459_devinquire';
@@ -29,15 +36,63 @@ try {
         $defaultAdminPass = password_hash('admin123', PASSWORD_DEFAULT);
         $stmt = $pdo->prepare("INSERT INTO users (username, email, password_hash, name, role, status, created_at) VALUES (?, ?, ?, ?, 'admin', 'approved', NOW())");
         $stmt->execute(['admin@devinquire.com', 'admin@devinquire.com', $defaultAdminPass, 'Admin User']);
+        echo "Default admin user created successfully\n";
     }
 } catch (Exception $e) {
     // Ignore errors here to avoid breaking the app
+    echo "Error creating default admin: " . $e->getMessage() . "\n";
 }
 
-header('Access-Control-Allow-Origin: https://devinquire.com');
+// Ensure posts table exists
+try {
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS posts (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            title VARCHAR(255) NOT NULL,
+            excerpt TEXT NOT NULL,
+            content LONGTEXT NOT NULL,
+            category VARCHAR(100) NOT NULL,
+            tags JSON,
+            featured_image VARCHAR(500),
+            author_name VARCHAR(255) NOT NULL,
+            read_time VARCHAR(50) DEFAULT '5 min read',
+            status ENUM('draft', 'published', 'archived') DEFAULT 'draft',
+            author_id INT,
+            views INT DEFAULT 0,
+            likes INT DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            INDEX idx_status (status),
+            INDEX idx_category (category),
+            INDEX idx_author_id (author_id),
+            INDEX idx_created_at (created_at)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ");
+    echo "Posts table created/verified successfully\n";
+} catch (Exception $e) {
+    // Ignore errors here to avoid breaking the app
+    echo "Error creating posts table: " . $e->getMessage() . "\n";
+}
+
+// Dynamic CORS headers for both development and production
+$allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:8000',
+    'https://devinquire.com',
+    'https://www.devinquire.com'
+];
+
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (in_array($origin, $allowedOrigins)) {
+    header("Access-Control-Allow-Origin: $origin");
+} else {
+    header('Access-Control-Allow-Origin: *');
+}
+
 header('Access-Control-Allow-Credentials: true');
-header('Access-Control-Allow-Headers: Content-Type');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();

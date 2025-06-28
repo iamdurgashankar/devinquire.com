@@ -1,19 +1,36 @@
 <?php
-header('Access-Control-Allow-Origin: https://devinquire.com');
-header('Access-Control-Allow-Credentials: true');
-header('Access-Control-Allow-Headers: Content-Type');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
+require 'db.php';
 session_start();
-if (isset($_SESSION['user_id'])) {
-    echo json_encode([
-        'loggedIn' => true,
-        'user_id' => $_SESSION['user_id'],
-        'role' => $_SESSION['role']
-    ]);
+
+if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
+    try {
+        // Get user details from database
+        $stmt = $pdo->prepare("SELECT id, username, email, name, role, status FROM users WHERE id = ?");
+        $stmt->execute([$_SESSION['user_id']]);
+        $user = $stmt->fetch();
+        
+        if ($user) {
+            echo json_encode([
+                'loggedIn' => true,
+                'user_id' => $user['id'],
+                'role' => $user['role'],
+                'user' => [
+                    'id' => $user['id'],
+                    'username' => $user['username'],
+                    'email' => $user['email'],
+                    'name' => $user['name'],
+                    'role' => $user['role'],
+                    'status' => $user['status']
+                ]
+            ]);
+        } else {
+            // User not found in database, clear session
+            session_destroy();
+            echo json_encode(['loggedIn' => false]);
+        }
+    } catch (Exception $e) {
+        echo json_encode(['loggedIn' => false, 'error' => $e->getMessage()]);
+    }
 } else {
     echo json_encode(['loggedIn' => false]);
 }
