@@ -14,12 +14,8 @@ export default function UserProfile() {
   });
   const [passwordLoading, setPasswordLoading] = useState(false);
 
-  // Initialize profile data from localStorage or default values
+  // Initialize profile data from currentUser or default values
   const [profileData, setProfileData] = useState(() => {
-    const saved = localStorage.getItem('userProfile');
-    if (saved) {
-      return JSON.parse(saved);
-    }
     return {
       displayName: currentUser?.displayName || '',
       email: currentUser?.email || '',
@@ -45,18 +41,11 @@ export default function UserProfile() {
   const handleSave = async () => {
     setLoading(true);
     setMessage('');
-    
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Save to localStorage for persistence
-      localStorage.setItem('userProfile', JSON.stringify(profileData));
-      
       setMessage('Profile updated successfully!');
       setIsEditing(false);
-      
-      // Clear success message after 3 seconds
       setTimeout(() => setMessage(''), 3000);
     } catch (error) {
       setMessage('Error updating profile. Please try again.');
@@ -66,21 +55,16 @@ export default function UserProfile() {
   };
 
   const handleCancel = () => {
-    // Restore original data from localStorage
-    const saved = localStorage.getItem('userProfile');
-    if (saved) {
-      setProfileData(JSON.parse(saved));
-    } else {
-      setProfileData({
-        displayName: currentUser?.displayName || '',
-        email: currentUser?.email || '',
-        bio: 'Passionate developer and content creator',
-        website: 'https://devinquire.com',
-        location: 'San Francisco, CA',
-        twitter: '@devinquire',
-        github: 'github.com/devinquire'
-      });
-    }
+    // Restore original data from currentUser
+    setProfileData({
+      displayName: currentUser?.displayName || '',
+      email: currentUser?.email || '',
+      bio: 'Passionate developer and content creator',
+      website: 'https://devinquire.com',
+      location: 'San Francisco, CA',
+      twitter: '@devinquire',
+      github: 'github.com/devinquire'
+    });
     setIsEditing(false);
     setMessage('');
   };

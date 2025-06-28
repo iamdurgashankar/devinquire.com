@@ -36,8 +36,6 @@ export default function Admin() {
       const response = await signInWithEmail(email, password);
       if (response.success) {
         setCurrentUser(response.user);
-        localStorage.setItem("currentUserEmail", email);
-        // If successful, the user will be redirected to dashboard
       }
     } catch (error) {
       setError(error.message);
@@ -105,17 +103,6 @@ export default function Admin() {
       setError(error.message);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleResetDatabase = () => {
-    if (window.confirm('This will reset the database and clear all data. Are you sure?')) {
-      localStorage.removeItem("devinquireDB");
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("currentUserEmail");
-      localStorage.removeItem("userProfile");
-      alert('Database reset successfully! Default admin credentials: admin@devinquire.com / admin123');
-      window.location.reload();
     }
   };
 

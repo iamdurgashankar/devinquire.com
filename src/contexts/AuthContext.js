@@ -18,7 +18,7 @@ export function AuthProvider({ children }) {
 
   const validateAndSetUser = async () => {
     try {
-      // Always try to get current user from server first (for production)
+      // Only use backend session for authentication
       const user = await apiService.getCurrentUser();
       if (user) {
         setCurrentUser({
@@ -28,30 +28,9 @@ export function AuthProvider({ children }) {
           photoURL: null,
           role: user.role,
         });
-      } else {
-        // If server session is not available, check localStorage (for development)
-        const token = localStorage.getItem("authToken");
-        if (token) {
-          // This will only work in localStorage mode (development)
-          const localUser = await apiService.getCurrentUser();
-          if (localUser) {
-            setCurrentUser({
-              id: localUser.id,
-              email: localUser.email,
-              displayName: localUser.name,
-              photoURL: null,
-              role: localUser.role,
-            });
-          } else {
-            // Clear invalid token
-            localStorage.removeItem("authToken");
-          }
-        }
       }
     } catch (error) {
       console.error("Session validation error:", error);
-      // Clear any invalid tokens
-      localStorage.removeItem("authToken");
     } finally {
       setLoading(false);
     }
@@ -70,8 +49,6 @@ export function AuthProvider({ children }) {
           role: response.user.role,
         };
         setCurrentUser(user);
-        // Store current user email for password changes
-        localStorage.setItem("currentUserEmail", email);
         return user;
       } else {
         throw new Error(response.message || "Login failed");
@@ -143,8 +120,6 @@ export function AuthProvider({ children }) {
   function logout() {
     try {
       apiService.logout();
-      localStorage.removeItem("currentUserEmail");
-      localStorage.removeItem("userProfile");
     } catch (error) {
       console.error("Logout error:", error);
     } finally {

@@ -5,7 +5,8 @@ error_reporting(E_ALL);
 
 // Configure session settings for better security and compatibility
 ini_set('session.cookie_httponly', 1);
-ini_set('session.cookie_secure', 0); // Set to 1 in production with HTTPS
+// Set to 1 in production with HTTPS, 0 for local development
+ini_set('session.cookie_secure', 1); // <-- Set to 1 for production, 0 for localhost
 ini_set('session.cookie_samesite', 'Lax');
 ini_set('session.gc_maxlifetime', 3600); // 1 hour
 ini_set('session.cookie_lifetime', 0); // Session cookie
@@ -36,11 +37,9 @@ try {
         $defaultAdminPass = password_hash('admin123', PASSWORD_DEFAULT);
         $stmt = $pdo->prepare("INSERT INTO users (username, email, password_hash, name, role, status, created_at) VALUES (?, ?, ?, ?, 'admin', 'approved', NOW())");
         $stmt->execute(['admin@devinquire.com', 'admin@devinquire.com', $defaultAdminPass, 'Admin User']);
-        echo "Default admin user created successfully\n";
     }
 } catch (Exception $e) {
     // Ignore errors here to avoid breaking the app
-    echo "Error creating default admin: " . $e->getMessage() . "\n";
 }
 
 // Ensure posts table exists
@@ -68,10 +67,8 @@ try {
             INDEX idx_created_at (created_at)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     ");
-    echo "Posts table created/verified successfully\n";
 } catch (Exception $e) {
     // Ignore errors here to avoid breaking the app
-    echo "Error creating posts table: " . $e->getMessage() . "\n";
 }
 
 // Dynamic CORS headers for both development and production
@@ -97,4 +94,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
 }
+
+// --- USERS TABLE SCHEMA REFERENCE ---
+/*
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    role ENUM('user', 'admin') DEFAULT 'user',
+    status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+*/
+// --- END USERS TABLE SCHEMA REFERENCE ---
 ?> 

@@ -227,3 +227,39 @@ kill -9 <PID>
 ## License
 
 This project is licensed under the MIT License.
+
+## Database Migration: Users Table
+
+To ensure your `users` table matches the backend requirements, run the following SQL in your MySQL database:
+
+```sql
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    role ENUM('user', 'admin') DEFAULT 'user',
+    status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+If you already have a `users` table, you can add missing columns with:
+
+```sql
+ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+```
+
+> **Note:** MySQL before 8.0 does not support `IF NOT EXISTS` for columns. In that case, check if the columns exist before running the `ALTER TABLE` command.
+
+---
+
+## Session Cookie Security
+
+- In `api/db.php`, set `session.cookie_secure` to `1` for production (HTTPS), and to `0` for local development (HTTP).
+
+---

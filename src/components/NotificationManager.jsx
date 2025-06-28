@@ -31,17 +31,11 @@ export default function NotificationManager() {
         : notification
     );
     setNotifications(updatedNotifications);
-    
-    // Update localStorage
-    localStorage.setItem('emailNotifications', JSON.stringify(updatedNotifications));
   };
 
   const deleteNotification = (notificationId) => {
     const updatedNotifications = notifications.filter(notification => notification.id !== notificationId);
     setNotifications(updatedNotifications);
-    
-    // Update localStorage
-    localStorage.setItem('emailNotifications', JSON.stringify(updatedNotifications));
   };
 
   const getNotificationIcon = (type) => {
