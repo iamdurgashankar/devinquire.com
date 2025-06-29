@@ -140,11 +140,11 @@ export default function BlogPost() {
           </div>
           
           {/* Tags */}
-          {post.tags && post.tags.length > 0 && (
+          {(post.tags || []).length > 0 && (
             <div className="mt-12 pt-8 border-t border-gray-200">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Tags</h3>
               <div className="flex flex-wrap gap-2">
-                {post.tags.map((tag, index) => (
+                {(post.tags || []).map((tag, index) => (
                   <span
                     key={index}
                     className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full hover:bg-blue-200 transition-colors duration-200"

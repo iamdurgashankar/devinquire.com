@@ -193,7 +193,7 @@ export default function Blog() {
                   
                   {/* Tags */}
                   <div className="flex flex-wrap gap-2 mb-6">
-                    {featuredPost.tags.slice(0, 4).map((tag, tagIndex) => (
+                    {(featuredPost.tags || []).slice(0, 4).map((tag, tagIndex) => (
                       <span key={tagIndex} className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded group-hover:bg-blue-100 group-hover:text-blue-700 transition-all duration-300">
                         #{tag}
                       </span>
@@ -262,7 +262,7 @@ export default function Blog() {
                     
                     {/* Tags */}
                     <div className="flex flex-wrap gap-1 mb-4">
-                      {post.tags.slice(0, 3).map((tag, tagIndex) => (
+                      {(post.tags || []).slice(0, 3).map((tag, tagIndex) => (
                         <span key={tagIndex} className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded group-hover:bg-blue-100 group-hover:text-blue-700 transition-all duration-300">
                           #{tag}
                         </span>

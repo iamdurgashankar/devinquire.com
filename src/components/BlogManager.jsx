@@ -449,10 +449,10 @@ export default function BlogManager({ showCreateForm = false }) {
                     <span>By {post.author_name || 'Admin User'}</span>
                     <span>•</span>
                     <span>{new Date(post.created_at).toLocaleDateString()}</span>
-                    {post.tags && post.tags.length > 0 && (
+                    {(post.tags || []).length > 0 && (
                       <>
                         <span>•</span>
-                        <span>{post.tags.slice(0, 3).join(', ')}</span>
+                        <span>{(post.tags || []).slice(0, 3).join(', ')}</span>
                       </>
                     )}
                     {post.views !== undefined && (
