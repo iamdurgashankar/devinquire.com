@@ -12,9 +12,9 @@ ini_set('session.gc_maxlifetime', 3600); // 1 hour
 ini_set('session.cookie_lifetime', 0); // Session cookie
 
 $host = 'localhost';
-$db   = 'u180145459_Deviq_dashbrd';
-$user = 'u180145459_devinquire';
-$pass = 'dsdm05091995@Sipu';
+$db   = 'u180145459_devinquire';
+$user = 'u180145459_devinquire_db';
+$pass = 'dsdm05091995Sipu@';
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";

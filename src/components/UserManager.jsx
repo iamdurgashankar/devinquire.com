@@ -26,30 +26,23 @@ export default function UserManager() {
     setLoading(true);
     try {
       console.log('UserManager: Loading users...');
-      const [pendingResponse, usersResponse] = await Promise.all([
-        apiService.getPendingUsers(),
-        apiService.getAllUsers()
-      ]);
-
-      console.log('UserManager: Pending response:', pendingResponse);
+      const usersResponse = await apiService.getAllUsers();
       console.log('UserManager: Users response:', usersResponse);
-
-      if (pendingResponse.success) {
-        setPendingUsers(pendingResponse.data || []);
-      } else {
-        console.error('UserManager: Pending users failed:', pendingResponse);
-        setPendingUsers([]);
-      }
-
       if (usersResponse.success) {
-        setAllUsers(usersResponse.data || []);
+        setPendingUsers(usersResponse.pendingUsers || []);
+        setAllUsers(usersResponse.allUsers || []);
+        console.log('All users:', usersResponse.allUsers);
+        console.log('Pending users:', usersResponse.pendingUsers);
       } else {
-        console.error('UserManager: All users failed:', usersResponse);
+        console.error('UserManager: Users fetch failed:', usersResponse);
+        setPendingUsers([]);
         setAllUsers([]);
       }
     } catch (error) {
       console.error('UserManager: Error loading users:', error);
       setMessage('Error loading users: ' + error.message);
+      setPendingUsers([]);
+      setAllUsers([]);
     } finally {
       setLoading(false);
     }
@@ -305,74 +298,113 @@ export default function UserManager() {
               </div>
 
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        User
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Email
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Role
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Joined
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {allUsers.map((user) => (
-                      <tr key={user.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="flex-shrink-0 h-10 w-10">
-                              <img
-                                className="h-10 w-10 rounded-full"
-                                src={`https://ui-avatars.com/api/?name=${user.name}&background=6366f1&color=fff`}
-                                alt=""
-                              />
-                            </div>
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">
-                                {user.name}
+                {allUsers.length === 0 ? (
+                  <div className="text-center py-8">
+                    <div className="text-6xl mb-4">📝</div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">No users found</h3>
+                    <p className="text-gray-600">No users are registered in the system.</p>
+                  </div>
+                ) : (
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          User
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Email
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Role
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Joined
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {allUsers.map((user) => (
+                        <tr key={user.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0 h-10 w-10">
+                                <img
+                                  className="h-10 w-10 rounded-full"
+                                  src={`https://ui-avatars.com/api/?name=${user.name}&background=6366f1&color=fff`}
+                                  alt=""
+                                />
+                              </div>
+                              <div className="ml-4">
+                                <div className="text-sm font-medium text-gray-900">
+                                  {user.name}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{user.email}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {getRoleBadge(user.role)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {getStatusBadge(user.status)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(user.created_at).toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          {user.id !== currentUser.id && (
-                            <button
-                              onClick={() => handleRemoveUser(user.id)}
-                              className="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200"
-                            >
-                              Remove
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-900">{user.email}</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {user.id === currentUser.id ? (
+                              getRoleBadge(user.role)
+                            ) : (
+                              <select
+                                value={user.role}
+                                onChange={async (e) => {
+                                  const newRole = e.target.value;
+                                  setLoading(true);
+                                  setMessage("");
+                                  try {
+                                    const response = await apiService.updateUserRole(user.id, newRole);
+                                    if (response.success) {
+                                      setMessage(response.message);
+                                      loadUsers();
+                                      setTimeout(() => setMessage(''), 3000);
+                                    } else {
+                                      setMessage(response.message);
+                                    }
+                                  } catch (error) {
+                                    setMessage('Error updating role: ' + error.message);
+                                  } finally {
+                                    setLoading(false);
+                                  }
+                                }}
+                                className="px-2 py-1 rounded border border-gray-300 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                disabled={loading}
+                              >
+                                <option value="user">User</option>
+                                <option value="author">Author</option>
+                                <option value="admin">Admin</option>
+                              </select>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {getStatusBadge(user.status)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {new Date(user.created_at).toLocaleDateString()}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            {user.id !== currentUser.id && (
+                              <button
+                                onClick={() => handleRemoveUser(user.id)}
+                                className="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200"
+                              >
+                                Remove
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
               </div>
             </div>
           )}

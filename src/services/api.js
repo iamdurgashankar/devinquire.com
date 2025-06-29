@@ -1,8 +1,5 @@
 // Dynamic API base URL for both local and production environments
-const API_BASE =
-  process.env.NODE_ENV === "production"
-    ? "https://devinquire.com/api"
-    : "http://localhost:8000/api";
+const API_BASE = "https://devinquire.com/api";
 
 class ApiService {
   constructor() {
@@ -153,6 +150,17 @@ class ApiService {
     return res.json();
   }
 
+  // Update user role (admin)
+  async updateUserRole(userId, newRole) {
+    const res = await fetch(`${API_BASE}/update_user.php`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: userId, role: newRole }),
+      credentials: "include",
+    });
+    return res.json();
+  }
+
   // Posts
   async getPosts(page = 1, limit = 10, category = null, status = null) {
     const params = new URLSearchParams({
@@ -231,6 +239,15 @@ class ApiService {
       credentials: "include",
     });
     return res.json();
+  }
+
+  // Email notifications (mock)
+  async getEmailNotifications() {
+    // Return a mock response for now
+    return {
+      success: true,
+      data: [],
+    };
   }
 }
 

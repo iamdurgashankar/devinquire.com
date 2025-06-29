@@ -20,12 +20,7 @@ export default function Login() {
     try {
       const response = await signInWithEmail(formData.email, formData.password);
       if (response) {
-        // Redirect based on user role
-        if (response.role === 'admin') {
-          navigate('/admin');
-        } else {
-          navigate('/'); // Regular users go to home page
-        }
+        navigate('/admin'); // Redirect all users to admin panel after login
       }
     } catch (error) {
       setError(error.message || 'Login failed. Please check your credentials.');
