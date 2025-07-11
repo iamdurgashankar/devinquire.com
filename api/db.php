@@ -1,9 +1,17 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
 error_reporting(E_ALL);
 
 // Configure session settings for better security and compatibility
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path' => '/',
+    'domain' => '.devinquire.com', // leading dot for all subdomains
+    'secure' => true,
+    'httponly' => true,
+    'samesite' => 'Lax'
+]);
 ini_set('session.cookie_httponly', 1);
 // Set to 1 in production with HTTPS, 0 for local development
 ini_set('session.cookie_secure', 1); // <-- Set to 1 for production, 0 for localhost
@@ -65,6 +73,37 @@ try {
             INDEX idx_category (category),
             INDEX idx_author_id (author_id),
             INDEX idx_created_at (created_at)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ");
+} catch (Exception $e) {
+    // Ignore errors here to avoid breaking the app
+}
+
+// Ensure user_activity_log table exists
+try {
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS user_activity_log (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            action VARCHAR(100) NOT NULL,
+            details TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_user_id (user_id),
+            INDEX idx_action (action)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ");
+} catch (Exception $e) {
+    // Ignore errors here to avoid breaking the app
+}
+// Ensure user_preferences table exists
+try {
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS user_preferences (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL UNIQUE,
+            preferences JSON,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            INDEX idx_user_id (user_id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     ");
 } catch (Exception $e) {

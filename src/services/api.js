@@ -212,6 +212,17 @@ class ApiService {
     return res.json();
   }
 
+  // Permanently delete a post
+  async permanentDeletePost(id) {
+    const res = await fetch(`${API_BASE}/permanent_delete_post.php`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+      credentials: "include",
+    });
+    return res.json();
+  }
+
   // Image upload (mock)
   async uploadImage(file) {
     // In production, implement real image upload
@@ -226,8 +237,19 @@ class ApiService {
 
   // Dashboard stats (implement as needed)
   async getDashboardStats() {
-    // Implement backend endpoint for real stats
-    return { success: true, data: {} };
+    // Return all expected fields with correct types to prevent TypeError
+    return {
+      success: true,
+      data: {
+        totalPosts: 0,
+        recentPosts: 0,
+        totalViews: "0",
+        totalUsers: 0,
+        pendingUsers: 0,
+        categories: {},
+        recentActivity: [],
+      },
+    };
   }
 
   // Change password
@@ -249,7 +271,38 @@ class ApiService {
       data: [],
     };
   }
+
+  // User activity log
+  async getUserActivityLog(userId) {
+    const res = await fetch(
+      `${API_BASE}/profile.php?id=${userId}&activity_log=1`,
+      {
+        credentials: "include",
+      }
+    );
+    return res.json();
+  }
+  // User preferences
+  async getUserPreferences(userId) {
+    const res = await fetch(
+      `${API_BASE}/profile.php?id=${userId}&preferences=1`,
+      {
+        credentials: "include",
+      }
+    );
+    return res.json();
+  }
+  async updateUserPreferences(userId, preferences) {
+    const res = await fetch(`${API_BASE}/profile.php`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: userId, preferences }),
+      credentials: "include",
+    });
+    return res.json();
+  }
 }
 
 const apiService = new ApiService();
+window.apiService = apiService;
 export default apiService;

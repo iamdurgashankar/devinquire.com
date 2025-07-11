@@ -97,10 +97,10 @@ export default function NotificationManager() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">Sent Notifications</h2>
-            <p className="text-sm text-gray-600 mt-1">
+        <div className="bg-white/40 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/30 transition-all duration-300">
+          <div className="px-6 py-4 border-b border-white/30 bg-gradient-to-r from-blue-200/40 to-purple-200/40 rounded-t-2xl">
+            <h2 className="text-lg font-semibold text-blue-900">Sent Notifications</h2>
+            <p className="text-sm text-blue-700/80 mt-1">
               {notifications.length} notification{notifications.length !== 1 ? 's' : ''} sent
             </p>
           </div>

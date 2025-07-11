@@ -1,4 +1,5 @@
 <?php
+header('Content-Type: application/json');
 require 'db.php';
 session_start();
 
@@ -16,6 +17,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if ($_SESSION['role'] !== 'admin' && $userId != $_SESSION['user_id']) {
         http_response_code(403);
         echo json_encode(['success' => false, 'message' => 'Forbidden']);
+        exit;
+    }
+    
+    // Activity log fetch
+    if (isset($_GET['activity_log'])) {
+        try {
+            $stmt = $pdo->prepare("SELECT action, details, created_at FROM user_activity_log WHERE user_id = ? ORDER BY created_at DESC LIMIT 50");
+            $stmt->execute([$userId]);
+            $log = $stmt->fetchAll();
+            echo json_encode(['success' => true, 'activity_log' => $log]);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Error fetching activity log']);
+        }
+        exit;
+    }
+    // Preferences fetch
+    if (isset($_GET['preferences'])) {
+        try {
+            $stmt = $pdo->prepare("SELECT preferences FROM user_preferences WHERE user_id = ?");
+            $stmt->execute([$userId]);
+            $prefs = $stmt->fetchColumn();
+            echo json_encode(['success' => true, 'preferences' => $prefs ? json_decode($prefs, true) : (object)[]]);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Error fetching preferences']);
+        }
         exit;
     }
     
@@ -52,6 +80,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         echo json_encode(['success' => false, 'message' => 'Forbidden']);
         exit;
     }
+    
+    // Preferences update
+    if (isset($data['preferences'])) {
+        try {
+            $prefsJson = json_encode($data['preferences']);
+            $stmt = $pdo->prepare("INSERT INTO user_preferences (user_id, preferences) VALUES (?, ?) ON DUPLICATE KEY UPDATE preferences = VALUES(preferences), updated_at = NOW()");
+            $stmt->execute([$userId, $prefsJson]);
+            echo json_encode(['success' => true, 'message' => 'Preferences updated']);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Error updating preferences']);
+        }
+        exit;
+    }
+
+    // Log profile update as activity
+    try {
+        $stmt = $pdo->prepare("INSERT INTO user_activity_log (user_id, action, details) VALUES (?, 'profile_update', ?)");
+        $stmt->execute([$userId, json_encode($data)]);
+    } catch (Exception $e) {}
     
     try {
         $name = $data['name'] ?? '';

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 
+const API_BASE = "https://devinquire.com/api";
+
 const Contact = () => {
   console.log('Contact page component loaded successfully');
 
@@ -26,7 +28,7 @@ const Contact = () => {
     setSubmitStatus(null);
 
     try {
-      const response = await fetch('/api/contact.php', {
+      const response = await fetch(`${API_BASE}/contact.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),

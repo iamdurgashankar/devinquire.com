@@ -57,13 +57,13 @@ export default function DashboardStats({ onTabChange }) {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {/* Total Posts */}
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white">
+        <div className="bg-gradient-to-r from-blue-400/60 to-purple-400/60 backdrop-blur-xl border border-white/30 shadow-xl rounded-2xl p-6 text-white/90 transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-blue-100 text-sm font-medium">Total Posts</p>
               <p className="text-3xl font-bold">{stats.totalPosts}</p>
             </div>
-            <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-white/30 rounded-lg flex items-center justify-center shadow-md">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
               </svg>
@@ -72,13 +72,13 @@ export default function DashboardStats({ onTabChange }) {
         </div>
 
         {/* Recent Posts */}
-        <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-6 text-white">
+        <div className="bg-gradient-to-r from-green-400/60 to-blue-400/60 backdrop-blur-xl border border-white/30 shadow-xl rounded-2xl p-6 text-white/90 transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-green-100 text-sm font-medium">Recent Posts</p>
               <p className="text-3xl font-bold">{stats.recentPosts}</p>
             </div>
-            <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-white/30 rounded-lg flex items-center justify-center shadow-md">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -87,13 +87,13 @@ export default function DashboardStats({ onTabChange }) {
         </div>
 
         {/* Total Users */}
-        <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl p-6 text-white">
+        <div className="bg-gradient-to-r from-purple-400/60 to-blue-400/60 backdrop-blur-xl border border-white/30 shadow-xl rounded-2xl p-6 text-white/90 transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-purple-100 text-sm font-medium">Total Users</p>
               <p className="text-3xl font-bold">{stats.totalUsers}</p>
             </div>
-            <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-white/30 rounded-lg flex items-center justify-center shadow-md">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
               </svg>
@@ -102,13 +102,13 @@ export default function DashboardStats({ onTabChange }) {
         </div>
 
         {/* Pending Users */}
-        <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-6 text-white">
+        <div className="bg-gradient-to-r from-pink-400/60 to-purple-400/60 backdrop-blur-xl border border-white/30 shadow-xl rounded-2xl p-6 text-white/90 transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-orange-100 text-sm font-medium">Pending Users</p>
+              <p className="text-pink-100 text-sm font-medium">Pending Users</p>
               <p className="text-3xl font-bold">{stats.pendingUsers}</p>
             </div>
-            <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-white/30 rounded-lg flex items-center justify-center shadow-md">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -121,86 +121,88 @@ export default function DashboardStats({ onTabChange }) {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <button
           onClick={() => handleQuickAction('blog')}
-          className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all duration-200 group"
+          className="bg-white/40 backdrop-blur-lg border border-white/30 rounded-2xl p-6 hover:shadow-2xl transition-all duration-200 group"
         >
           <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors duration-200">
+            <div className="w-12 h-12 bg-blue-100/60 rounded-lg flex items-center justify-center group-hover:bg-blue-200/80 transition-colors duration-200 shadow-md">
               <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
             </div>
             <div className="text-left">
-              <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors duration-200">Create Post</h3>
-              <p className="text-sm text-gray-500">Add a new blog post</p>
+              <h3 className="font-semibold text-blue-900 group-hover:text-blue-600 transition-colors duration-200">Create Post</h3>
+              <p className="text-sm text-blue-700/80">Add a new blog post</p>
             </div>
           </div>
         </button>
 
         <button
           onClick={() => handleQuickAction('users')}
-          className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all duration-200 group"
+          className="bg-white/40 backdrop-blur-lg border border-white/30 rounded-2xl p-6 hover:shadow-2xl transition-all duration-200 group"
         >
           <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors duration-200">
+            <div className="w-12 h-12 bg-green-100/60 rounded-lg flex items-center justify-center group-hover:bg-green-200/80 transition-colors duration-200 shadow-md">
               <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
               </svg>
             </div>
             <div className="text-left">
-              <h3 className="font-semibold text-gray-900 group-hover:text-green-600 transition-colors duration-200">Manage Users</h3>
-              <p className="text-sm text-gray-500">Approve pending users</p>
+              <h3 className="font-semibold text-blue-900 group-hover:text-green-600 transition-colors duration-200">Manage Users</h3>
+              <p className="text-sm text-blue-700/80">Approve pending users</p>
             </div>
           </div>
         </button>
 
         <button
           onClick={() => handleQuickAction('profile')}
-          className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all duration-200 group"
+          className="bg-white/40 backdrop-blur-lg border border-white/30 rounded-2xl p-6 hover:shadow-2xl transition-all duration-200 group"
         >
           <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors duration-200">
+            <div className="w-12 h-12 bg-purple-100/60 rounded-lg flex items-center justify-center group-hover:bg-purple-200/80 transition-colors duration-200 shadow-md">
               <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>
             <div className="text-left">
-              <h3 className="font-semibold text-gray-900 group-hover:text-purple-600 transition-colors duration-200">View Profile</h3>
-              <p className="text-sm text-gray-500">Update your profile</p>
+              <h3 className="font-semibold text-blue-900 group-hover:text-purple-600 transition-colors duration-200">View Profile</h3>
+              <p className="text-sm text-blue-700/80">Update your profile</p>
             </div>
           </div>
         </button>
 
         <button
           onClick={() => handleQuickAction('blog')}
-          className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all duration-200 group"
+          className="bg-white/40 backdrop-blur-lg border border-white/30 rounded-2xl p-6 hover:shadow-2xl transition-all duration-200 group"
         >
           <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center group-hover:bg-orange-200 transition-colors duration-200">
+            <div className="w-12 h-12 bg-orange-100/60 rounded-lg flex items-center justify-center group-hover:bg-orange-200/80 transition-colors duration-200 shadow-md">
               <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
               </svg>
             </div>
             <div className="text-left">
-              <h3 className="font-semibold text-gray-900 group-hover:text-orange-600 transition-colors duration-200">Manage Posts</h3>
-              <p className="text-sm text-gray-500">Edit existing posts</p>
+              <h3 className="font-semibold text-blue-900 group-hover:text-orange-600 transition-colors duration-200">Manage Posts</h3>
+              <p className="text-sm text-blue-700/80">Edit existing posts</p>
             </div>
           </div>
         </button>
       </div>
 
       {/* Recent Activity */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>
+      <div className="bg-white/40 backdrop-blur-lg rounded-2xl shadow-xl border border-white/30">
+        <div className="px-6 py-4 border-b border-white/30">
+          <h2 className="text-lg font-semibold text-blue-900">Recent Activity</h2>
         </div>
         <div className="p-6">
           {((stats.recentActivity || []).length === 0) ? (
             <div className="text-center py-8">
-              <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="mx-auto h-12 w-12 text-blue-400/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No recent activity</h3>
-              <p className="mt-1 text-sm text-gray-500">Get started by creating your first post.</p>
+              <h3 className="mt-2 text-sm font-medium text-blue-900">No recent activity</h3>
+              <p className="mt-1 text-sm text-blue-700/80">
+                Activity will appear here as users interact with the dashboard.
+              </p>
             </div>
           ) : (
             <div className="space-y-4">

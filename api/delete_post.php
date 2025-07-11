@@ -1,4 +1,5 @@
 <?php
+header('Content-Type: application/json');
 require 'db.php';
 session_start();
 
@@ -42,13 +43,13 @@ try {
         exit;
     }
 
-    // Delete the post
-    $stmt = $pdo->prepare("DELETE FROM posts WHERE id = ?");
+    // Soft delete: set status to 'deleted' instead of removing the row
+    $stmt = $pdo->prepare("UPDATE posts SET status = 'deleted', updated_at = NOW() WHERE id = ?");
     $stmt->execute([$postId]);
 
     echo json_encode([
         'success' => true,
-        'message' => 'Post deleted successfully',
+        'message' => 'Post deleted (soft delete) successfully',
         'data' => $post
     ]);
 

@@ -195,12 +195,12 @@ export default function UserManager() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="bg-white/40 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/30 transition-all duration-300">
           {activeTab === 'pending' ? (
             <div>
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">Pending Approvals</h2>
-                <p className="text-sm text-gray-600 mt-1">
+              <div className="px-6 py-4 border-b border-white/30 bg-gradient-to-r from-blue-200/40 to-purple-200/40 rounded-t-2xl">
+                <h2 className="text-lg font-semibold text-blue-900">Pending Approvals</h2>
+                <p className="text-sm text-blue-700/80 mt-1">
                   Review and approve new user registrations
                 </p>
               </div>
@@ -290,9 +290,9 @@ export default function UserManager() {
             </div>
           ) : (
             <div>
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">All Users</h2>
-                <p className="text-sm text-gray-600 mt-1">
+              <div className="px-6 py-4 border-b border-white/30 bg-gradient-to-r from-blue-200/40 to-purple-200/40 rounded-t-2xl">
+                <h2 className="text-lg font-semibold text-blue-900">All Users</h2>
+                <p className="text-sm text-blue-700/80 mt-1">
                   View all registered users in the system
                 </p>
               </div>

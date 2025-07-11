@@ -450,3 +450,109 @@ body {
 .toggle-switch.disabled .toggle-switch-thumb {
   transform: translateX(0);
 }
+
+.quill-editor-custom .ql-container {
+  border: none !important;
+  border-radius: 1rem !important;
+  font-size: 1rem;
+  background: white;
+}
+
+.quill-editor-custom .ql-toolbar {
+  border: none !important;
+  border-radius: 1rem 1rem 0 0 !important;
+  background: #f9fafb;
+  box-shadow: none;
+}
+
+.quill-editor-custom .ql-editor {
+  min-height: 120px;
+  border-radius: 0 0 1rem 1rem !important;
+  background: white;
+}
+
+.quill-editor-custom {
+  border: none !important;
+  box-shadow: none !important;
+  background: white;
+}
+
+@keyframes blob1 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(40px, -30px) scale(1.08);
+  }
+  66% {
+    transform: translate(-30px, 30px) scale(0.95);
+  }
+}
+@keyframes blob2 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(-30px, 40px) scale(1.1);
+  }
+  50% {
+    transform: translate(30px, -20px) scale(0.92);
+  }
+  75% {
+    transform: translate(-20px, 10px) scale(1.04);
+  }
+}
+@keyframes blob3 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  20% {
+    transform: translate(20px, 20px) scale(1.12);
+  }
+  60% {
+    transform: translate(-20px, -10px) scale(0.9);
+  }
+}
+@keyframes blob4 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  40% {
+    transform: translate(-15px, 25px) scale(1.07);
+  }
+  80% {
+    transform: translate(10px, -15px) scale(0.97);
+  }
+}
+@keyframes blob5 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  30% {
+    transform: translate(25px, -20px) scale(1.09);
+  }
+  70% {
+    transform: translate(-25px, 20px) scale(0.93);
+  }
+}
+
+.animate-blob1 {
+  animation: blob1 18s ease-in-out infinite;
+}
+.animate-blob2 {
+  animation: blob2 22s ease-in-out infinite;
+}
+.animate-blob3 {
+  animation: blob3 16s ease-in-out infinite;
+}
+.animate-blob4 {
+  animation: blob4 26s ease-in-out infinite;
+}
+.animate-blob5 {
+  animation: blob5 20s ease-in-out infinite;
+}

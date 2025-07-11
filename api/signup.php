@@ -1,4 +1,5 @@
 <?php
+header('Content-Type: application/json');
 require 'db.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

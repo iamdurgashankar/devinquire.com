@@ -20,6 +20,9 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import CookiePolicy from "./pages/CookiePolicy";
+import { ThemeProvider } from "./contexts/ThemeContext";
+import apiService from "./services/api";
+import React from "react";
 
 function AppContent() {
   const location = useLocation();
@@ -29,7 +32,7 @@ function AppContent() {
 
   return (
     <>
-      {!isAdminPage && !isRegisterPage && !isLoginPage && <Navbar />}
+      {!isAdminPage && <Navbar />}
       <div className="min-h-screen">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -86,14 +89,30 @@ function AppContent() {
   );
 }
 
-function App() {
+export default function App() {
+  const [initialTheme, setInitialTheme] = React.useState("system");
+  React.useEffect(() => {
+    // Try to load theme from user preferences if logged in
+    async function loadThemePref() {
+      try {
+        const user = await apiService.getCurrentUser();
+        if (user) {
+          const prefs = await apiService.getUserPreferences(user.id);
+          if (prefs.success && prefs.preferences && prefs.preferences.theme) {
+            setInitialTheme(prefs.preferences.theme);
+          }
+        }
+      } catch (e) {}
+    }
+    loadThemePref();
+  }, []);
   return (
-    <AuthProvider>
-      <Router>
-        <AppContent />
-      </Router>
-    </AuthProvider>
+    <ThemeProvider initialTheme={initialTheme}>
+      <AuthProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
-
-export default App;

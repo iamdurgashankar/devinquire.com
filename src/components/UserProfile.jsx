@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 export default function UserProfile() {
   const { currentUser, changePassword } = useAuth();
+  const { setTheme } = useTheme();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -13,6 +15,13 @@ export default function UserProfile() {
     confirmNewPassword: ''
   });
   const [passwordLoading, setPasswordLoading] = useState(false);
+  const [showActivityLog, setShowActivityLog] = useState(false);
+  const [activityLog, setActivityLog] = useState([]);
+  const [activityLoading, setActivityLoading] = useState(false);
+  const [showPreferences, setShowPreferences] = useState(false);
+  const [preferences, setPreferences] = useState({ theme: 'system', notifications: true });
+  const [preferencesLoading, setPreferencesLoading] = useState(false);
+  const [preferencesMessage, setPreferencesMessage] = useState('');
 
   // Initialize profile data from currentUser or default values
   const [profileData, setProfileData] = useState(() => {
@@ -113,14 +122,56 @@ export default function UserProfile() {
     setShowPasswordModal(true);
   };
 
-  const handleActivityLog = () => {
-    setMessage('Activity log would show recent account activity.');
-    setTimeout(() => setMessage(''), 3000);
+  const handleActivityLog = async () => {
+    setShowActivityLog(true);
+    setActivityLoading(true);
+    setActivityLog([]);
+    try {
+      const res = await window.apiService.getUserActivityLog(currentUser.id);
+      if (res.success && res.activity_log) {
+        setActivityLog(res.activity_log);
+      }
+    } catch (e) {
+      setActivityLog([]);
+    } finally {
+      setActivityLoading(false);
+    }
   };
 
-  const handlePreferences = () => {
-    setMessage('Preferences panel would open here.');
-    setTimeout(() => setMessage(''), 3000);
+  const handlePreferences = async () => {
+    setShowPreferences(true);
+    setPreferencesLoading(true);
+    setPreferencesMessage('');
+    try {
+      const res = await window.apiService.getUserPreferences(currentUser.id);
+      if (res.success && res.preferences) {
+        setPreferences(res.preferences);
+      }
+    } catch (e) {
+      setPreferencesMessage('Error loading preferences');
+    } finally {
+      setPreferencesLoading(false);
+    }
+  };
+
+  // Save preferences
+  const handleSavePreferences = async () => {
+    setPreferencesLoading(true);
+    setPreferencesMessage('');
+    try {
+      const res = await window.apiService.updateUserPreferences(currentUser.id, preferences);
+      if (res.success) {
+        setPreferencesMessage('Preferences updated!');
+        setTheme(preferences.theme); // Apply theme immediately
+        setTimeout(() => setPreferencesMessage(''), 2000);
+      } else {
+        setPreferencesMessage(res.message || 'Error updating preferences');
+      }
+    } catch (e) {
+      setPreferencesMessage('Error updating preferences');
+    } finally {
+      setPreferencesLoading(false);
+    }
   };
 
   return (
@@ -212,8 +263,105 @@ export default function UserProfile() {
         </div>
       )}
 
+      {/* Activity Log Modal */}
+      {showActivityLog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-2xl mx-4 shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Activity Log</h3>
+              <button onClick={() => setShowActivityLog(false)} className="text-gray-400 hover:text-gray-600">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            {activityLoading ? (
+              <div className="py-8 flex justify-center items-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              </div>
+            ) : (
+              <div className="max-h-96 overflow-y-auto divide-y divide-gray-100">
+                {activityLog.length === 0 ? (
+                  <div className="text-center text-gray-500 py-8">No recent activity.</div>
+                ) : (
+                  activityLog.map((log, i) => (
+                    <div key={i} className="py-3 flex items-start gap-4">
+                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-900">{log.action.replace(/_/g, ' ')}</div>
+                        <div className="text-xs text-gray-500">{log.details && typeof log.details === 'string' ? log.details.slice(0, 100) : ''}</div>
+                        <div className="text-xs text-gray-400 mt-1">{new Date(log.created_at).toLocaleString()}</div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Preferences Modal */}
+      {showPreferences && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md mx-4 shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Preferences</h3>
+              <button onClick={() => setShowPreferences(false)} className="text-gray-400 hover:text-gray-600">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            {preferencesLoading ? (
+              <div className="py-8 flex justify-center items-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              </div>
+            ) : (
+              <form onSubmit={e => { e.preventDefault(); handleSavePreferences(); }} className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Theme</label>
+                  <select
+                    value={preferences.theme}
+                    onChange={e => setPreferences(p => ({ ...p, theme: e.target.value }))}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="system">System</option>
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                  </select>
+                </div>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={preferences.notifications}
+                    onChange={e => setPreferences(p => ({ ...p, notifications: e.target.checked }))}
+                    id="notifications"
+                    className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <label htmlFor="notifications" className="block text-sm font-medium text-gray-700">
+                    Enable notifications
+                  </label>
+                </div>
+                {preferencesMessage && (
+                  <div className="text-sm text-green-600">{preferencesMessage}</div>
+                )}
+                <div className="flex justify-end gap-2">
+                  <button type="button" onClick={() => setShowPreferences(false)} className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">Cancel</button>
+                  <button type="submit" disabled={preferencesLoading} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 disabled:opacity-50">Save</button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Profile Header */}
-      <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-8 text-white mb-8">
+      <div className="bg-gradient-to-r from-blue-400/60 via-purple-400/60 to-pink-300/40 backdrop-blur-xl rounded-2xl p-8 text-white mb-8 shadow-2xl border border-white/30">
         <div className="flex items-center space-x-6">
           <div className="relative">
             <img
@@ -228,14 +376,14 @@ export default function UserProfile() {
             </div>
           </div>
           <div className="flex-1">
-            <h1 className="text-3xl font-bold mb-2">{profileData.displayName || 'Admin User'}</h1>
+            <h1 className="text-3xl font-bold mb-2 drop-shadow">{profileData.displayName || 'Admin User'}</h1>
             <p className="text-blue-100 mb-2">{profileData.email}</p>
             <p className="text-blue-100">Administrator • DevInquire</p>
           </div>
           <div className="hidden md:block">
             <button
               onClick={() => setIsEditing(!isEditing)}
-              className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200"
+              className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 shadow-md"
             >
               {isEditing ? 'Cancel' : 'Edit Profile'}
             </button>
@@ -246,12 +394,12 @@ export default function UserProfile() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Profile Information */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white/40 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/30 p-6 transition-all duration-300">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Profile Information</h2>
+              <h2 className="text-xl font-semibold text-blue-900">Profile Information</h2>
               <button
                 onClick={() => setIsEditing(!isEditing)}
-                className="md:hidden bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+                className="md:hidden bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 shadow-md"
               >
                 {isEditing ? 'Cancel' : 'Edit'}
               </button>
@@ -369,6 +517,47 @@ export default function UserProfile() {
                     <p className="text-gray-900">{profileData.github}</p>
                   )}
                 </div>
+              </div>
+
+              {/* Account Type (Role) */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Account Type
+                </label>
+                {currentUser?.role === 'admin' ? (
+                  <select
+                    value={profileData.role || currentUser.role}
+                    onChange={async (e) => {
+                      const newRole = e.target.value;
+                      setLoading(true);
+                      setMessage('');
+                      try {
+                        const response = await window.apiService.updateUserRole(currentUser.id, newRole);
+                        if (response.success) {
+                          setProfileData((prev) => ({ ...prev, role: newRole }));
+                          setMessage('Account type updated successfully!');
+                          setTimeout(() => setMessage(''), 3000);
+                        } else {
+                          setMessage(response.message);
+                        }
+                      } catch (error) {
+                        setMessage('Error updating account type: ' + error.message);
+                      } finally {
+                        setLoading(false);
+                      }
+                    }}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    disabled={loading}
+                  >
+                    <option value="user">User</option>
+                    <option value="author">Author</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                ) : (
+                  <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                    {currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1)}
+                  </span>
+                )}
               </div>
 
               {/* Action Buttons */}

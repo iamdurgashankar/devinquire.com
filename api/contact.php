@@ -1,6 +1,6 @@
 <?php
-// contact.php - Handles contact form submissions and sends email to contact@devinquire.com
 header('Content-Type: application/json');
+// contact.php - Handles contact form submissions and sends email to contact@devinquire.com
 require_once 'db.php'; // For CORS headers
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
