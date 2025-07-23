@@ -2,6 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 
+function StatusBadge({ status }) {
+  let color = 'bg-gray-200 text-gray-700';
+  let text = status;
+  if (status === 'approved') {
+    color = 'bg-green-100 text-green-800';
+    text = 'Approved';
+  } else if (status === 'pending') {
+    color = 'bg-yellow-100 text-yellow-800';
+    text = 'Pending Approval';
+  } else if (status === 'rejected') {
+    color = 'bg-red-100 text-red-800';
+    text = 'Rejected';
+  }
+  return <span className={`px-2 py-1 text-xs rounded-full ${color}`}>{text}</span>;
+}
+
 export default function UserProfile() {
   const { currentUser, changePassword } = useAuth();
   const { setTheme } = useTheme();
@@ -36,6 +52,10 @@ export default function UserProfile() {
     };
   });
 
+  const [profileStatus, setProfileStatus] = useState(currentUser?.status || 'approved');
+  const [statusTooltip, setStatusTooltip] = useState(false);
+  const [memberSince, setMemberSince] = useState('');
+
   // Update profile data when currentUser changes
   useEffect(() => {
     if (currentUser) {
@@ -46,6 +66,31 @@ export default function UserProfile() {
       }));
     }
   }, [currentUser]);
+
+  // Real-time polling for account status and member since
+  useEffect(() => {
+    let interval;
+    const fetchStatus = async () => {
+      try {
+        const res = await window.apiService.getCurrentUser();
+        if (res && res.status) {
+          setProfileStatus(res.status);
+        }
+        // Fetch full profile for member since
+        const profileRes = await window.apiService.getProfile(res.id);
+        if (profileRes && profileRes.success && profileRes.user) {
+          // If approved, use updated_at as approval date, else use created_at
+          const date = (profileRes.user.status === 'approved' && profileRes.user.updated_at)
+            ? profileRes.user.updated_at
+            : profileRes.user.created_at;
+          setMemberSince(date ? new Date(date).toLocaleDateString() : 'N/A');
+        }
+      } catch (e) {}
+    };
+    fetchStatus();
+    interval = setInterval(fetchStatus, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleSave = async () => {
     setLoading(true);
@@ -597,17 +642,28 @@ export default function UserProfile() {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Account Type</span>
                 <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                  Administrator
+                  {currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Account Status</span>
+                <span
+                  className="relative cursor-pointer"
+                  onMouseEnter={() => setStatusTooltip(true)}
+                  onMouseLeave={() => setStatusTooltip(false)}
+                >
+                  <StatusBadge status={profileStatus} />
+                  {profileStatus !== 'approved' && statusTooltip && (
+                    <span className="absolute left-1/2 -translate-x-1/2 mt-2 w-48 bg-black text-white text-xs rounded-lg px-3 py-2 z-50 shadow-xl">
+                      {profileStatus === 'pending' && 'Your account is pending admin approval. You cannot post until approved.'}
+                      {profileStatus === 'rejected' && 'Your account was rejected. Please contact support.'}
+                    </span>
+                  )}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Member Since</span>
-                <span className="text-sm text-gray-900">
-                  {currentUser?.metadata?.creationTime ? 
-                    new Date(currentUser.metadata.creationTime).toLocaleDateString() : 
-                    'N/A'
-                  }
-                </span>
+                <span className="text-sm text-gray-900">{memberSince || 'N/A'}</span>
               </div>
             </div>
           </div>

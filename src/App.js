@@ -3,6 +3,7 @@ import {
   Routes,
   Route,
   useLocation,
+  useParams,
 } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import Home from "./pages/Home";
@@ -23,6 +24,14 @@ import CookiePolicy from "./pages/CookiePolicy";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import apiService from "./services/api";
 import React from "react";
+import SupportAgent from "./components/SupportAgent";
+import PageBuilder from "./components/PageBuilder";
+import PageManager from "./components/PageManager";
+
+function PageBuilderWrapper() {
+  const { pageId } = useParams();
+  return <PageBuilder pageId={pageId} />;
+}
 
 function AppContent() {
   const location = useLocation();
@@ -79,6 +88,23 @@ function AppContent() {
               </ErrorBoundary>
             }
           />
+          <Route
+            path="/admin/page-manager"
+            element={
+              <ErrorBoundary>
+                <PageManager />
+              </ErrorBoundary>
+            }
+          />
+          <Route
+            path="/admin/page-builder/:pageId"
+            element={
+              <ErrorBoundary>
+                <PageBuilderWrapper />
+              </ErrorBoundary>
+            }
+          />
+          <Route path="/admin/page-builder" element={<PageBuilder />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/cookie-policy" element={<CookiePolicy />} />
@@ -111,6 +137,7 @@ export default function App() {
       <AuthProvider>
         <Router>
           <AppContent />
+          <SupportAgent />
         </Router>
       </AuthProvider>
     </ThemeProvider>

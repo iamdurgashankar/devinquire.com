@@ -17,14 +17,14 @@ export default function BlogPost() {
       setLoading(true);
       setError(null);
       const response = await apiService.getPost(id);
-      if (response.success) {
+      if (response.success && response.data) {
         setPost(response.data);
       } else {
-        setError('Post not found');
+        setError(response.message || 'Post not found');
       }
     } catch (error) {
       console.error('Error loading post:', error);
-      setError('Failed to load post');
+      setError(error.message || 'Failed to load post. Please try again later.');
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import apiService from '../services/api';
 
+function Modal({ open, onClose, title, children }) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6 relative">
+        <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-red-500 text-xl">&times;</button>
+        <h2 className="text-xl font-bold mb-4">{title}</h2>
+        <div className="max-h-[60vh] overflow-y-auto">{children}</div>
+      </div>
+    </div>
+  );
+}
+
 export default function DashboardStats({ onTabChange }) {
   const [stats, setStats] = useState({
     totalPosts: 0,
@@ -12,9 +25,16 @@ export default function DashboardStats({ onTabChange }) {
     recentActivity: []
   });
   const [loading, setLoading] = useState(true);
+  const [modal, setModal] = useState({ open: false, title: '', content: null });
 
   useEffect(() => {
-    loadStats();
+    let interval;
+    const fetchStats = async () => {
+      await loadStats();
+    };
+    fetchStats();
+    interval = setInterval(fetchStats, 10000); // Poll every 10 seconds
+    return () => clearInterval(interval);
   }, []);
 
   const loadStats = async () => {
@@ -36,6 +56,108 @@ export default function DashboardStats({ onTabChange }) {
     }
   };
 
+  // Modal handlers for stat cards
+  const handleShowTotalPosts = async () => {
+    setModal({ open: true, title: 'All Posts', content: <div>Loading...</div> });
+    try {
+      const res = await apiService.getPosts(1, 1000);
+      if (res.success && res.data && res.data.posts) {
+        setModal({
+          open: true,
+          title: 'All Posts',
+          content: (
+            <ul className="divide-y divide-gray-200">
+              {res.data.posts.map(post => (
+                <li key={post.id} className="py-2">
+                  <span className="font-semibold">{post.title}</span> <span className="text-xs text-gray-500">({post.status})</span>
+                </li>
+              ))}
+            </ul>
+          )
+        });
+      } else {
+        setModal({ open: true, title: 'All Posts', content: <div>No posts found.</div> });
+      }
+    } catch (e) {
+      setModal({ open: true, title: 'All Posts', content: <div>Error loading posts.</div> });
+    }
+  };
+  const handleShowRecentPosts = async () => {
+    setModal({ open: true, title: 'Recent Posts', content: <div>Loading...</div> });
+    try {
+      const res = await apiService.getPosts(1, 10, null, 'published');
+      if (res.success && res.data && res.data.posts) {
+        setModal({
+          open: true,
+          title: 'Recent Posts',
+          content: (
+            <ul className="divide-y divide-gray-200">
+              {res.data.posts.map(post => (
+                <li key={post.id} className="py-2">
+                  <span className="font-semibold">{post.title}</span> <span className="text-xs text-gray-500">{new Date(post.created_at).toLocaleString()}</span>
+                </li>
+              ))}
+            </ul>
+          )
+        });
+      } else {
+        setModal({ open: true, title: 'Recent Posts', content: <div>No recent posts found.</div> });
+      }
+    } catch (e) {
+      setModal({ open: true, title: 'Recent Posts', content: <div>Error loading recent posts.</div> });
+    }
+  };
+  const handleShowTotalUsers = async () => {
+    setModal({ open: true, title: 'All Users', content: <div>Loading...</div> });
+    try {
+      const res = await apiService.getAllUsers();
+      if (res.success && res.allUsers) {
+        setModal({
+          open: true,
+          title: 'All Users',
+          content: (
+            <ul className="divide-y divide-gray-200">
+              {res.allUsers.map(user => (
+                <li key={user.id} className="py-2">
+                  <span className="font-semibold">{user.name}</span> <span className="text-xs text-gray-500">({user.email}, {user.role})</span>
+                </li>
+              ))}
+            </ul>
+          )
+        });
+      } else {
+        setModal({ open: true, title: 'All Users', content: <div>No users found.</div> });
+      }
+    } catch (e) {
+      setModal({ open: true, title: 'All Users', content: <div>Error loading users.</div> });
+    }
+  };
+  const handleShowPendingUsers = async () => {
+    setModal({ open: true, title: 'Pending Users', content: <div>Loading...</div> });
+    try {
+      const res = await apiService.getPendingUsers();
+      if (res.success && res.data) {
+        setModal({
+          open: true,
+          title: 'Pending Users',
+          content: (
+            <ul className="divide-y divide-gray-200">
+              {res.data.map(user => (
+                <li key={user.id} className="py-2">
+                  <span className="font-semibold">{user.name}</span> <span className="text-xs text-gray-500">({user.email}, {user.role})</span>
+                </li>
+              ))}
+            </ul>
+          )
+        });
+      } else {
+        setModal({ open: true, title: 'Pending Users', content: <div>No pending users found.</div> });
+      }
+    } catch (e) {
+      setModal({ open: true, title: 'Pending Users', content: <div>Error loading pending users.</div> });
+    }
+  };
+
   if (loading) {
     return (
       <div className="p-6">
@@ -48,6 +170,9 @@ export default function DashboardStats({ onTabChange }) {
 
   return (
     <div className="p-6">
+      <Modal open={modal.open} onClose={() => setModal({ ...modal, open: false })} title={modal.title}>
+        {modal.content}
+      </Modal>
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Dashboard Overview</h1>
@@ -57,7 +182,7 @@ export default function DashboardStats({ onTabChange }) {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {/* Total Posts */}
-        <div className="bg-gradient-to-r from-blue-400/60 to-purple-400/60 backdrop-blur-xl border border-white/30 shadow-xl rounded-2xl p-6 text-white/90 transition-all duration-300">
+        <div className="bg-gradient-to-r from-blue-400/60 to-purple-400/60 backdrop-blur-xl border border-white/30 shadow-xl rounded-2xl p-6 text-white/90 transition-all duration-300 cursor-pointer" onClick={handleShowTotalPosts} title="View all posts">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-blue-100 text-sm font-medium">Total Posts</p>
@@ -72,7 +197,7 @@ export default function DashboardStats({ onTabChange }) {
         </div>
 
         {/* Recent Posts */}
-        <div className="bg-gradient-to-r from-green-400/60 to-blue-400/60 backdrop-blur-xl border border-white/30 shadow-xl rounded-2xl p-6 text-white/90 transition-all duration-300">
+        <div className="bg-gradient-to-r from-green-400/60 to-blue-400/60 backdrop-blur-xl border border-white/30 shadow-xl rounded-2xl p-6 text-white/90 transition-all duration-300 cursor-pointer" onClick={handleShowRecentPosts} title="View recent posts">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-green-100 text-sm font-medium">Recent Posts</p>
@@ -87,7 +212,7 @@ export default function DashboardStats({ onTabChange }) {
         </div>
 
         {/* Total Users */}
-        <div className="bg-gradient-to-r from-purple-400/60 to-blue-400/60 backdrop-blur-xl border border-white/30 shadow-xl rounded-2xl p-6 text-white/90 transition-all duration-300">
+        <div className="bg-gradient-to-r from-purple-400/60 to-blue-400/60 backdrop-blur-xl border border-white/30 shadow-xl rounded-2xl p-6 text-white/90 transition-all duration-300 cursor-pointer" onClick={handleShowTotalUsers} title="View all users">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-purple-100 text-sm font-medium">Total Users</p>
@@ -102,7 +227,7 @@ export default function DashboardStats({ onTabChange }) {
         </div>
 
         {/* Pending Users */}
-        <div className="bg-gradient-to-r from-pink-400/60 to-purple-400/60 backdrop-blur-xl border border-white/30 shadow-xl rounded-2xl p-6 text-white/90 transition-all duration-300">
+        <div className="bg-gradient-to-r from-pink-400/60 to-purple-400/60 backdrop-blur-xl border border-white/30 shadow-xl rounded-2xl p-6 text-white/90 transition-all duration-300 cursor-pointer" onClick={handleShowPendingUsers} title="View pending users">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-pink-100 text-sm font-medium">Pending Users</p>

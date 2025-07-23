@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import apiService from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import ReactQuill from 'react-quill';
@@ -294,8 +295,28 @@ export default function BlogManager({ showCreateForm = false }) {
     }
   };
 
+  // Fullscreen scroll/overflow fix
+  useEffect(() => {
+    if (isFullScreen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [isFullScreen]);
+
   return (
     <div className="p-6">
+      {/* Fullscreen Content Editor Overlay */}
+      {isFullScreen && ReactDOM.createPortal(
+        <div className="fixed inset-0 z-[9999] flex flex-col justify-center items-center bg-black/70 transition-all duration-300" style={{height: '100vh', width: '100vw', padding: 0, margin: 0}}>
+          <div className="bg-white rounded-2xl shadow-2xl border border-purple-200 p-8 w-full max-w-4xl mx-auto my-auto flex-1 flex flex-col relative" style={{height: '80vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', boxShadow: '0 12px 48px rgba(128,0,128,0.12)', transition: 'all 0.3s'}}>
+            <button type="button" onClick={() => setIsFullScreen(false)} className="absolute top-4 right-4 z-[10000] text-gray-700 hover:text-red-600 bg-white bg-opacity-90 rounded-full p-2 shadow-2xl border border-gray-300 transition-colors duration-200" style={{fontSize: '1.8rem', lineHeight: 1, boxShadow: '0 8px 32px rgba(0,0,0,0.22)'}} aria-label="Close Full Screen">&times;</button>
+            <ReactQuill theme="snow" value={formData.content} onChange={content => setFormData({...formData, content})} modules={{ toolbar: [[{ 'header': [1, 2, 3, false] }], ['bold', 'italic', 'underline', 'strike'], [{ 'list': 'ordered'}, { 'list': 'bullet' }], ['blockquote', 'code-block'], ['link', 'image'], [{ 'align': [] }], ['clean']] }} formats={['header', 'bold', 'italic', 'underline', 'strike', 'list', 'bullet', 'blockquote', 'code-block', 'link', 'image', 'align']} className="quill-editor-custom w-full text-lg" style={{height: '100%', minHeight: '60vh', fontSize: '1.2rem', background: 'white', borderRadius: '1.2rem'}} />
+          </div>
+        </div>,
+        document.body
+      )}
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900">
@@ -369,7 +390,7 @@ export default function BlogManager({ showCreateForm = false }) {
                   </h4>
                 </div>
                 <div className="border-b border-blue-100/60 mx-8 mb-2"></div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-0 divide-y md:divide-y-0 md:divide-x divide-blue-50 px-8 pb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-0 divide-y md:divide-y-0 px-8 pb-8">
                   {/* Title */}
                   <div className="py-4 md:pr-6 flex flex-col justify-center">
                     <label className="block text-sm font-semibold text-gray-700 mb-1 flex items-center gap-2">
@@ -379,7 +400,7 @@ export default function BlogManager({ showCreateForm = false }) {
                     <input type="text" required value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:border-2 focus:bg-blue-50 bg-white hover:shadow transition-all duration-200 text-base outline-none" placeholder="Enter post title" />
                   </div>
                   {/* Category */}
-                  <div className="py-4 md:pl-6 flex flex-col justify-center">
+                  <div className="py-4 md:pl-6 flex flex-col justify-center md:border-l md:border-blue-50">
                     <label className="block text-sm font-semibold text-gray-700 mb-1 flex items-center gap-2">
                       <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h8M12 8v8" /></svg>
                       Category *
@@ -410,7 +431,7 @@ export default function BlogManager({ showCreateForm = false }) {
                     </div>
                   </div>
                   {/* Tags */}
-                  <div className="py-4 md:pl-6 flex flex-col justify-center">
+                  <div className="py-4 md:pl-6 flex flex-col justify-center md:border-l md:border-blue-50">
                     <label className="block text-sm font-semibold text-gray-700 mb-1 flex items-center gap-2">
                       <svg className="w-5 h-5 text-pink-400" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h8" /></svg>
                       Tags
@@ -441,17 +462,14 @@ export default function BlogManager({ showCreateForm = false }) {
                       </label>
                       <button type="button" onClick={() => setIsFullScreen(!isFullScreen)} className="ml-2 px-3 py-1 rounded bg-purple-600 text-white text-xs font-semibold hover:bg-purple-700 focus:outline-none">Full Screen</button>
                     </div>
-                    <div className={`w-full ${isFullScreen ? 'fixed inset-0 z-50 flex flex-col justify-center items-center bg-black bg-opacity-60 transition-all duration-300' : ''}`} style={isFullScreen ? {height: '100vh', width: '100vw', padding: 0, margin: 0} : {}}>
-                      {isFullScreen && (
-                        <button type="button" onClick={() => setIsFullScreen(false)} className="absolute top-8 right-12 z-50 text-gray-700 hover:text-red-600 bg-white bg-opacity-90 rounded-full p-3 shadow-2xl border border-gray-300 transition-colors duration-200" style={{fontSize: '2.2rem', lineHeight: 1, boxShadow: '0 8px 32px rgba(0,0,0,0.22)'}} aria-label="Close Full Screen">&times;</button>
-                      )}
-                      <div className={`bg-white rounded-2xl shadow-2xl border border-purple-200 p-8 w-full max-w-4xl ${isFullScreen ? 'mx-auto my-auto' : ''}`} style={isFullScreen ? {height: '80vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', boxShadow: '0 12px 48px rgba(128,0,128,0.12)', transition: 'all 0.3s'} : {}}>
-                        <ReactQuill theme="snow" value={formData.content} onChange={content => setFormData({...formData, content})} modules={{ toolbar: [[{ 'header': [1, 2, 3, false] }], ['bold', 'italic', 'underline', 'strike'], [{ 'list': 'ordered'}, { 'list': 'bullet' }], ['blockquote', 'code-block'], ['link', 'image'], [{ 'align': [] }], ['clean']] }} formats={['header', 'bold', 'italic', 'underline', 'strike', 'list', 'bullet', 'blockquote', 'code-block', 'link', 'image', 'align']} className={`quill-editor-custom w-full ${isFullScreen ? 'text-lg' : ''}`} style={isFullScreen ? {height: '100%', minHeight: '60vh', fontSize: '1.2rem', background: 'white', borderRadius: '1.2rem'} : {minHeight: '180px', height: '180px', background: 'white', borderRadius: '1rem'}} />
+                    {!isFullScreen && (
+                      <div className="bg-white rounded-2xl shadow-2xl border border-purple-200 p-0 w-full" style={{minHeight: '180px', height: '180px', borderRadius: '1rem'}}>
+                        <ReactQuill theme="snow" value={formData.content} onChange={content => setFormData({...formData, content})} modules={{ toolbar: [[{ 'header': [1, 2, 3, false] }], ['bold', 'italic', 'underline', 'strike'], [{ 'list': 'ordered'}, { 'list': 'bullet' }], ['blockquote', 'code-block'], ['link', 'image'], [{ 'align': [] }], ['clean']] }} formats={['header', 'bold', 'italic', 'underline', 'strike', 'list', 'bullet', 'blockquote', 'code-block', 'link', 'image', 'align']} className="quill-editor-custom w-full" style={{minHeight: '180px', height: '180px', background: 'white', borderRadius: '1rem'}} />
                       </div>
-                    </div>
+                    )}
                   </div>
                   {/* Excerpt */}
-                  <div className="py-4 md:pl-6 flex flex-col justify-center">
+                  <div className="py-10 md:pl-6 flex flex-col justify-center">
                     <label className="block text-sm font-semibold text-gray-700 mb-1 flex items-center gap-2">
                       <svg className="w-5 h-5 text-pink-400" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="4" /><path strokeLinecap="round" strokeLinejoin="round" d="M8 10h8" /></svg>
                       Excerpt *
@@ -479,7 +497,21 @@ export default function BlogManager({ showCreateForm = false }) {
                       <svg className="w-5 h-5 text-pink-400" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="4" /><path strokeLinecap="round" strokeLinejoin="round" d="M8 10h8" /></svg>
                       Featured Image
                     </label>
-                    <input type="file" accept="image/*" onChange={(e) => setImageUpload(e.target.files[0])} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-400 focus:border-pink-400 focus:border-2 focus:bg-pink-50 bg-white hover:shadow transition-all duration-200 text-base outline-none" />
+                    <div className="flex items-center gap-4">
+                      <label htmlFor="featured-image-upload" className="inline-block px-5 py-2 bg-pink-500 hover:bg-pink-600 text-white font-semibold rounded-lg shadow transition-colors duration-200 cursor-pointer border border-pink-600 focus:ring-2 focus:ring-pink-300 focus:outline-none">
+                        Choose File
+                        <input
+                          id="featured-image-upload"
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => setImageUpload(e.target.files[0])}
+                          className="hidden"
+                        />
+                      </label>
+                      <span className="text-gray-700 text-sm truncate max-w-xs">
+                        {imageUpload ? imageUpload.name : (formData.featured_image ? formData.featured_image.split('/').pop() : 'No file chosen')}
+                      </span>
+                    </div>
                     {uploadProgress > 0 && uploadProgress < 100 && (
                       <div className="mt-2">
                         <div className="w-full bg-gray-200 rounded-full h-2">
@@ -488,9 +520,32 @@ export default function BlogManager({ showCreateForm = false }) {
                         <p className="text-sm text-gray-600 mt-1">Uploading... {uploadProgress}%</p>
                       </div>
                     )}
-                    {formData.featured_image && !imageUpload && (
-                      <div className="mt-2">
+                    {imageUpload && (
+                      <div className="mt-2 relative w-32 h-20">
+                        <img src={URL.createObjectURL(imageUpload)} alt="Preview" className="w-32 h-20 object-cover rounded border border-pink-300" />
+                        <button
+                          type="button"
+                          onClick={() => setImageUpload(null)}
+                          className="absolute top-1 right-1 bg-white bg-opacity-80 hover:bg-red-500 hover:text-white text-pink-500 rounded-full p-1 shadow border border-pink-200 transition-colors duration-150"
+                          style={{fontSize: '1rem', lineHeight: 1}}
+                          aria-label="Remove selected image"
+                        >
+                          &times;
+                        </button>
+                      </div>
+                    )}
+                    {!imageUpload && formData.featured_image && (
+                      <div className="mt-2 relative w-32 h-20">
                         <img src={formData.featured_image} alt="Current" className="w-32 h-20 object-cover rounded" />
+                        <button
+                          type="button"
+                          onClick={() => setFormData({...formData, featured_image: ''})}
+                          className="absolute top-1 right-1 bg-white bg-opacity-80 hover:bg-red-500 hover:text-white text-pink-500 rounded-full p-1 shadow border border-pink-200 transition-colors duration-150"
+                          style={{fontSize: '1rem', lineHeight: 1}}
+                          aria-label="Remove current image"
+                        >
+                          &times;
+                        </button>
                       </div>
                     )}
                   </div>

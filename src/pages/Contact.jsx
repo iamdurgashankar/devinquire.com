@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-
-const API_BASE = "https://devinquire.com/api";
+import { API_BASE } from '../services/api';
 
 const Contact = () => {
   console.log('Contact page component loaded successfully');

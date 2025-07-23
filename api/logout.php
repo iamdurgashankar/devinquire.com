@@ -1,7 +1,6 @@
 <?php
 header('Content-Type: application/json');
-require 'db.php';
-session_start();
+require_once 'db.php'; // Consistent CORS/session handling
 
 // Clear all session data
 session_destroy();

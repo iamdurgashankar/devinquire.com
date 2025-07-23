@@ -1,5 +1,5 @@
-// Dynamic API base URL for both local and production environments
-const API_BASE = "https://devinquire.com/api";
+// Always use production API base URL
+export const API_BASE = "https://devinquire.com/api";
 
 class ApiService {
   constructor() {
@@ -301,6 +301,19 @@ class ApiService {
     });
     return res.json();
   }
+}
+
+export async function savePageOrder(order) {
+  const res = await fetch("/api/save_page_order.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ order }),
+    credentials: "include",
+  });
+  if (!res.ok) throw new Error("Failed to save page order");
+  return res.json();
 }
 
 const apiService = new ApiService();

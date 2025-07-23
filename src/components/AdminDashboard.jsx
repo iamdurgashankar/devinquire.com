@@ -5,6 +5,7 @@ import UserProfile from './UserProfile';
 import DashboardStats from './DashboardStats';
 import UserManager from './UserManager';
 import NotificationManager from './NotificationManager';
+import { Link } from 'react-router-dom';
 
 export default function AdminDashboard() {
   const { currentUser, logout } = useAuth();
@@ -48,9 +49,9 @@ export default function AdminDashboard() {
   const tabs = [
     { id: 'dashboard', name: 'Dashboard', icon: '📊' },
     { id: 'blog', name: 'Blog Management', icon: '📝' },
-    // Only show User Management for admin
     ...(currentUser && currentUser.role === 'admin' ? [
-      { id: 'users', name: 'User Management', icon: '👤' }
+      { id: 'users', name: 'User Management', icon: '👤' },
+      { id: 'pagebuilder', name: 'Page Builder', icon: '🧩' },
     ] : []),
     { id: 'notifications', name: 'Notifications', icon: '📧' },
     { id: 'profile', name: 'Profile', icon: '👤' }
@@ -116,24 +117,42 @@ export default function AdminDashboard() {
           {/* Navigation Tabs (scrollable) */}
           <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto min-h-0">
             {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => {
-                  handleTabChange(tab.id);
-                  setSidebarOpen(false);
-                }}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-all duration-200 group backdrop-blur-md ${
-                  activeTab === tab.id
-                    ? 'bg-gradient-to-r from-blue-200/60 to-purple-200/60 text-blue-800 border-r-4 border-blue-500/80 shadow-lg'
-                    : 'text-gray-700 hover:bg-white/40 hover:text-blue-700'
-                }`}
-              >
-                <span className="text-xl drop-shadow-sm">{tab.icon}</span>
-                <span className="font-medium">{tab.name}</span>
-                {activeTab === tab.id && (
-                  <div className="ml-auto w-2 h-2 bg-blue-500 rounded-full"></div>
-                )}
-              </button>
+              tab.id === 'pagebuilder' ? (
+                <Link
+                  key={tab.id}
+                  to="/admin/page-builder"
+                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-all duration-200 group backdrop-blur-md ${
+                    window.location.pathname === '/admin/page-builder'
+                      ? 'bg-gradient-to-r from-blue-200/60 to-purple-200/60 text-blue-800 border-r-4 border-blue-500/80 shadow-lg'
+                      : 'text-gray-700 hover:bg-white/40 hover:text-blue-700'
+                  }`}
+                >
+                  <span className="text-xl drop-shadow-sm">{tab.icon}</span>
+                  <span className="font-medium">{tab.name}</span>
+                  {window.location.pathname === '/admin/page-builder' && (
+                    <div className="ml-auto w-2 h-2 bg-blue-500 rounded-full"></div>
+                  )}
+                </Link>
+              ) : (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    handleTabChange(tab.id);
+                    setSidebarOpen(false);
+                  }}
+                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-all duration-200 group backdrop-blur-md ${
+                    activeTab === tab.id
+                      ? 'bg-gradient-to-r from-blue-200/60 to-purple-200/60 text-blue-800 border-r-4 border-blue-500/80 shadow-lg'
+                      : 'text-gray-700 hover:bg-white/40 hover:text-blue-700'
+                  }`}
+                >
+                  <span className="text-xl drop-shadow-sm">{tab.icon}</span>
+                  <span className="font-medium">{tab.name}</span>
+                  {activeTab === tab.id && (
+                    <div className="ml-auto w-2 h-2 bg-blue-500 rounded-full"></div>
+                  )}
+                </button>
+              )
             ))}
           </nav>
           {/* Sidebar Footer (sticky) */}

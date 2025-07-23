@@ -21,15 +21,18 @@ export default function Blog() {
   const [subStatus, setSubStatus] = useState(null);
   const [subLoading, setSubLoading] = useState(false);
 
+  const [error, setError] = useState(null);
+
   // Load published posts from API
   useEffect(() => {
     loadPosts();
-  }, []);
+  }, [selectedCategory]);
 
   const loadPosts = async () => {
     try {
       setLoading(true);
-      const response = await apiService.getPosts(1, 100, null, 'published');
+      setError(null);
+      const response = await apiService.getPosts(1, 100, selectedCategory === 'All' ? null : selectedCategory, 'published');
       if (response.success) {
         // Transform API data to match blog format
         const transformedPosts = response.data.posts.map(post => ({
@@ -49,10 +52,13 @@ export default function Blog() {
         }));
         setBlogPosts(transformedPosts);
       } else {
-        console.error('Failed to load posts:', response.message);
+        setError(response.message || 'Failed to load posts');
+        setBlogPosts([]);
       }
     } catch (error) {
       console.error('Error loading posts:', error);
+      setError(error.message || 'Failed to load posts. Please try again later.');
+      setBlogPosts([]);
     } finally {
       setLoading(false);
     }

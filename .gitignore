@@ -111,3 +111,6 @@ backend/uploads/*
 *.pem
 *.key
 *.crt
+
+# Ignore local environment config
+api/.env

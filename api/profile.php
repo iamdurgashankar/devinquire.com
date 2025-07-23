@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
     
     try {
-        $stmt = $pdo->prepare("SELECT id, username, email, name, role, status FROM users WHERE id = ?");
+        $stmt = $pdo->prepare("SELECT id, username, email, name, role, status, created_at, updated_at FROM users WHERE id = ?");
         $stmt->execute([$userId]);
         $user = $stmt->fetch();
         
