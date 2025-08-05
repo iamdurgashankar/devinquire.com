@@ -1,15 +1,7 @@
 <?php
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    exit(0);
-}
-
 require 'db.php';
-session_start();
+header('Content-Type: application/json');
+// Session is already started in db.php
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     http_response_code(405);
@@ -55,7 +47,7 @@ try {
     $sql = "
         SELECT 
             id, title, excerpt, content, category, tags, featured_image,
-            author_name, read_time, status, views, likes, created_at, updated_at
+            author_name, read_time, status, created_at, updated_at
         FROM posts 
         $whereClause 
         ORDER BY created_at DESC 
@@ -95,4 +87,4 @@ try {
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
 }
-?> 
+?>

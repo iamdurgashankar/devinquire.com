@@ -1,0 +1,51 @@
+name: Deploy Dashboard to Subdomain
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'src/components/Admin*'
+      - 'src/components/BlogManager*'
+      - 'src/components/PageManager*'
+      - 'src/components/UserManager*'
+      - 'src/components/DashboardStats*'
+      - 'src/pages/Admin*'
+      - 'src/config.js'
+  workflow_dispatch:
+
+jobs:
+  deploy-dashboard:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Dashboard
+        run: npm run build
+        env:
+          CI: false
+          REACT_APP_BUILD_TYPE: dashboard
+
+      - name: Deploy Dashboard to Hostinger
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.HOSTINGER_FTP_SERVER }}
+          username: ${{ secrets.HOSTINGER_FTP_USERNAME }}
+          password: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
+          local-dir: ./build/
+          server-dir: ${{ secrets.HOSTINGER_DASHBOARD_DIR }}
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/.env*

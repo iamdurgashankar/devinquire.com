@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { API_BASE } from '../services/api';
+import { API_BASE } from '../config';
 
 const Contact = () => {
   console.log('Contact page component loaded successfully');

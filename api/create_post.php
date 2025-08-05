@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json');
 require 'db.php';
-session_start();
+// Session is already started in db.php
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -97,4 +97,4 @@ try {
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
 }
-?> 
+?>

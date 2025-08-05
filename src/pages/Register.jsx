@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export default function Register() {
   const { signUp } = useAuth();
@@ -176,12 +176,12 @@ export default function Register() {
             </div>
 
             <div className="mt-6">
-              <Link
-                to="/login"
+              <a
+                href="https://dashboard.devinquire.com/login"
                 className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
               >
                 Sign in to your account
-              </Link>
+              </a>
             </div>
           </div>
 
@@ -205,4 +205,4 @@ export default function Register() {
       </div>
     </div>
   );
-} 
+}

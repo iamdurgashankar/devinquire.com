@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
   const { signInWithEmail } = useAuth();
@@ -20,7 +20,7 @@ export default function Login() {
     try {
       const response = await signInWithEmail(formData.email, formData.password);
       if (response) {
-        navigate('/admin'); // Redirect all users to admin panel after login
+        window.location.href = 'https://dashboard.devinquire.com'; // Redirect all users to dashboard after login
       }
     } catch (error) {
       setError(error.message || 'Login failed. Please check your credentials.');
@@ -118,12 +118,12 @@ export default function Login() {
             </div>
 
             <div className="mt-6">
-              <Link
-                to="/register"
+              <a
+                href="https://dashboard.devinquire.com/login"
                 className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
               >
                 Create a new account
-              </Link>
+              </a>
             </div>
           </div>
 
@@ -139,16 +139,16 @@ export default function Login() {
             </div>
 
             <div className="mt-6">
-              <Link
-                to="/admin"
+              <a
+                href="https://dashboard.devinquire.com"
                 className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
               >
                 Admin Panel
-              </Link>
+              </a>
             </div>
           </div>
         </div>
       </div>
     </div>
   );
-} 
+}

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { API_BASE } from '../services/api';
+import { API_BASE } from '../config';
 
 const FAQ = [
   { q: 'How can I contact support?', a: 'You can contact us via WhatsApp, phone, or email using the buttons below.' },
