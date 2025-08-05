@@ -1,34 +1,58 @@
 # DevInquire - Development Agency Website
 
-A modern web application for a development agency with user authentication, admin panel, and blog management.
+A comprehensive web platform for development agencies featuring a modern frontend, powerful admin dashboard, and complete blog management system.
 
-## Features
+## 🚀 Features
 
-- **User Authentication**: Login/Register with role-based access
-- **Admin Panel**: User management, blog management, and dashboard
-- **Responsive Design**: Modern UI with Tailwind CSS
-- **Blog System**: Create, edit, and manage blog posts
-- **User Management**: Approve/reject new user registrations
+### Frontend Website
+- **Modern Landing Page**: Professional homepage with services showcase
+- **Blog System**: Dynamic blog with categories, tags, and search functionality
+- **Responsive Design**: Mobile-first design with Tailwind CSS
+- **Contact Forms**: Integrated contact and newsletter subscription
+- **SEO Optimized**: Meta tags and structured content
 
-## Prerequisites
+### Admin Dashboard
+- **User Management**: Approve/reject registrations, manage user roles
+- **Blog Management**: Create, edit, publish, and manage blog posts
+- **Dashboard Analytics**: User statistics and content metrics
+- **Content Management**: Dynamic page builder and content editor
+- **Role-based Access**: Secure admin-only features
 
-- Node.js (v14 or higher)
-- PHP (v7.4 or higher) - for local API development
-- MySQL database (for production)
+### Technical Features
+- **Dual Application Architecture**: Separate main website and admin dashboard
+- **RESTful API**: PHP backend with MySQL database
+- **Authentication System**: JWT-based session management
+- **CORS Support**: Proper cross-origin resource sharing
+- **Database Schema**: Comprehensive tables for users, posts, and pages
 
-## Installation & Setup
+## 📋 Prerequisites
+
+- **Node.js** (v14 or higher)
+- **PHP** (v7.4 or higher) with MySQL extension
+- **MySQL** database (v5.7 or higher)
+- **Git** for version control
+
+## 🛠️ Installation & Setup
 
 ### 1. Clone the repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/iamdurgashankar/devinquire.com.git
 cd devinquire
 ```
 
 ### 2. Install dependencies
 
+#### Main Website Dependencies
 ```bash
 npm install
+```
+
+#### Dashboard Dependencies
+```bash
+cd dashboard
+npm install
+cd ..
 ```
 
 ### 3. Install PHP (if not already installed)
@@ -59,15 +83,35 @@ sudo apt install php php-cli php-common
 
 ### 4. Database Setup
 
-#### For Local Development:
+#### Create MySQL Database
 
-The application uses localStorage for local development, so no database setup is required.
+```sql
+CREATE DATABASE devinquire CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE devinquire;
+```
 
-#### For Production:
+#### Import Database Schema
 
-1. Create a MySQL database
-2. Update the database configuration in `api/db.php`
-3. Import the database schema (if provided)
+1. **Users Table** (for authentication and user management):
+```bash
+mysql -u your_username -p devinquire < api/schema.sql
+```
+
+2. **Posts Table** (for blog functionality):
+```bash
+mysql -u your_username -p devinquire < api/posts_schema.sql
+```
+
+#### Configure Database Connection
+
+Update the database credentials in `api/db.php`:
+
+```php
+$host = 'localhost';
+$dbname = 'devinquire';
+$username = 'your_db_username';
+$password = 'your_db_password';
+```
 
 ### 5. Environment Configuration
 
@@ -76,60 +120,59 @@ The application automatically detects the environment:
 - **Development**: Uses `http://localhost:8000/api`
 - **Production**: Uses `https://devinquire.com/api`
 
-## Running the Application
+## 🚀 Running the Application
 
-### Option 1: Quick Start (Recommended)
+### Development Environment
 
-Use the provided setup scripts:
+The application consists of three components that need to be running simultaneously:
+
+#### 1. Start the PHP API Server
+
+```bash
+cd api
+php -S localhost:8000
+```
+
+This starts the backend API on `http://localhost:8000`
+
+#### 2. Start the Main Website (Frontend)
+
+```bash
+# In a new terminal, from project root
+PORT=3002 npm start
+```
+
+This starts the main website on `http://localhost:3002`
+
+#### 3. Start the Admin Dashboard
+
+```bash
+# In a new terminal
+cd dashboard
+PORT=3003 npm start
+```
+
+This starts the admin dashboard on `http://localhost:3003`
+
+### Access URLs
+
+- **Main Website**: http://localhost:3002
+- **Admin Dashboard**: http://localhost:3003
+- **API Backend**: http://localhost:8000
+
+### Quick Start Script
+
+For convenience, you can use the provided setup scripts:
 
 #### macOS/Linux:
-
 ```bash
 ./dev-setup.sh
 ```
 
 #### Windows:
-
 ```bash
 dev-setup.bat
 ```
-
-### Option 2: Manual Setup
-
-#### Local Development
-
-1. **Start the PHP API server** (in one terminal):
-
-```bash
-npm run server
-```
-
-This starts a PHP server on `http://localhost:8000` serving the API files.
-
-2. **Start the React development server** (in another terminal):
-
-```bash
-npm start
-```
-
-This starts the React app on `http://localhost:3000`.
-
-3. **Access the application**:
-
-- Frontend: http://localhost:3000
-- API: http://localhost:8000/api
-
-### Option 3: Frontend Only (No PHP Required)
-
-If you don't have PHP installed or want to test just the frontend:
-
-1. **Start only the React development server**:
-
-```bash
-npm start
-```
-
-2. **The application will work with mock data** and localStorage for authentication.
 
 ### Production
 
@@ -152,37 +195,66 @@ For local development, the default admin credentials are:
 - **Email**: admin@devinquire.com
 - **Password**: admin123
 
-## API Endpoints
+## 📡 API Endpoints
 
-The application includes the following API endpoints:
-
+### Authentication
 - `POST /api/login.php` - User login
 - `POST /api/signup.php` - User registration
 - `GET /api/session.php` - Get current session
 - `POST /api/logout.php` - User logout
-- `GET /api/get_users.php` - Get all users (admin)
-- `POST /api/delete_user.php` - Delete user (admin)
-- `GET /api/get_pending_users.php` - Get pending users (admin)
-- `POST /api/approve_user.php` - Approve user (admin)
-- `POST /api/reject_user.php` - Reject user (admin)
+
+### User Management (Admin)
+- `GET /api/get_users.php` - Get all users
+- `POST /api/delete_user.php` - Delete user
+- `GET /api/get_pending_users.php` - Get pending users
+- `POST /api/approve_user.php` - Approve user registration
+- `POST /api/reject_user.php` - Reject user registration
+
+### Profile Management
 - `GET /api/profile.php` - Get user profile
 - `POST /api/profile.php` - Update user profile
 
-## Project Structure
+### Blog Management
+- `GET /api/get_posts.php` - Get all blog posts
+- `GET /api/get_post.php?id={id}` - Get single blog post
+- `POST /api/create_post.php` - Create new blog post (admin)
+- `POST /api/update_post.php` - Update blog post (admin)
+- `POST /api/delete_post.php` - Soft delete blog post (admin)
+- `POST /api/permanent_delete_post.php` - Permanently delete blog post (admin)
+
+## 📁 Project Structure
 
 ```
 devinquire/
-├── api/                 # PHP API files
-├── public/             # Static files
-├── src/                # React source code
-│   ├── components/     # React components
-│   ├── contexts/       # React contexts
-│   ├── pages/          # Page components
-│   └── services/       # API services
-├── package.json        # Node.js dependencies
-├── dev-setup.sh        # Development setup script (macOS/Linux)
-├── dev-setup.bat       # Development setup script (Windows)
-└── README.md          # This file
+├── api/                    # PHP Backend API
+│   ├── db.php             # Database connection & CORS
+│   ├── schema.sql         # Users table schema
+│   ├── posts_schema.sql   # Posts table schema
+│   ├── login.php          # Authentication endpoints
+│   ├── signup.php
+│   ├── session.php
+│   ├── get_posts.php      # Blog API endpoints
+│   ├── get_post.php
+│   ├── create_post.php
+│   ├── update_post.php
+│   ├── delete_post.php
+│   └── ...
+├── dashboard/              # Admin Dashboard (React)
+│   ├── public/
+│   ├── src/
+│   │   ├── components/    # Dashboard components
+│   │   ├── pages/         # Dashboard pages
+│   │   └── services/      # API services
+│   └── package.json
+├── public/                 # Main website static files
+├── src/                    # Main website source (React)
+│   ├── components/        # Reusable components
+│   ├── pages/             # Page components
+│   ├── contexts/          # React contexts
+│   └── services/          # API services
+├── package.json           # Main website dependencies
+├── dev-setup.sh          # Development setup script
+└── README.md             # Documentation
 ```
 
 ## Troubleshooting
@@ -228,9 +300,11 @@ kill -9 <PID>
 
 This project is licensed under the MIT License.
 
-## Database Migration: Users Table
+## 🗄️ Database Schema
 
-To ensure your `users` table matches the backend requirements, run the following SQL in your MySQL database:
+### Users Table
+
+For user authentication and management:
 
 ```sql
 CREATE TABLE IF NOT EXISTS users (
@@ -246,15 +320,35 @@ CREATE TABLE IF NOT EXISTS users (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-If you already have a `users` table, you can add missing columns with:
+### Posts Table
+
+For blog functionality:
 
 ```sql
-ALTER TABLE users
-    ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+CREATE TABLE IF NOT EXISTS posts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    excerpt TEXT,
+    category VARCHAR(100),
+    tags TEXT,
+    featured_image VARCHAR(255),
+    author_name VARCHAR(255) NOT NULL,
+    read_time INT DEFAULT 5,
+    status ENUM('draft', 'published', 'archived') DEFAULT 'draft',
+    views INT DEFAULT 0,
+    likes INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-> **Note:** MySQL before 8.0 does not support `IF NOT EXISTS` for columns. In that case, check if the columns exist before running the `ALTER TABLE` command.
+### Migration Notes
+
+- Import `api/schema.sql` for the users table
+- Import `api/posts_schema.sql` for the posts table with sample data
+- MySQL 8.0+ supports `IF NOT EXISTS` for columns
+- For older MySQL versions, check column existence before altering tables
 
 ---
 
