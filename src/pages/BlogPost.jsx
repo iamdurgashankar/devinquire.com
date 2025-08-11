@@ -62,7 +62,7 @@ export default function BlogPost() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pt-20">
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20 relative overflow-hidden">
         <div className="absolute inset-0">
@@ -190,4 +190,4 @@ export default function BlogPost() {
       </section>
     </div>
   );
-} 
+}

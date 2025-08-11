@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { MapPin, Mail, Phone, Globe, Monitor } from 'lucide-react';
 import { API_BASE } from '../config';
 
 const Contact = () => {
-  console.log('Contact page component loaded successfully');
 
   const [formData, setFormData] = useState({
     name: '',
@@ -49,25 +49,25 @@ const Contact = () => {
 
   const contactInfo = [
     {
-      icon: "📍",
+      icon: MapPin,
       title: "Address",
       details: "Bengaluru, Karnataka, India",
       link: "https://maps.google.com"
     },
     {
-      icon: "📧",
+      icon: Mail,
       title: "Email",
       details: "contact@devinquire.com",
       link: "mailto:contact@devinquire.com"
     },
     {
-      icon: "📞",
+      icon: Phone,
       title: "Phone",
       details: "+91 8260761291",
       link: "tel:+918260761291"
     },
     {
-      icon: "🌐",
+      icon: Globe,
       title: "Website",
       details: "www.devinquire.com",
       link: "https://devinquire.com"
@@ -100,21 +100,24 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-gray-50 pt-20">
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-10"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+      <section className="bg-gradient-to-r from-blue-600 to-blue-700 text-white py-20 relative overflow-hidden">
+        {/* Animated background elements */}
+        <div className="absolute inset-0">
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-white/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-pulse delay-500"></div>
+        </div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-center"
           >
-            <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6">
-              Get in <span className="text-blue-600">Touch</span>
-            </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            <h1 className="text-5xl font-bold mb-6 animate-fade-in-up">Get in Touch</h1>
+            <p className="text-xl text-blue-100 max-w-3xl mx-auto animate-fade-in-up" style={{animationDelay: '0.2s'}}>
               Ready to start your next project? We'd love to hear from you. 
               Let's discuss how we can help bring your ideas to life.
             </p>
@@ -225,7 +228,7 @@ const Contact = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-6 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? (
                     <span className="flex items-center justify-center">
@@ -266,7 +269,21 @@ const Contact = () => {
                       variants={itemVariants}
                       className="flex items-start space-x-4 p-4 rounded-lg hover:bg-white hover:shadow-md transition-all duration-300"
                     >
-                      <div className="text-2xl">{info.icon}</div>
+                      <motion.div
+                    className="text-2xl text-blue-600"
+                    animate={{
+                      rotate: [0, 10, -10, 0],
+                      scale: [1, 1.1, 1]
+                    }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      repeatType: "reverse",
+                      ease: "easeInOut"
+                    }}
+                  >
+                    <info.icon className="w-6 h-6" />
+                  </motion.div>
                       <div>
                         <h3 className="font-semibold text-gray-900">{info.title}</h3>
                         <p className="text-gray-600">{info.details}</p>
@@ -277,7 +294,7 @@ const Contact = () => {
               </div>
 
               <motion.div 
-                className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl p-8 text-white"
+                className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-8 text-white"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -336,7 +353,19 @@ const Contact = () => {
                 variants={itemVariants}
                 className="bg-gray-50 rounded-xl p-6 hover:bg-blue-50 transition-colors duration-300"
               >
-                <div className="text-3xl mb-4">💻</div>
+                <motion.div
+                  className="text-3xl mb-4 text-blue-600"
+                  whileHover={{
+                    scale: 1.05,
+                    y: -2
+                  }}
+                  transition={{
+                    duration: 0.3,
+                    ease: "easeInOut"
+                  }}
+                >
+                  <Monitor className="w-8 h-8" />
+                </motion.div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">{service}</h3>
                 <p className="text-gray-600">
                   Professional {service.toLowerCase()} services tailored to your specific requirements.
@@ -402,7 +431,7 @@ const Contact = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600">
+      <section className="py-20 bg-gradient-to-r from-blue-600 to-blue-700">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -437,4 +466,4 @@ const Contact = () => {
   );
 };
 
-export default Contact; 
+export default Contact;

@@ -19,8 +19,6 @@ $username = $data['username'];
 $email = $data['email'];
 $password = password_hash($data['password'], PASSWORD_DEFAULT);
 $name = $data['name'];
-$role = $data['role'] ?? 'user'; // Default to 'user' if not specified
-$status = 'pending';
 
 try {
     // Check for duplicate username or email

@@ -3,7 +3,7 @@ const IS_LOCALHOST = window.location.hostname === 'localhost' || window.location
 
 // API configuration - points to main domain API
 const API_BASE = IS_LOCALHOST
-  ? 'http://localhost:8000'
+  ? 'http://localhost:8001'
   : 'https://devinquire.com/api';
 
 // Dashboard-specific settings

@@ -1,6 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { motion } from 'framer-motion';
+import { 
+  User, 
+  Edit, 
+  Save, 
+  Lock, 
+  Check, 
+  Eye, 
+  EyeOff, 
+  Bell,
+  X,
+  Activity,
+  Settings 
+} from 'lucide-react';
 
 function StatusBadge({ status }) {
   let color = 'bg-gray-200 text-gray-700';
@@ -19,7 +33,7 @@ function StatusBadge({ status }) {
 }
 
 export default function UserProfile() {
-  const { currentUser, changePassword } = useAuth();
+  const { currentUser, changePassword, updateCurrentUser } = useAuth();
   const { setTheme } = useTheme();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -96,11 +110,37 @@ export default function UserProfile() {
     setLoading(true);
     setMessage('');
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setMessage('Profile updated successfully!');
-      setIsEditing(false);
-      setTimeout(() => setMessage(''), 3000);
+      // Make API call to update profile
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8001'}/profile.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          name: profileData.displayName,
+          bio: profileData.bio,
+          website: profileData.website,
+          location: profileData.location,
+          twitter: profileData.twitter,
+          github: profileData.github
+        })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        // Update the current user in AuthContext
+        updateCurrentUser({
+          displayName: profileData.displayName
+        });
+        
+        setMessage('Profile updated successfully!');
+        setIsEditing(false);
+        setTimeout(() => setMessage(''), 3000);
+      } else {
+        setMessage(result.message || 'Error updating profile. Please try again.');
+      }
     } catch (error) {
       setMessage('Error updating profile. Please try again.');
     } finally {
@@ -242,9 +282,12 @@ export default function UserProfile() {
                 onClick={handlePasswordCancel}
                 className="text-gray-400 hover:text-gray-600"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <motion.div
+                  whileHover={{ scale: 1.1, rotate: 90 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <X className="w-6 h-6" />
+                </motion.div>
               </button>
             </div>
             
@@ -357,9 +400,12 @@ export default function UserProfile() {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">Preferences</h3>
               <button onClick={() => setShowPreferences(false)} className="text-gray-400 hover:text-gray-600">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <motion.div
+                  whileHover={{ scale: 1.1, rotate: 90 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <X className="w-6 h-6" />
+                </motion.div>
               </button>
             </div>
             {preferencesLoading ? (
@@ -678,9 +724,12 @@ export default function UserProfile() {
               >
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors duration-200">
-                    <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
+                    <motion.div
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <Lock className="w-4 h-4 text-blue-600" />
+                    </motion.div>
                   </div>
                   <span className="text-sm font-medium text-gray-900">Change Password</span>
                 </div>
@@ -692,9 +741,12 @@ export default function UserProfile() {
               >
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors duration-200">
-                    <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM4 19h6v-2H4v2zM4 15h6v-2H4v2zM4 11h6V9H4v2zM4 7h6V5H4v2z" />
-                    </svg>
+                    <motion.div
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <Activity className="w-4 h-4 text-green-600" />
+                    </motion.div>
                   </div>
                   <span className="text-sm font-medium text-gray-900">Activity Log</span>
                 </div>
@@ -706,10 +758,12 @@ export default function UserProfile() {
               >
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors duration-200">
-                    <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
+                    <motion.div
+                      whileHover={{ scale: 1.1, rotate: 90 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <Settings className="w-4 h-4 text-purple-600" />
+                    </motion.div>
                   </div>
                   <span className="text-sm font-medium text-gray-900">Preferences</span>
                 </div>
@@ -720,4 +774,4 @@ export default function UserProfile() {
       </div>
     </div>
   );
-} 
+}

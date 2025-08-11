@@ -112,14 +112,20 @@ export default function SupportAgent() {
     <>
       {/* Floating Button */}
       <button
-        className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full shadow-2xl p-4 flex items-center justify-center hover:scale-105 transition-transform duration-200 focus:outline-none"
+        className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-2xl shadow-2xl p-2 hover:p-3 flex items-center justify-center gap-2 hover:scale-105 transition-all duration-300 focus:outline-none group border border-white/20 backdrop-blur-sm overflow-hidden"
         onClick={() => setOpen((v) => !v)}
-        aria-label="Open Support Chat"
+        aria-label="Open DevInquire AI Support Chat"
         style={{ boxShadow: '0 8px 32px rgba(80,0,200,0.18)' }}
       >
-        <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 01-4-.8l-4.28 1.07a1 1 0 01-1.22-1.22l1.07-4.28A8.96 8.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-        </svg>
+        {/* DevInquire Logo - Always Visible */}
+        <div className="flex items-center justify-center w-8 h-8 rounded-lg text-white font-bold text-sm transition-all duration-300">
+          <span className="font-mono tracking-tight drop-shadow-sm text-center pl-2">{"{DI}"}</span>
+        </div>
+
+        {/* Text - Appears on Hover */}
+        <span className="font-semibold text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 max-w-0 group-hover:max-w-[120px] overflow-hidden transition-all duration-300 ease-in-out group-hover:text-blue-100">
+          DevInquire AI
+        </span>
       </button>
       {/* Chat Widget */}
       {open && (
@@ -173,7 +179,7 @@ export default function SupportAgent() {
               tabIndex={0}
               title="Chat on WhatsApp"
             >
-              <svg className="w-8 h-8 mb-1" fill="currentColor" viewBox="0 0 32 32"><path d="M16 3C9.373 3 4 8.373 4 15c0 2.385.668 4.607 1.938 6.563L4 29l7.625-1.938A12.93 12.93 0 0016 27c6.627 0 12-5.373 12-12S22.627 3 16 3zm0 22.75c-1.98 0-3.92-.52-5.625-1.5l-.4-.23-4.5 1.145 1.145-4.5-.23-.4A10.72 10.72 0 015.25 15c0-5.93 4.82-10.75 10.75-10.75S26.75 9.07 26.75 15 21.93 25.75 16 25.75zm5.07-7.13c-.277-.138-1.637-.808-1.89-.9-.253-.092-.437-.138-.62.138-.184.277-.713.9-.875 1.085-.161.184-.322.207-.6.069-.277-.138-1.17-.432-2.23-1.377-.824-.735-1.38-1.64-1.542-1.917-.161-.277-.017-.426.122-.563.126-.125.277-.322.415-.483.138-.161.184-.276.276-.46.092-.184.046-.345-.023-.483-.069-.138-.62-1.497-.85-2.05-.224-.54-.453-.466-.62-.475-.161-.007-.345-.009-.53-.009-.184 0-.483.069-.737.345-.253.276-.966.945-.966 2.3 0 1.354.99 2.66 1.127 2.844.138.184 1.95 2.98 4.73 4.06.662.286 1.178.456 1.582.583.664.211 1.27.181 1.748.11.534-.08 1.637-.668 1.87-1.312.23-.644.23-1.196.161-1.312-.069-.115-.253-.184-.53-.322z"/></svg>
+              <svg className="w-8 h-8 mb-1" fill="currentColor" viewBox="0 0 32 32"><path d="M16 3C9.373 3 4 8.373 4 15c0 2.385.668 4.607 1.938 6.563L4 29l7.625-1.938A12.93 12.93 0 0016 27c6.627 0 12-5.373 12-12S22.627 3 16 3zm0 22.75c-1.98 0-3.92-.52-5.625-1.5l-.4-.23-4.5 1.145 1.145-4.5-.23-.4A10.72 10.72 0 015.25 15c0-5.93 4.82-10.75 10.75-10.75S26.75 9.07 26.75 15 21.93 25.75 16 25.75zm5.07-7.13c-.277-.138-1.637-.808-1.89-.9-.253-.092-.437-.138-.62.138-.184.277-.713.9-.875 1.085-.161.184-.322.207-.6.069-.277-.138-1.17-.432-2.23-1.377-.824-.735-1.38-1.64-1.542-1.917-.161-.277-.017-.426.122-.563.126-.125.277-.322.415-.483.138-.161.184-.276.276-.46.092-.184.046-.345-.023-.483-.069-.138-.62-1.497-.85-2.05-.224-.54-.453-.466-.62-.475-.161-.007-.345-.009-.53-.009-.184 0-.483.069-.737.345-.253.276-.966.945-.966 2.3 0 1.354.99 2.66 1.127 2.844.138.184 1.95 2.98 4.73 4.06.662.286 1.178.456 1.582.583.664.211 1.27.181 1.748.11.534-.08 1.637-.668 1.87-1.312.23-.644.23-1.196.161-1.312-.069-.115-.253-.184-.53-.322z" /></svg>
               <span className="text-xs">WhatsApp</span>
             </a>
             <a
@@ -201,4 +207,4 @@ export default function SupportAgent() {
       )}
     </>
   );
-} 
+}

@@ -9,6 +9,7 @@ import {
 import { AuthProvider } from "./contexts/AuthContext";
 import Admin from "./pages/Admin";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import apiService from "./services/api";
@@ -77,6 +78,14 @@ function AppContent() {
             element={
               <ErrorBoundary>
                 <Login />
+              </ErrorBoundary>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <ErrorBoundary>
+                <Register />
               </ErrorBoundary>
             }
           />

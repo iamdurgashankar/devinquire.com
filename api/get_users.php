@@ -1,7 +1,15 @@
 <?php
 header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: http://localhost:3002');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Credentials: true');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    exit(0);
+}
+
 require 'db.php';
-session_start();
 
 // Check if user is logged in and is admin
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
@@ -31,4 +39,4 @@ try {
         'message' => 'Database error: ' . $e->getMessage()
     ]);
 }
-?> 
+?>

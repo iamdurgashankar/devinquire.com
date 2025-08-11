@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import apiService from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { motion } from 'framer-motion';
+import { Users } from 'lucide-react';
 
 export default function UserManager() {
   const { currentUser } = useAuth();
@@ -25,21 +27,15 @@ export default function UserManager() {
   const loadUsers = async () => {
     setLoading(true);
     try {
-      console.log('UserManager: Loading users...');
       const usersResponse = await apiService.getAllUsers();
-      console.log('UserManager: Users response:', usersResponse);
       if (usersResponse.success) {
         setPendingUsers(usersResponse.pendingUsers || []);
         setAllUsers(usersResponse.allUsers || []);
-        console.log('All users:', usersResponse.allUsers);
-        console.log('Pending users:', usersResponse.pendingUsers);
       } else {
-        console.error('UserManager: Users fetch failed:', usersResponse);
         setPendingUsers([]);
         setAllUsers([]);
       }
     } catch (error) {
-      console.error('UserManager: Error loading users:', error);
       setMessage('Error loading users: ' + error.message);
       setPendingUsers([]);
       setAllUsers([]);
@@ -207,9 +203,13 @@ export default function UserManager() {
 
               {pendingUsers.length === 0 ? (
                 <div className="px-6 py-12 text-center">
-                  <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                  </svg>
+                  <motion.div
+                    whileHover={{ scale: 1.1, rotate: 5 }}
+                    transition={{ duration: 0.2 }}
+                    className="mx-auto"
+                  >
+                    <Users className="h-12 w-12 text-gray-400" />
+                  </motion.div>
                   <h3 className="mt-2 text-sm font-medium text-gray-900">No pending users</h3>
                   <p className="mt-1 text-sm text-gray-500">
                     All user registrations have been processed.
@@ -412,4 +412,4 @@ export default function UserManager() {
       )}
     </div>
   );
-} 
+}

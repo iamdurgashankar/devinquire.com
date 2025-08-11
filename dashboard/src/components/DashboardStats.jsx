@@ -1,5 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import apiService from '../services/api';
+import { motion } from 'framer-motion';
+import { 
+  FileText, 
+  Clock, 
+  Users, 
+  AlertCircle, 
+  Plus, 
+  UserPlus, 
+  User, 
+  Edit3,
+  Activity
+} from 'lucide-react';
+
+// Add CSS animation for real-time updates
+const styles = `
+  @keyframes fadeInSlide {
+    0% {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+`;
+
+// Inject styles
+if (typeof document !== 'undefined' && !document.getElementById('dashboard-animations')) {
+  const styleSheet = document.createElement('style');
+  styleSheet.id = 'dashboard-animations';
+  styleSheet.textContent = styles;
+  document.head.appendChild(styleSheet);
+}
 
 function Modal({ open, onClose, title, children }) {
   if (!open) return null;
@@ -33,9 +67,15 @@ export default function DashboardStats({ onTabChange }) {
       await loadStats();
     };
     fetchStats();
-    interval = setInterval(fetchStats, 10000); // Poll every 10 seconds
+    interval = setInterval(fetchStats, 5000); // Poll every 5 seconds for real-time updates
     return () => clearInterval(interval);
   }, []);
+
+  const [lastUpdate, setLastUpdate] = useState(new Date());
+
+  useEffect(() => {
+    setLastUpdate(new Date());
+  }, [stats.recentActivity]);
 
   const loadStats = async () => {
     try {
@@ -188,11 +228,18 @@ export default function DashboardStats({ onTabChange }) {
               <p className="text-blue-100 text-sm font-medium">Total Posts</p>
               <p className="text-3xl font-bold">{stats.totalPosts}</p>
             </div>
-            <div className="w-12 h-12 bg-white/30 rounded-lg flex items-center justify-center shadow-md">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-              </svg>
-            </div>
+            <motion.div 
+              className="w-12 h-12 bg-white/30 rounded-lg flex items-center justify-center shadow-md"
+              whileHover={{ scale: 1.1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <motion.div 
+                whileHover={{ rotate: 360 }}
+                transition={{ duration: 0.5 }}
+              >
+                <FileText className="w-6 h-6" />
+              </motion.div>
+            </motion.div>
           </div>
         </div>
 
@@ -203,11 +250,18 @@ export default function DashboardStats({ onTabChange }) {
               <p className="text-green-100 text-sm font-medium">Recent Posts</p>
               <p className="text-3xl font-bold">{stats.recentPosts}</p>
             </div>
-            <div className="w-12 h-12 bg-white/30 rounded-lg flex items-center justify-center shadow-md">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
+            <motion.div 
+              className="w-12 h-12 bg-white/30 rounded-lg flex items-center justify-center shadow-md"
+              whileHover={{ scale: 1.1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <motion.div 
+                whileHover={{ rotate: 360 }}
+                transition={{ duration: 0.5 }}
+              >
+                <Clock className="w-6 h-6" />
+              </motion.div>
+            </motion.div>
           </div>
         </div>
 
@@ -218,11 +272,18 @@ export default function DashboardStats({ onTabChange }) {
               <p className="text-purple-100 text-sm font-medium">Total Users</p>
               <p className="text-3xl font-bold">{stats.totalUsers}</p>
             </div>
-            <div className="w-12 h-12 bg-white/30 rounded-lg flex items-center justify-center shadow-md">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-              </svg>
-            </div>
+            <motion.div 
+              className="w-12 h-12 bg-white/30 rounded-lg flex items-center justify-center shadow-md"
+              whileHover={{ scale: 1.1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <motion.div 
+                whileHover={{ rotate: 360 }}
+                transition={{ duration: 0.5 }}
+              >
+                <Users className="w-6 h-6" />
+              </motion.div>
+            </motion.div>
           </div>
         </div>
 
@@ -233,11 +294,18 @@ export default function DashboardStats({ onTabChange }) {
               <p className="text-pink-100 text-sm font-medium">Pending Users</p>
               <p className="text-3xl font-bold">{stats.pendingUsers}</p>
             </div>
-            <div className="w-12 h-12 bg-white/30 rounded-lg flex items-center justify-center shadow-md">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
+            <motion.div 
+              className="w-12 h-12 bg-white/30 rounded-lg flex items-center justify-center shadow-md"
+              whileHover={{ scale: 1.1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <motion.div 
+                whileHover={{ rotate: 360 }}
+                transition={{ duration: 0.5 }}
+              >
+                <AlertCircle className="w-6 h-6" />
+              </motion.div>
+            </motion.div>
           </div>
         </div>
       </div>
@@ -249,11 +317,19 @@ export default function DashboardStats({ onTabChange }) {
           className="bg-white/40 backdrop-blur-lg border border-white/30 rounded-2xl p-6 hover:shadow-2xl transition-all duration-200 group"
         >
           <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-blue-100/60 rounded-lg flex items-center justify-center group-hover:bg-blue-200/80 transition-colors duration-200 shadow-md">
-              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-            </div>
+            <motion.div 
+              className="w-12 h-12 bg-blue-100/60 rounded-lg flex items-center justify-center group-hover:bg-blue-200/80 transition-colors duration-200 shadow-md"
+              whileHover={{ scale: 1.1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <motion.div 
+                className="text-blue-600"
+                whileHover={{ rotate: 360 }}
+                transition={{ duration: 0.5 }}
+              >
+                <Plus className="w-6 h-6" />
+              </motion.div>
+            </motion.div>
             <div className="text-left">
               <h3 className="font-semibold text-blue-900 group-hover:text-blue-600 transition-colors duration-200">Create Post</h3>
               <p className="text-sm text-blue-700/80">Add a new blog post</p>
@@ -266,11 +342,19 @@ export default function DashboardStats({ onTabChange }) {
           className="bg-white/40 backdrop-blur-lg border border-white/30 rounded-2xl p-6 hover:shadow-2xl transition-all duration-200 group"
         >
           <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-green-100/60 rounded-lg flex items-center justify-center group-hover:bg-green-200/80 transition-colors duration-200 shadow-md">
-              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-              </svg>
-            </div>
+            <motion.div 
+              className="w-12 h-12 bg-green-100/60 rounded-lg flex items-center justify-center group-hover:bg-green-200/80 transition-colors duration-200 shadow-md"
+              whileHover={{ scale: 1.1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <motion.div 
+                className="text-green-600"
+                whileHover={{ rotate: 360 }}
+                transition={{ duration: 0.5 }}
+              >
+                <UserPlus className="w-6 h-6" />
+              </motion.div>
+            </motion.div>
             <div className="text-left">
               <h3 className="font-semibold text-blue-900 group-hover:text-green-600 transition-colors duration-200">Manage Users</h3>
               <p className="text-sm text-blue-700/80">Approve pending users</p>
@@ -283,11 +367,19 @@ export default function DashboardStats({ onTabChange }) {
           className="bg-white/40 backdrop-blur-lg border border-white/30 rounded-2xl p-6 hover:shadow-2xl transition-all duration-200 group"
         >
           <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-purple-100/60 rounded-lg flex items-center justify-center group-hover:bg-purple-200/80 transition-colors duration-200 shadow-md">
-              <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-            </div>
+            <motion.div 
+              className="w-12 h-12 bg-purple-100/60 rounded-lg flex items-center justify-center group-hover:bg-purple-200/80 transition-colors duration-200 shadow-md"
+              whileHover={{ scale: 1.1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <motion.div 
+                className="text-purple-600"
+                whileHover={{ rotate: 360 }}
+                transition={{ duration: 0.5 }}
+              >
+                <User className="w-6 h-6" />
+              </motion.div>
+            </motion.div>
             <div className="text-left">
               <h3 className="font-semibold text-blue-900 group-hover:text-purple-600 transition-colors duration-200">View Profile</h3>
               <p className="text-sm text-blue-700/80">Update your profile</p>
@@ -300,11 +392,19 @@ export default function DashboardStats({ onTabChange }) {
           className="bg-white/40 backdrop-blur-lg border border-white/30 rounded-2xl p-6 hover:shadow-2xl transition-all duration-200 group"
         >
           <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-orange-100/60 rounded-lg flex items-center justify-center group-hover:bg-orange-200/80 transition-colors duration-200 shadow-md">
-              <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-              </svg>
-            </div>
+            <motion.div 
+              className="w-12 h-12 bg-orange-100/60 rounded-lg flex items-center justify-center group-hover:bg-orange-200/80 transition-colors duration-200 shadow-md"
+              whileHover={{ scale: 1.1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <motion.div 
+                className="text-orange-600"
+                whileHover={{ rotate: 360 }}
+                transition={{ duration: 0.5 }}
+              >
+                <Edit3 className="w-6 h-6" />
+              </motion.div>
+            </motion.div>
             <div className="text-left">
               <h3 className="font-semibold text-blue-900 group-hover:text-orange-600 transition-colors duration-200">Manage Posts</h3>
               <p className="text-sm text-blue-700/80">Edit existing posts</p>
@@ -316,14 +416,22 @@ export default function DashboardStats({ onTabChange }) {
       {/* Recent Activity */}
       <div className="bg-white/40 backdrop-blur-lg rounded-2xl shadow-xl border border-white/30">
         <div className="px-6 py-4 border-b border-white/30">
-          <h2 className="text-lg font-semibold text-blue-900">Recent Activity</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-blue-900">Recent Activity</h2>
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-xs text-blue-700/80">
+                Live • Updated {lastUpdate.toLocaleTimeString()}
+              </span>
+            </div>
+          </div>
         </div>
         <div className="p-6">
           {((stats.recentActivity || []).length === 0) ? (
             <div className="text-center py-8">
-              <svg className="mx-auto h-12 w-12 text-blue-400/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
+              <div className="mx-auto">
+                <Activity className="h-12 w-12 text-blue-400/60 mx-auto" />
+              </div>
               <h3 className="mt-2 text-sm font-medium text-blue-900">No recent activity</h3>
               <p className="mt-1 text-sm text-blue-700/80">
                 Activity will appear here as users interact with the dashboard.
@@ -331,12 +439,18 @@ export default function DashboardStats({ onTabChange }) {
             </div>
           ) : (
             <div className="space-y-4">
-              {(stats.recentActivity || []).map((post) => (
-                <div key={post.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+              {(stats.recentActivity || []).map((post, index) => (
+                <div 
+                  key={post.id} 
+                  className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg transition-all duration-300 hover:bg-gray-100"
+                  style={{
+                    animation: index === 0 ? 'fadeInSlide 0.5s ease-out' : 'none'
+                  }}
+                >
                   <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                    </svg>
+                    <div className="p-1 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600">
+                      <FileText className="w-3 h-3 text-white" />
+                    </div>
                   </div>
                   <div className="flex-1">
                     <h3 className="text-sm font-medium text-gray-900">{post.title}</h3>
@@ -359,4 +473,4 @@ export default function DashboardStats({ onTabChange }) {
       </div>
     </div>
   );
-} 
+}

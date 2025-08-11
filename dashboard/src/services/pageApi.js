@@ -1,10 +1,10 @@
 // Page management API functions
 const API_BASE_URL =
-  process.env.NODE_ENV === "development" ? "http://localhost:8000" : "";
+  process.env.NODE_ENV === "development" ? "http://localhost:8001" : "";
 
 export async function createPage(pageData) {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/create_page.php`, {
+    const res = await fetch(`${API_BASE_URL}/create_page.php`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -32,7 +32,7 @@ export async function createPage(pageData) {
 }
 
 export async function getPage(id = null, includeDeleted = false) {
-  const url = new URL(`${API_BASE_URL}/api/get_page.php`);
+  const url = new URL(`${API_BASE_URL}/get_page.php`);
   if (id) url.searchParams.append("id", id);
   if (includeDeleted) url.searchParams.append("deleted", "1");
 
@@ -44,7 +44,7 @@ export async function getPage(id = null, includeDeleted = false) {
 }
 
 export async function savePage(id, content) {
-  const res = await fetch(`${API_BASE_URL}/api/save_page.php`, {
+  const res = await fetch(`${API_BASE_URL}/save_page.php`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -57,7 +57,7 @@ export async function savePage(id, content) {
 }
 
 export async function deletePage(id) {
-  const res = await fetch(`${API_BASE_URL}/api/delete_page.php`, {
+  const res = await fetch(`${API_BASE_URL}/delete_page.php`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -70,7 +70,7 @@ export async function deletePage(id) {
 }
 
 export async function renamePage(id, newId, title) {
-  const res = await fetch("/api/rename_page.php", {
+  const res = await fetch(`${API_BASE_URL}/rename_page.php`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -83,7 +83,7 @@ export async function renamePage(id, newId, title) {
 }
 
 export async function duplicatePage(id, newId) {
-  const res = await fetch("/api/duplicate_page.php", {
+  const res = await fetch(`${API_BASE_URL}/duplicate_page.php`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -96,7 +96,7 @@ export async function duplicatePage(id, newId) {
 }
 
 export async function restorePage(id) {
-  const res = await fetch("/api/restore_page.php", {
+  const res = await fetch(`${API_BASE_URL}/restore_page.php`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

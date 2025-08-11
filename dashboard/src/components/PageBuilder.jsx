@@ -11,6 +11,10 @@ import { useNavigate } from 'react-router-dom';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { savePageOrder } from '../services/api';
+import { getPage, createPage, savePage, deletePage, renamePage, duplicatePage, restorePage } from '../services/pageApi';
+
+// API configuration
+const API_BASE_URL = process.env.NODE_ENV === 'development' ? 'http://localhost:8001' : '';
 
 function Toast({ message, onClose }) {
   useEffect(() => {
@@ -150,11 +154,23 @@ function DraggablePage({ page, index, movePage, selected, onSelect, onRename, on
         <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><circle cx="5" cy="6" r="1.5"/><circle cx="5" cy="12" r="1.5"/><circle cx="5" cy="18" r="1.5"/><circle cx="12" cy="6" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="18" r="1.5"/><circle cx="19" cy="6" r="1.5"/><circle cx="19" cy="12" r="1.5"/><circle cx="19" cy="18" r="1.5"/></svg>
       </span>
       <button
-        className={`text-left flex-1 px-2 py-1 rounded-xl font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 ${selected ? 'bg-gradient-to-r from-blue-200/80 to-purple-200/80 text-blue-900 shadow-lg scale-105' : 'hover:bg-blue-50 hover:scale-105'}`}
+        className={`text-left flex-1 px-3 py-2 rounded-xl font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 ${selected ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg scale-105 border-2 border-blue-300' : 'hover:bg-blue-50 hover:scale-102 text-gray-700'}`}
         onClick={onSelect}
         disabled={actionLoading}
         aria-label={`Select page ${page.id}`}
-      >{page.title || page.id}</button>
+      >
+        <div className="flex items-center gap-2">
+          <span>{page.title || page.id}</span>
+          {selected && (
+            <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
+          )}
+        </div>
+        {page.title && page.title !== page.id && (
+          <div className={`text-xs mt-1 ${selected ? 'text-blue-100' : 'text-gray-500'}`}>
+            ID: {page.id}
+          </div>
+        )}
+      </button>
       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-2">
         <Tooltip label="Rename">
           <button
@@ -213,8 +229,9 @@ function PreviewModal({ open, html, css, onClose }) {
 function registerCustomBlocks(editor) {
   // Define block categories
   const blockCategories = {
-    layout: 'Layout Blocks',
-    sections: 'Content Sections',
+    basic: 'Basic',
+    layout: 'Layout Blocks', 
+    sections: 'Sections',
     navigation: 'Navigation',
     elements: 'UI Elements',
     forms: 'Form Elements',
@@ -254,11 +271,54 @@ function registerCustomBlocks(editor) {
       }
     }
   });
+  // Basic UI Elements
+  editor.BlockManager.add('basic-heading', {
+    label: 'Heading',
+    category: 'Basic',
+    attributes: { class: 'fa fa-header' },
+    content: '<h2 class="text-4xl font-bold text-gray-900 mb-6">Your Amazing Heading</h2>'
+  });
+
+  editor.BlockManager.add('basic-text', {
+    label: 'Text',
+    category: 'Basic',
+    attributes: { class: 'fa fa-text-width' },
+    content: '<p class="text-gray-600 leading-relaxed mb-6">Add your text content here. You can format it however you like and make it engaging for your visitors.</p>'
+  });
+
+  editor.BlockManager.add('basic-button', {
+    label: 'Button',
+    category: 'Basic',
+    attributes: { class: 'fa fa-hand-pointer-o' },
+    content: '<div class="text-center my-6"><button class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200">Click Me</button></div>'
+  });
+
+  editor.BlockManager.add('basic-image', {
+    label: 'Image',
+    category: 'Basic',
+    attributes: { class: 'fa fa-image' },
+    content: '<div class="text-center my-6"><img src="https://via.placeholder.com/600x400/4F46E5/FFFFFF?text=Your+Image" class="max-w-full h-auto rounded-lg shadow-lg" alt="Your Image"></div>'
+  });
+
+  editor.BlockManager.add('basic-spacer', {
+    label: 'Spacer',
+    category: 'Basic',
+    attributes: { class: 'fa fa-arrows-v' },
+    content: '<div class="py-8"></div>'
+  });
+
+  editor.BlockManager.add('basic-divider', {
+    label: 'Divider',
+    category: 'Basic',
+    attributes: { class: 'fa fa-minus' },
+    content: '<div class="my-8"><hr class="border-gray-300"></div>'
+  });
+
   // Example: Hero Section
   editor.BlockManager.add('custom-hero', {
     label: 'Hero Section',
     category: 'Sections',
-    attributes: { class: 'gjs-block-section' },
+    attributes: { class: 'fa fa-star' },
     content: `
       <section class="py-16 px-8 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-2xl flex flex-col items-center justify-center">
         <h1 class="text-4xl font-bold mb-4">Your Headline Here</h1>
@@ -271,6 +331,7 @@ function registerCustomBlocks(editor) {
   editor.BlockManager.add('custom-testimonial', {
     label: 'Testimonial',
     category: 'Sections',
+    attributes: { class: 'fa fa-quote-left' },
     content: `
       <div class="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center">
         <img src="https://randomuser.me/api/portraits/men/32.jpg" class="w-16 h-16 rounded-full mb-4" alt="User" />
@@ -283,6 +344,7 @@ function registerCustomBlocks(editor) {
   editor.BlockManager.add('custom-pricing', {
     label: 'Pricing Table',
     category: 'Sections',
+    attributes: { class: 'fa fa-table' },
     content: `
       <div class="flex flex-col md:flex-row gap-6 justify-center">
         <div class="bg-white rounded-xl shadow-lg p-8 flex-1">
@@ -380,8 +442,32 @@ function registerCustomBlocks(editor) {
 
   // Content Blocks
   const contentBlocks = {
+    heading: {
+      label: 'Heading',
+      content: '<h2 class="text-4xl font-bold text-gray-900 mb-6">Your Amazing Heading</h2>'
+    },
+    text: {
+      label: 'Text',
+      content: '<p class="text-gray-600 leading-relaxed mb-6">Add your text content here. You can format it however you like and make it engaging for your visitors.</p>'
+    },
+    button: {
+      label: 'Button',
+      content: '<div class="text-center my-6"><button class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200">Click Me</button></div>'
+    },
+    image: {
+      label: 'Image',
+      content: '<div class="text-center my-6"><img src="https://via.placeholder.com/600x400/4F46E5/FFFFFF?text=Your+Image" class="max-w-full h-auto rounded-lg shadow-lg" alt="Your Image"></div>'
+    },
+    spacer: {
+      label: 'Spacer',
+      content: '<div class="py-8"></div>'
+    },
+    divider: {
+      label: 'Divider',
+      content: '<div class="my-8"><hr class="border-gray-300"></div>'
+    },
     textContent: {
-      label: 'Text Content',
+      label: 'Rich Text',
       content: `
         <div class="prose lg:prose-xl mx-auto py-8">
           <h2>Section Title</h2>
@@ -407,6 +493,58 @@ function registerCustomBlocks(editor) {
             <img src="https://source.unsplash.com/random/800x600" alt="Content Image" class="absolute inset-0 w-full h-full object-cover"/>
           </div>
         </div>
+      `
+    },
+    featureGrid: {
+      label: 'Feature Grid',
+      content: `
+        <section class="py-16 bg-gray-50">
+          <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12">Our Features</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+              <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Feature One</h3>
+                <p class="text-gray-600">Description of your amazing feature goes here.</p>
+              </div>
+              <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path></svg>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Feature Two</h3>
+                <p class="text-gray-600">Description of your amazing feature goes here.</p>
+              </div>
+              <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg class="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 20 20"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path></svg>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Feature Three</h3>
+                <p class="text-gray-600">Description of your amazing feature goes here.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      `
+    },
+    testimonial: {
+      label: 'Testimonial',
+      content: `
+        <section class="py-16">
+          <div class="container mx-auto px-4 text-center">
+            <div class="max-w-3xl mx-auto">
+              <blockquote class="text-2xl font-light text-gray-700 mb-8">"This service has completely transformed our business. The results speak for themselves!"</blockquote>
+              <div class="flex items-center justify-center">
+                <img src="https://via.placeholder.com/80x80/4F46E5/FFFFFF?text=JD" class="w-16 h-16 rounded-full mr-4" alt="Customer">
+                <div class="text-left">
+                  <p class="font-semibold text-gray-900">John Doe</p>
+                  <p class="text-gray-600">CEO, Amazing Company</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       `
     }
   };
@@ -518,39 +656,73 @@ function registerCustomBlocks(editor) {
   };
 
   // Register navigation blocks
+  const navIcons = {
+    navbar: 'fa fa-bars',
+    footer: 'fa fa-window-minimize'
+  };
   Object.entries(navigationBlocks).forEach(([key, block]) => {
     editor.BlockManager.add(`nav-${key}`, {
       label: block.label,
       category: blockCategories.navigation,
       content: block.content,
-      attributes: { class: 'gjs-block-full-width' }
+      attributes: { class: navIcons[key] || 'fa fa-bars' }
     });
   });
 
   // Register content blocks
+  const contentIcons = {
+    'rich-text': 'fa fa-align-left',
+    'heading': 'fa fa-header',
+    'text': 'fa fa-text-width',
+    'button': 'fa fa-hand-pointer-o',
+    'image': 'fa fa-image',
+    'hero-section': 'fa fa-star',
+    'feature-grid': 'fa fa-th',
+    'testimonial': 'fa fa-quote-left',
+    'contact-form': 'fa fa-envelope',
+    'spacer': 'fa fa-arrows-v',
+    'divider': 'fa fa-minus'
+  };
   Object.entries(contentBlocks).forEach(([key, block]) => {
     editor.BlockManager.add(`content-${key}`, {
       label: block.label,
       category: blockCategories.content,
-      content: block.content
+      content: block.content,
+      attributes: { class: contentIcons[key] || 'fa fa-cube' }
     });
   });
 
   // Register interactive blocks
+  const interactiveIcons = {
+    'accordion': 'fa fa-list-ul',
+    'tabs': 'fa fa-folder-open',
+    'modal': 'fa fa-window-restore'
+  };
   Object.entries(interactiveBlocks).forEach(([key, block]) => {
     editor.BlockManager.add(`interactive-${key}`, {
       label: block.label,
       category: blockCategories.interactive,
-      content: block.content
+      content: block.content,
+      attributes: { class: interactiveIcons[key] || 'fa fa-cogs' }
     });
   });
 
   // Register form elements
+  const formIcons = {
+    'input': 'fa fa-text-width',
+    'textarea': 'fa fa-align-left',
+    'select': 'fa fa-caret-down',
+    'checkbox': 'fa fa-check-square-o',
+    'radio': 'fa fa-dot-circle-o',
+    'button': 'fa fa-hand-pointer-o',
+    'form': 'fa fa-wpforms'
+  };
   Object.entries(formElements).forEach(([key, element]) => {
     editor.BlockManager.add(`form-${key}`, {
       label: element.label,
       category: blockCategories.forms,
-      content: element.content
+      content: element.content,
+      attributes: { class: formIcons[key] || 'fa fa-wpforms' }
     });
   });
 
@@ -696,10 +868,39 @@ export default function PageBuilder() {
   const [actionLoading, setActionLoading] = useState(false);
   const [toast, setToast] = useState('');
   const [search, setSearch] = useState('');
+  const [searchInput, setSearchInput] = useState('');
   const [showRename, setShowRename] = useState(false);
   const [renameId, setRenameId] = useState('');
   const [renameTitle, setRenameTitle] = useState('');
   const navigate = useNavigate();
+
+  // Inject CSS animations
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      .animate-fade-in-up {
+        animation: fadeInUp 0.3s ease-out;
+      }
+    `;
+    document.head.appendChild(style);
+
+    return () => {
+      if (document.head.contains(style)) {
+        document.head.removeChild(style);
+      }
+    };
+  }, []);
 
   // Add position/order support
   const [pageOrder, setPageOrder] = useState([]);
@@ -731,8 +932,7 @@ export default function PageBuilder() {
     setSavingOrder(false);
   };
 
-  // Import required functions from pageApi
-  const { getPage, createPage, savePage, deletePage, renamePage, duplicatePage, restorePage } = require('../services/pageApi');
+  // Functions imported from pageApi at top of file
 
   // Create new page
   const handleCreatePage = async () => {
@@ -759,11 +959,17 @@ export default function PageBuilder() {
       });
 
       if (result.success) {
+        const createdPageId = newPageId.trim();
         showToast('Page created successfully!');
         setNewPageId('');
         setNewPageTitle('');
+        
+        // Immediately refresh pages and select the new one
         await fetchPages();
-        setSelectedPageId(newPageId.trim());
+        setSelectedPageId(createdPageId);
+        
+        // Close the add page sidebar
+        setSidebarOpen(null);
       } else {
         throw new Error(result.message || 'Failed to create page');
       }
@@ -775,9 +981,10 @@ export default function PageBuilder() {
     }
   };
 
-  // Fetch all pages for sidebar
-  const fetchPages = async () => {
-    setLoadingPages(true);
+  // Dynamic page fetching with auto-refresh and better error handling
+  const fetchPages = async (silent = false) => {
+    if (!silent) setLoadingPages(true);
+    setConnectionStatus('syncing');
     setError('');
     try {
       const [activePages, deletedPages] = await Promise.all([
@@ -790,7 +997,18 @@ export default function PageBuilder() {
         const sortedPages = activePages.pages.sort((a, b) => 
           (a.order || Number.MAX_SAFE_INTEGER) - (b.order || Number.MAX_SAFE_INTEGER)
         );
-        setPages(sortedPages);
+        
+        // Check if pages have changed to avoid unnecessary re-renders
+        const pagesChanged = JSON.stringify(pages.map(p => ({id: p.id, title: p.title, updated_at: p.updated_at}))) !== 
+                            JSON.stringify(sortedPages.map(p => ({id: p.id, title: p.title, updated_at: p.updated_at})));
+        
+        if (pagesChanged) {
+          setPages(sortedPages);
+          if (!silent) showToast('Pages updated!');
+        }
+        
+        setConnectionStatus('online');
+        setLastSyncTime(new Date());
         
         // Auto-select first page if none selected
         if (!selectedPageId && sortedPages.length > 0) {
@@ -806,20 +1024,48 @@ export default function PageBuilder() {
 
       // Handle deleted pages
       if (deletedPages.success && Array.isArray(deletedPages.pages)) {
-        setTrash(deletedPages.pages);
+        const trashChanged = JSON.stringify(trash.map(p => ({id: p.id, updated_at: p.updated_at}))) !== 
+                            JSON.stringify(deletedPages.pages.map(p => ({id: p.id, updated_at: p.updated_at})));
+        
+        if (trashChanged) {
+          setTrash(deletedPages.pages);
+        }
       } else {
         console.error('Invalid deleted pages response:', deletedPages);
       }
     } catch (err) {
       console.error('Error fetching pages:', err);
       setError(err?.message || 'Failed to load pages. Please check your connection.');
+      setConnectionStatus('offline');
+      if (!silent) showToast('Failed to sync pages. Check your connection.');
     } finally {
-      setLoadingPages(false);
+      if (!silent) setLoadingPages(false);
     }
   };
 
+  // Auto-refresh and dynamic content management
   useEffect(() => {
     fetchPages();
+    
+    // Set up periodic sync every 30 seconds for dynamic content management
+    const syncInterval = setInterval(() => {
+      fetchPages(true); // Silent refresh
+    }, 30000);
+    
+    // Set up visibility change listener for immediate sync when tab becomes active
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchPages(true); // Silent refresh when user returns to tab
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Cleanup
+    return () => {
+      clearInterval(syncInterval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
     // eslint-disable-next-line
   }, []);
 
@@ -837,9 +1083,30 @@ export default function PageBuilder() {
     }
     const editor = grapesjs.init({
       container: '#gjs',
-      width: '100vw',
-      height: '100vh',
+      width: '100%',
+      height: '100%',
       storageManager: false,
+      deviceManager: {
+        devices: [
+          {
+            name: 'Desktop',
+            width: '',
+          },
+          {
+            name: 'Tablet',
+            width: '768px',
+            widthMedia: '992px',
+          },
+          {
+            name: 'Mobile',
+            width: '320px',
+            widthMedia: '768px',
+          },
+        ],
+      },
+      panels: {
+        defaults: [],
+      },
       plugins: [
         basicBlocks,
         formsPlugin,
@@ -849,7 +1116,9 @@ export default function PageBuilder() {
         customCodePlugin,
       ],
       pluginsOpts: {
-        [basicBlocks]: {},
+        [basicBlocks]: {
+          flexGrid: true,
+        },
         [formsPlugin]: {},
         [flexboxBlocks]: {},
         [exportPlugin]: {},
@@ -857,30 +1126,174 @@ export default function PageBuilder() {
         [customCodePlugin]: {},
       },
       blockManager: {
-        appendTo: '#gjs-blocks', // For custom block panel if needed
+        appendTo: '#gjs-blocks',
+      },
+      layerManager: {
+        appendTo: '.layers-container',
+      },
+      styleManager: {
+        appendTo: '.styles-container',
+        sectors: [
+          {
+            name: 'Dimension',
+            open: false,
+            buildProps: ['width', 'min-height', 'padding'],
+            properties: [
+              {
+                type: 'integer',
+                name: 'The width',
+                property: 'width',
+                units: ['px', '%'],
+                defaults: 'auto',
+                min: 0,
+              },
+            ],
+          },
+          {
+            name: 'Extra',
+            open: false,
+            buildProps: ['background-color', 'box-shadow', 'custom-prop'],
+            properties: [
+              {
+                id: 'custom-prop',
+                name: 'Custom Label',
+                property: 'font-size',
+                type: 'select',
+                defaults: '32px',
+                options: [
+                  { value: '12px', name: 'Tiny' },
+                  { value: '18px', name: 'Medium' },
+                  { value: '32px', name: 'Big' },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      canvas: {
+        styles: [
+          'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css',
+        ],
+        scripts: [],
       },
     });
     // Register custom blocks
     registerCustomBlocks(editor);
-    fetch(`/api/get_page.php?id=${selectedPageId}`)
+    fetch(`${API_BASE_URL}/get_page.php?id=${selectedPageId}`)
       .then(res => res.json())
       .then(data => {
-        if (data.success && data.html) {
-          editor.setComponents(data.html);
-          if (data.css) editor.setStyle(data.css);
+        if (data.success) {
+          // Load existing content or provide starter template
+          if (data.html && data.html.trim()) {
+            editor.setComponents(data.html);
+            if (data.css) editor.setStyle(data.css);
+          } else {
+            // Provide a starter template for empty pages
+            const starterTemplate = `
+              <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+                <div class="container mx-auto px-4 py-16">
+                  <div class="text-center mb-16">
+                    <h1 class="text-5xl font-bold text-gray-900 mb-6">Welcome to Your New Page</h1>
+                    <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">Start building your amazing content by dragging blocks from the left panel. This is your canvas - make it beautiful!</p>
+                    <div class="flex gap-4 justify-center">
+                      <button class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors">Get Started</button>
+                      <button class="border border-gray-300 hover:border-gray-400 text-gray-700 px-8 py-3 rounded-lg font-semibold transition-colors">Learn More</button>
+                    </div>
+                  </div>
+                  <div class="grid md:grid-cols-3 gap-8 mb-16">
+                    <div class="bg-white p-6 rounded-xl shadow-lg">
+                      <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                      </div>
+                      <h3 class="text-xl font-semibold mb-2">Fast & Easy</h3>
+                      <p class="text-gray-600">Build beautiful pages quickly with our drag-and-drop interface.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-lg">
+                      <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                        </svg>
+                      </div>
+                      <h3 class="text-xl font-semibold mb-2">Responsive</h3>
+                      <p class="text-gray-600">Your pages will look great on all devices automatically.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-lg">
+                      <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                      </div>
+                      <h3 class="text-xl font-semibold mb-2">Creative</h3>
+                      <p class="text-gray-600">Express your creativity with unlimited design possibilities.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+            editor.setComponents(starterTemplate);
+          }
+        } else {
+          // Handle error case with a simple template
+          editor.setComponents('<div class="p-8 text-center"><h1>Error loading page content</h1><p>Please try refreshing the page.</p></div>');
         }
         setLoadingPageContent(false);
-        setUnsaved(false); // Reset unsaved state on load
+        setUnsaved(false);
+        
+        // Set up responsive design
+        editor.setDevice(previewDevice);
+        
         // Focus editor after loading
         setTimeout(() => {
           const frame = document.querySelector('#gjs iframe');
           if (frame) frame.contentWindow.focus();
         }, 500);
       })
-      .catch(() => setLoadingPageContent(false));
+      .catch(() => {
+        setLoadingPageContent(false);
+        // Provide fallback content on network error
+        if (editorRef.current) {
+          editorRef.current.setComponents('<div class="p-8 text-center"><h1>Network Error</h1><p>Unable to load page content. Please check your connection.</p></div>');
+        }
+      });
+    // Auto-save functionality for dynamic content management
+    let autoSaveTimeout;
     editor.on('component:add component:remove component:update style:propertychange', () => {
       setUnsaved(true);
+      
+      // Clear existing timeout
+      if (autoSaveTimeout) {
+        clearTimeout(autoSaveTimeout);
+      }
+      
+      // Auto-save after 3 seconds of inactivity
+      autoSaveTimeout = setTimeout(async () => {
+        try {
+          const html = editor.getHtml();
+          const css = editor.getCss();
+          const res = await fetch(`${API_BASE_URL}/save_page.php`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: selectedPageId, html, css }),
+          });
+          const data = await res.json();
+          if (data.success) {
+            setUnsaved(false);
+            showToast('Auto-saved!');
+          }
+        } catch (err) {
+          console.error('Auto-save failed:', err);
+        }
+      }, 3000);
     });
+    
+    // Cleanup auto-save timeout
+    return () => {
+      if (autoSaveTimeout) {
+        clearTimeout(autoSaveTimeout);
+      }
+    };
     editorRef.current = editor;
     // Block search and category filtering
     editor.on('block:drag:start', () => {
@@ -931,15 +1344,16 @@ export default function PageBuilder() {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [unsaved]);
 
-  // Intercept in-app navigation (Back to Admin)
+  // Handle navigation back to admin dashboard
   const handleBackToAdmin = () => {
     if (unsaved) {
       setShowUnsavedModal(true);
-      pendingNav.current = () => navigate('/admin');
+      pendingNav.current = () => navigate('/');
     } else {
-      navigate('/admin');
+      navigate('/');
     }
   };
+
   const confirmLeave = () => {
     setShowUnsavedModal(false);
     setUnsaved(false);
@@ -961,7 +1375,7 @@ export default function PageBuilder() {
     if (!selectedPageId) return showToast('No page selected');
     const html = editorRef.current.getHtml();
     const css = editorRef.current.getCss();
-    const res = await fetch('/api/save_page.php', {
+    const res = await fetch(`${API_BASE_URL}/save_page.php`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: selectedPageId, html, css }),
@@ -1021,7 +1435,7 @@ export default function PageBuilder() {
     if (!window.confirm(`Move page "${id}" to Trash?`)) return;
     setActionLoading(true);
     try {
-      const res = await fetch('/api/delete_page.php', {
+      const res = await fetch(`${API_BASE_URL}/delete_page.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id }),
@@ -1047,7 +1461,7 @@ export default function PageBuilder() {
   const handleRestore = async (id) => {
     setActionLoading(true);
     try {
-      const res = await fetch('/api/restore_page.php', {
+      const res = await fetch(`${API_BASE_URL}/restore_page.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id }),
@@ -1070,7 +1484,7 @@ export default function PageBuilder() {
     if (!window.confirm(`Permanently delete page "${id}"? This cannot be undone.`)) return;
     setActionLoading(true);
     try {
-      const res = await fetch('/api/delete_page.php', {
+      const res = await fetch(`${API_BASE_URL}/delete_page.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, permanent: true }),
@@ -1095,7 +1509,7 @@ export default function PageBuilder() {
     if (pages.some(p => p.id === newId) || trash.some(p => p.id === newId)) return showToast('Page ID already exists');
     setActionLoading(true);
     try {
-      const res = await fetch('/api/duplicate_page.php', {
+      const res = await fetch(`${API_BASE_URL}/duplicate_page.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, newId }),
@@ -1126,7 +1540,7 @@ export default function PageBuilder() {
     if (pages.some(p => p.id === newId) || trash.some(p => p.id === newId)) return showToast('Page ID already exists');
     setActionLoading(true);
     try {
-      const res = await fetch('/api/rename_page.php', {
+      const res = await fetch(`${API_BASE_URL}/rename_page.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ oldId: renameId, newId, newTitle }),
@@ -1144,13 +1558,6 @@ export default function PageBuilder() {
     }
     setActionLoading(false);
   };
-
-  // Filtered pages in order
-  const filteredPages = pageOrder
-    .map(id => pages.find(p => p.id === id))
-    .filter(Boolean)
-    .filter(p => p.id.toLowerCase().includes(search.toLowerCase()));
-  const filteredTrash = trash.filter(p => p.id.toLowerCase().includes(search.toLowerCase()));
 
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
@@ -1176,6 +1583,8 @@ export default function PageBuilder() {
   };
 
   const [previewDevice, setPreviewDevice] = useState('Desktop');
+  const [connectionStatus, setConnectionStatus] = useState('online'); // online, offline, syncing
+  const [lastSyncTime, setLastSyncTime] = useState(null);
 
   // Responsive device preview
   const setDevice = (device) => {
@@ -1193,8 +1602,8 @@ export default function PageBuilder() {
   };
   setDevice(previewDevice);
 
-  // Add state for block panel collapse
-  const [blockPanelOpen, setBlockPanelOpen] = useState(true);
+  // Add state for block panel collapse - closed by default for better UX
+  const [blockPanelOpen, setBlockPanelOpen] = useState(false);
   // Sidebar panel open/close logic
   const [sidebarOpen, setSidebarOpen] = useState(null); // Sidebar closed by default
   // Highlight active icon and allow toggling
@@ -1209,6 +1618,19 @@ export default function PageBuilder() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+  // Filtered pages in order
+  const filteredPages = pageOrder
+    .map(id => pages.find(p => p.id === id))
+    .filter(Boolean)
+    .filter(p => 
+      p.id.toLowerCase().includes(searchInput.toLowerCase()) ||
+      p.title.toLowerCase().includes(searchInput.toLowerCase())
+    );
+  const filteredTrash = trash.filter(p => 
+    p.id.toLowerCase().includes(searchInput.toLowerCase()) ||
+    p.title.toLowerCase().includes(searchInput.toLowerCase())
+  );
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -1236,45 +1658,33 @@ export default function PageBuilder() {
           <button className="mt-auto p-2 rounded-lg hover:bg-blue-100 text-blue-600" title="Help" aria-label="Help" onClick={() => setShowOnboarding(true)}>
             <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4m0-4h.01" /></svg>
           </button>
+          {/* Block panel toggle - more prominent and user-friendly */}
           <button
-            className="mb-3 mt-4 w-12 h-12 flex flex-col items-center justify-center rounded-xl bg-gradient-to-br from-blue-500/10 to-purple-500/10 hover:from-blue-500/20 hover:to-purple-500/20 text-blue-600 hover:text-purple-600 border border-blue-200/50 shadow-lg hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-200 transform hover:scale-105"
-            title="Back to Admin Dashboard"
-            aria-label="Back to Admin Dashboard"
-            onClick={handleBackToAdmin}
-          >
-            <svg className="w-5 h-5 mb-1 transform transition-transform duration-300 group-hover:-translate-x-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path d="M11 17l-5-5m0 0l5-5m-5 5h12" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span className="text-[10px] uppercase tracking-wider font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Admin</span>
-          </button>
-          {/* Block panel toggle arrow (now at the bottom of sidebar) */}
-          <button
-            className="mb-2 mt-4 bg-white border border-blue-100 shadow-xl rounded-full w-12 h-12 flex items-center justify-center focus:outline-none hover:bg-blue-100 transition-transform duration-200 group"
+            className={`mb-2 mt-4 border shadow-xl rounded-xl w-12 h-12 flex items-center justify-center focus:outline-none transition-all duration-300 group relative ${
+              blockPanelOpen 
+                ? 'bg-gradient-to-r from-blue-500 to-purple-500 border-blue-400 text-white shadow-blue-200' 
+                : 'bg-white border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300'
+            }`}
             onClick={() => setBlockPanelOpen(!blockPanelOpen)}
-            aria-label={blockPanelOpen ? 'Collapse block panel' : 'Expand block panel'}
+            aria-label={blockPanelOpen ? 'Close blocks panel' : 'Open blocks panel'}
+            title={blockPanelOpen ? 'Close blocks panel' : 'Open blocks panel'}
           >
-            <span className="sr-only">{blockPanelOpen ? 'Collapse blocks' : 'Expand blocks'}</span>
-            <svg
-              className={`w-7 h-7 text-blue-600 transition-transform duration-300 ${blockPanelOpen ? '' : 'rotate-180'}`}
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              viewBox="0 0 24 24"
-            >
-              {blockPanelOpen ? (
-                <>
-                  <path d="M10 6l6 6-6 6" />
-                  <path d="M6 6l6 6-6 6" />
-                </>
-              ) : (
-                <>
-                  <path d="M14 6l-6 6 6 6" />
-                  <path d="M18 6l-6 6 6 6" />
-                </>
-              )}
-            </svg>
+            <span className="sr-only">{blockPanelOpen ? 'Close blocks' : 'Open blocks'}</span>
+            {blockPanelOpen ? (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+            )}
+            {/* Active indicator */}
+            {!blockPanelOpen && (
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
+            )}
             <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block group-focus:block whitespace-nowrap bg-gray-900 text-white text-xs rounded px-2 py-1 shadow-lg opacity-90 transition-all duration-150">
-              {blockPanelOpen ? 'Collapse blocks' : 'Expand blocks'}
+              {blockPanelOpen ? 'Close blocks panel' : 'Open blocks panel'}
             </span>
           </button>
         </nav>
@@ -1292,12 +1702,50 @@ export default function PageBuilder() {
                 <div className="h-full flex flex-col">
                   {/* Header */}
                   <div className="flex items-center justify-between px-4 py-3 border-b">
-                    <span className="font-bold text-lg text-blue-700">Pages</span>
-                    <button className="text-gray-400 hover:text-red-500 text-2xl font-bold" onClick={() => handleSidebarToggle('pages')}>&times;</button>
+                    <span className="font-bold text-lg text-blue-700 flex items-center gap-2">
+                      Pages
+                      {loadingPages && (
+                        <span className="w-4 h-4 rounded-full border-2 border-blue-400 border-t-transparent animate-spin" title="Syncing..."></span>
+                      )}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        className="p-1.5 rounded-lg hover:bg-green-100 text-green-600 transition-colors duration-200"
+                        title="Refresh Pages"
+                        onClick={() => fetchPages()}
+                        disabled={loadingPages}
+                      >
+                        <svg className={`w-4 h-4 ${loadingPages ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                          <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
+                      <button className="text-gray-400 hover:text-red-500 text-2xl font-bold" onClick={() => handleSidebarToggle('pages')}>&times;</button>
+                    </div>
+                  </div>
+                  {/* Search input */}
+                  <div className="px-4 py-3 border-b border-gray-100">
+                    <div className="relative">
+                      <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                      <input
+                        type="text"
+                        placeholder="Search pages..."
+                        className="w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-400 focus:outline-none text-sm bg-white"
+                        value={searchInput}
+                        onChange={e => setSearchInput(e.target.value)}
+                        aria-label="Search pages"
+                      />
+                    </div>
                   </div>
                   {/* Page list and actions (reuse existing code) */}
                   <div className="flex-1 overflow-y-auto px-4 py-2">
-                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-4 mb-2">Pages</h3>
+                    <div className="flex items-center justify-between mt-4 mb-2">
+                      <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Pages</h3>
+                      <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full font-medium">
+                        {filteredPages.length} {filteredPages.length === 1 ? 'page' : 'pages'}
+                      </span>
+                    </div>
                     {loadingPages ? (
                       <div className="flex items-center gap-2 text-blue-600 font-semibold animate-pulse">
                         <span className="w-4 h-4 rounded-full border-2 border-blue-400 border-t-transparent animate-spin"></span>
@@ -1312,7 +1760,20 @@ export default function PageBuilder() {
                         >Retry</button>
                       </div>
                     ) : filteredPages.length === 0 ? (
-                      <div className="py-2 text-gray-500">No pages found.</div>
+                      <div className="py-8 text-center">
+                        <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                          <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                        </div>
+                        <p className="text-gray-500 text-sm mb-3">No pages found</p>
+                        <button
+                          className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                          onClick={() => setSidebarOpen('add')}
+                        >
+                          Create your first page
+                        </button>
+                      </div>
                     ) : (
                       <ul className="divide-y divide-gray-100 custom-scrollbar">
                         {filteredPages.map((page, idx) => (
@@ -1473,40 +1934,77 @@ export default function PageBuilder() {
             </div>
           )}
         </div>
-        {/* Block/Template Panel */}
-        <div className={`relative transition-all duration-300 ${blockPanelOpen ? 'w-80' : 'w-0'} bg-white/90 border-r border-gray-200 shadow-lg flex flex-col z-20`}>
-          {/* Device Preview Controls (removed from here) */}
-          {/* (No DevicePreviewDropdown here anymore) */}
+        {/* Block/Template Panel - Enhanced UX */}
+        <div className={`relative transition-all duration-300 ease-in-out ${blockPanelOpen ? 'w-80 opacity-100' : 'w-0 opacity-0'} bg-white/95 backdrop-blur-sm border-r border-gray-200 shadow-xl flex flex-col z-20 overflow-hidden`}>
           {blockPanelOpen && (
-            <div className="p-4 border-b border-gray-100">
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-bold text-lg text-blue-700">Blocks</span>
-                <button
-                  className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-lg font-semibold text-xs shadow hover:from-blue-600 hover:to-purple-600 transition"
-                  onClick={() => setShowTemplates(true)}
-                  aria-label="Show templates"
-                >Templates</button>
-              </div>
-              <input
-                type="text"
-                placeholder="Search blocks..."
-                className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-200 focus:outline-none text-sm mb-2"
-                value={blockSearch}
-                onChange={e => setBlockSearch(e.target.value)}
-                aria-label="Search blocks"
-              />
-              <div className="flex gap-2 mt-2 flex-wrap">
-                {blockCategories.map(cat => (
+            <div className="animate-fade-in-up">
+              {/* Header */}
+              <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-purple-50">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                      </svg>
+                    </div>
+                    <span className="font-bold text-lg text-blue-700">Blocks</span>
+                  </div>
                   <button
-                    key={cat}
-                    className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${blockCategory === cat ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-blue-50'}`}
-                    onClick={() => setBlockCategory(cat)}
-                  >{cat}</button>
-                ))}
+                    className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1.5 rounded-lg font-semibold text-xs shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105"
+                    onClick={() => setShowTemplates(true)}
+                    aria-label="Show templates"
+                  >Templates</button>
+                </div>
+                
+                {/* Search */}
+                <div className="relative mb-3">
+                  <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  <input
+                    type="text"
+                    placeholder="Search blocks..."
+                    className="w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-400 focus:outline-none text-sm bg-white/80 backdrop-blur-sm"
+                    value={blockSearch}
+                    onChange={e => setBlockSearch(e.target.value)}
+                    aria-label="Search blocks"
+                  />
+                </div>
+                
+                {/* Categories */}
+                <div className="flex gap-1 flex-wrap">
+                  {blockCategories.map(cat => (
+                    <button
+                      key={cat}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                        blockCategory === cat 
+                          ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md' 
+                          : 'bg-white/80 text-gray-700 hover:bg-blue-50 hover:text-blue-600 border border-gray-200'
+                      }`}
+                      onClick={() => setBlockCategory(cat)}
+                    >{cat}</button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Blocks Container */}
+              <div className="flex-1 overflow-y-auto custom-scrollbar">
+                <div id="gjs-blocks" className="p-4" />
+                {/* Helper text when no blocks visible */}
+                <div className="px-4 pb-4">
+                  <div className="text-xs text-gray-500 bg-gray-50 rounded-lg p-3 border border-gray-200">
+                    <div className="flex items-center gap-2 mb-1">
+                      <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span className="font-semibold">Tip:</span>
+                    </div>
+                    <p>Drag blocks from here into the editor to build your page. Use the search and category filters to find specific blocks quickly.</p>
+                  </div>
+                </div>
               </div>
             </div>
           )}
-          {blockPanelOpen && <div id="gjs-blocks" className="flex-1 overflow-y-auto custom-scrollbar p-4" />}
         </div>
         {/* Editor Area */}
         <main className="flex-1 flex flex-col relative z-10 min-h-screen h-full w-full">
@@ -1514,22 +2012,48 @@ export default function PageBuilder() {
             <div className="flex items-center gap-3">
               <button
                 onClick={handleBackToAdmin}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-white hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 rounded-lg border border-blue-200/50 shadow-lg hover:shadow-xl transition-all duration-300 group transform hover:scale-[1.02]"
-                title="Back to Admin Panel"
+                className="flex items-center gap-2 px-3 py-2 text-sm font-medium bg-white hover:bg-gray-50 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 group"
+                title="Return to Dashboard"
               >
-                <svg className="w-4 h-4 transition-transform duration-300 -translate-x-0.5 group-hover:-translate-x-1.5 text-blue-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-gray-600 group-hover:text-blue-600 transition-colors duration-200" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path d="M11 17l-5-5m0 0l5-5m-5 5h12" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                <span className="tracking-wide font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Return to Dashboard</span>
+                <span className="text-gray-700 group-hover:text-blue-600 transition-colors duration-200">Dashboard</span>
               </button>
-              <div className="h-6 w-px bg-gray-300 mx-2"></div>
+              <div className="h-6 w-px bg-gray-300"></div>
               <span className="font-semibold text-lg gradient-text">{selectedPageId ? `Editing: ${pages.find(p => p.id === selectedPageId)?.title || selectedPageId}` : 'No page selected'}</span>
-              {unsaved && selectedPageId && (
-                <span className="flex items-center gap-1 text-xs font-semibold text-orange-600 animate-pulse" title="You have unsaved changes">
-                  <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
-                  Unsaved
-                </span>
-              )}
+              <div className="flex items-center gap-3">
+                {/* Connection Status Indicator */}
+                <div className="flex items-center gap-1 text-xs font-medium">
+                  {connectionStatus === 'online' && (
+                    <>
+                      <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                      <span className="text-green-600">Online</span>
+                      {lastSyncTime && (
+                        <span className="text-gray-500 ml-1">• Last sync: {lastSyncTime.toLocaleTimeString()}</span>
+                      )}
+                    </>
+                  )}
+                  {connectionStatus === 'syncing' && (
+                    <>
+                      <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                      <span className="text-blue-600">Syncing...</span>
+                    </>
+                  )}
+                  {connectionStatus === 'offline' && (
+                    <>
+                      <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                      <span className="text-red-600">Offline</span>
+                    </>
+                  )}
+                </div>
+                {unsaved && selectedPageId && (
+                  <span className="flex items-center gap-1 text-xs font-semibold text-orange-600 animate-pulse" title="You have unsaved changes">
+                    <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
+                    Unsaved
+                  </span>
+                )}
+              </div>
             </div>
             <div className="flex gap-2 items-center">
               <DevicePreviewDropdown

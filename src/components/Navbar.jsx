@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import useTypingEffect from "../hooks/useTypingEffect";
 
 
 export default function Navbar() {
@@ -11,6 +12,7 @@ export default function Navbar() {
   const [isVisible, setIsVisible] = useState(true);
   const prevScrollY = useRef(0);
   const { currentUser, logout } = useAuth();
+  const { displayText, showCursor } = useTypingEffect("DevInquire", 150, 2000);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -65,37 +67,42 @@ export default function Navbar() {
               className="flex items-center space-x-3 group"
               onClick={() => setIsMenuOpen(false)}
             >
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-110 bg-[#4169e1]">
-                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                </svg>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-110 bg-gradient-to-br from-[#4169e1] via-[#6366f1] to-[#9c27b0] shadow-lg relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-50"></div>
+                <div className="relative z-10 flex items-center justify-center text-white font-bold text-sm">
+                  <span className="text-white/80 mr-0.5 text-xs">&#123;</span>
+                  <span className="text-white font-bold">DI</span>
+                  <span className="text-white/80 ml-0.5 text-xs">&#125;</span>
+                </div>
               </div>
-              <span className="font-semibold text-lg bg-gradient-to-r from-[#4169e1] to-[#9c27b0] bg-clip-text text-transparent">
-                DevInquire
+              <span className="font-semibold text-lg bg-gradient-to-r from-[#4169e1] via-[#6366f1] to-[#9c27b0] bg-clip-text text-transparent flex items-center">
+                {displayText}
+                <span className={`ml-0.5 ${showCursor ? 'opacity-100' : 'opacity-0'} transition-opacity duration-100`}>|</span>
               </span>
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center">
+            <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
               {/* Navigation Links */}
               {[
                 ['Home', '/'],
                 ['About', '/about'],
                 ['Services', '/services'],
+                ['Products', '/products'],
                 ['Blog', '/blog'],
                 ['Contact', '/contact'],
               ].map(([label, path]) => (
                 <Link 
                   key={path}
                   to={path} 
-                  className={`px-4 py-2 font-medium transition-all duration-300 relative group ${
+                  className={`px-2 lg:px-4 py-2 font-medium transition-all duration-300 relative group text-sm lg:text-base ${
                     isScrolled ? 'text-gray-700 hover:text-gray-900' : 'text-[#6B7280] hover:text-[#4169e1]'
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <span>{label}</span>
                   {isScrolled && (
-                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 group-hover:w-full"></span>
+                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#4169e1] via-[#6366f1] to-[#9c27b0] transition-all duration-300 group-hover:w-full"></span>
                   )}
                 </Link>
               ))}
@@ -105,18 +112,18 @@ export default function Navbar() {
                 <div className="relative">
                   <button
                     onClick={() => setIsProfileOpen(!isProfileOpen)}
-                    className={`flex items-center space-x-2 px-4 py-2 rounded-full font-medium transition-all duration-300 ${
+                    className={`flex items-center space-x-1 lg:space-x-2 px-2 lg:px-4 py-2 rounded-full font-medium transition-all duration-300 ${
                       isScrolled 
-                        ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700'
-                        : 'bg-[#4169e1] hover:bg-[#3154b4]'
+                        ? 'bg-gradient-to-r from-[#4169e1] via-[#6366f1] to-[#9c27b0] hover:from-[#3b5998] hover:to-[#8b5cf6]'
+                        : 'bg-gradient-to-r from-[#4169e1] to-[#9c27b0] hover:from-[#3b5998] hover:to-[#8b5cf6]'
                     } text-white`}
                   >
-                    <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
-                      <span className="text-blue-600 font-bold text-sm">
+                    <div className="w-5 h-5 lg:w-6 lg:h-6 bg-white rounded-full flex items-center justify-center">
+                      <span className="text-[#4169e1] font-bold text-xs lg:text-sm">
                         {currentUser.displayName ? currentUser.displayName.charAt(0).toUpperCase() : 'U'}
                       </span>
                     </div>
-                    <span>{currentUser.displayName || currentUser.email}</span>
+                    <span className="text-sm lg:text-base hidden lg:block">{currentUser.displayName || currentUser.email}</span>
                   </button>
 
                   {/* Profile Dropdown */}
@@ -124,13 +131,13 @@ export default function Navbar() {
                     <div className="absolute right-0 mt-2 w-72 glass-card py-1 z-50 transform transition-all duration-300 ease-out rounded-xl shadow-lg">
                       <div className="px-4 py-3 border-b border-gray-200/10">
                         <div className="flex items-center space-x-3">
-                          <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-xl text-white font-semibold">
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-r from-[#4169e1] via-[#6366f1] to-[#9c27b0] flex items-center justify-center text-xl text-white font-semibold">
                             {currentUser.displayName ? currentUser.displayName.charAt(0).toUpperCase() : 'U'}
                           </div>
                           <div>
                             <div className="font-semibold text-gray-900">{currentUser.displayName || 'User'}</div>
                             <div className="text-sm text-gray-500">{currentUser.email}</div>
-                            <div className="text-xs text-blue-600 font-medium uppercase tracking-wider mt-1">{currentUser.role}</div>
+                            <div className="text-xs text-[#4169e1] font-medium uppercase tracking-wider mt-1">{currentUser.role}</div>
                           </div>
                         </div>
                       </div>
@@ -172,23 +179,23 @@ export default function Navbar() {
                   )}
                 </div>
               ) : (
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2 lg:space-x-4">
                   <a 
-                    href="https://dashboard.devinquire.com/login" 
-                    className={`px-4 py-2 font-medium transition-all duration-300 ${
+                    href="https://dashboard.devinquire.com/" 
+                    className={`px-2 lg:px-4 py-2 font-medium transition-all duration-300 text-sm lg:text-base ${
                       isScrolled 
                         ? 'text-gray-700 hover:text-gray-900'
-                        : 'text-[#4169e1] hover:text-[#3154b4]'
+                        : 'text-[#4169e1] hover:text-[#6366f1]'
                     }`}
                   >
                     Sign In
                   </a>
                   <a 
-                    href="https://dashboard.devinquire.com/login" 
-                    className={`px-4 py-2 rounded-full font-medium transition-all duration-300 ${
+                    href="https://dashboard.devinquire.com/register" 
+                    className={`px-3 lg:px-4 py-2 rounded-full font-medium transition-all duration-300 text-sm lg:text-base ${
                       isScrolled
-                        ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700'
-                        : 'bg-[#4169e1] hover:bg-[#3154b4]'
+                        ? 'bg-gradient-to-r from-[#4169e1] via-[#6366f1] to-[#9c27b0] hover:from-[#3b5998] hover:to-[#8b5cf6]'
+                        : 'bg-gradient-to-r from-[#4169e1] to-[#9c27b0] hover:from-[#3b5998] hover:to-[#8b5cf6]'
                     } text-white`}
                   >
                     Register
@@ -201,32 +208,43 @@ export default function Navbar() {
             <div className="md:hidden">
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="w-12 h-12 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-300 focus:outline-none"
+                className={`w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-300 focus:outline-none z-50 relative ${
+                  isScrolled 
+                    ? 'bg-gray-100 hover:bg-gray-200 border border-gray-200' 
+                    : 'bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30'
+                }`}
                 aria-label="Toggle menu"
               >
                 <div className="w-6 h-6 relative transform transition-all duration-300">
-                  <span className={`absolute h-0.5 w-6 bg-gray-700 transform transition-all duration-300 ${isMenuOpen ? 'rotate-45 translate-y-2.5' : '-translate-y-2'}`}></span>
-                  <span className={`absolute h-0.5 w-6 bg-gray-700 transform transition-all duration-300 ${isMenuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
-                  <span className={`absolute h-0.5 w-6 bg-gray-700 transform transition-all duration-300 ${isMenuOpen ? '-rotate-45 translate-y-2.5' : 'translate-y-2'}`}></span>
+                  <span className={`absolute h-0.5 w-6 transform transition-all duration-300 ${
+                    isScrolled ? 'bg-gray-700' : 'bg-white'
+                  } ${isMenuOpen ? 'rotate-45 translate-y-0' : '-translate-y-2'}`}></span>
+                  <span className={`absolute h-0.5 w-6 transform transition-all duration-300 ${
+                    isScrolled ? 'bg-gray-700' : 'bg-white'
+                  } ${isMenuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
+                  <span className={`absolute h-0.5 w-6 transform transition-all duration-300 ${
+                    isScrolled ? 'bg-gray-700' : 'bg-white'
+                  } ${isMenuOpen ? '-rotate-45 translate-y-0' : 'translate-y-2'}`}></span>
                 </div>
               </button>
             </div>
           </div>
 
           {/* Mobile Navigation */}
-          <div className={`md:hidden overflow-hidden transition-all duration-300 ${isMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'}`}>
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 glass-card my-2 border border-white/10 rounded-xl">
+          <div className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out z-50 relative ${isMenuOpen ? 'max-h-screen opacity-100 visible' : 'max-h-0 opacity-0 invisible'}`}>
+            <div className="px-4 pt-4 pb-6 space-y-3 bg-white/95 backdrop-blur-lg my-2 mx-2 border border-white/20 rounded-xl shadow-xl">
               {[
                 ['Home', '/'],
                 ['About', '/about'],
                 ['Services', '/services'],
+                ['Products', '/products'],
                 ['Blog', '/blog'],
                 ['Contact', '/contact'],
               ].map(([label, path]) => (
                 <Link 
                   key={path}
                   to={path} 
-                  className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
+                  className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 block px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 border-b border-gray-100 last:border-b-0"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {label}
@@ -234,54 +252,56 @@ export default function Navbar() {
               ))}
 
               {/* Mobile User Authentication */}
-              {currentUser ? (
-                <>
-                  <div className="px-3 py-2 border-t border-gray-700">
-                    <div className="text-sm text-gray-400">Signed in as</div>
-                    <div className="text-white font-medium">{currentUser.displayName || currentUser.email}</div>
-                    <div className="text-xs text-blue-400">{currentUser.role}</div>
-                  </div>
-                  <a 
-                    href="https://dashboard.devinquire.com" 
-                    className="bg-gradient-to-r from-blue-500 to-purple-600 text-white block px-3 py-2 rounded-md text-base font-medium transition-all duration-300"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Dashboard
-                  </a>
-                  {currentUser.role === 'admin' && (
+              <div className="pt-4 border-t border-gray-200">
+                {currentUser ? (
+                  <>
+                    <div className="px-4 py-3 bg-gray-50 rounded-lg mb-3">
+                      <div className="text-sm text-gray-600">Signed in as</div>
+                      <div className="text-gray-900 font-medium">{currentUser.displayName || currentUser.email}</div>
+                      <div className="text-xs text-[#4169e1]">{currentUser.role}</div>
+                    </div>
                     <a 
                       href="https://dashboard.devinquire.com" 
-                      className="bg-gradient-to-r from-blue-500 to-purple-600 text-white block px-3 py-2 rounded-md text-base font-medium transition-all duration-300"
+                      className="bg-gradient-to-r from-[#4169e1] via-[#6366f1] to-[#9c27b0] text-white block px-4 py-3 rounded-lg text-base font-medium transition-all duration-300 mb-2"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      Admin Panel
+                      Dashboard
                     </a>
-                  )}
-                  <button
-                    onClick={handleLogout}
-                    className="w-full text-left text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
-                  >
-                    Sign Out
-                  </button>
-                </>
-              ) : (
-                <>
-                  <a 
-                    href="https://dashboard.devinquire.com/login" 
-                    className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Sign In
-                  </a>
-                  <a 
-                    href="https://dashboard.devinquire.com/login" 
-                    className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white block px-3 py-2 rounded-md text-base font-medium transition-all duration-300"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Register
-                  </a>
-                </>
-              )}
+                    {currentUser.role === 'admin' && (
+                      <a 
+                        href="https://dashboard.devinquire.com" 
+                        className="bg-gradient-to-r from-[#4169e1] via-[#6366f1] to-[#9c27b0] text-white block px-4 py-3 rounded-lg text-base font-medium transition-all duration-300 mb-2"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Admin Panel
+                      </a>
+                    )}
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left text-gray-700 hover:text-red-600 hover:bg-red-50 block px-4 py-3 rounded-lg text-base font-medium transition-all duration-200"
+                    >
+                      Sign Out
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <a 
+                      href="https://dashboard.devinquire.com/" 
+                      className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 block px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 mb-2"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Sign In
+                    </a>
+                    <a 
+                      href="https://dashboard.devinquire.com/register" 
+                      className="bg-gradient-to-r from-[#4169e1] via-[#6366f1] to-[#9c27b0] hover:from-[#3b5998] hover:to-[#8b5cf6] text-white block px-4 py-3 rounded-lg text-base font-medium transition-all duration-300"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Register
+                    </a>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>

@@ -4,6 +4,18 @@ import apiService from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { motion } from 'framer-motion';
+import { 
+  List, 
+  Edit, 
+  Calendar, 
+  FileText, 
+  TrendingUp, 
+  Plus, 
+  ChevronDown, 
+  Check, 
+  Minus 
+} from 'lucide-react';
 
 export default function BlogManager({ showCreateForm = false }) {
   const { currentUser } = useAuth();
@@ -17,33 +29,11 @@ export default function BlogManager({ showCreateForm = false }) {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [activeTab, setActiveTab] = useState('details');
   const tabList = [
-    { key: 'details', label: 'Details', icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
-    ) },
-    { key: 'content', label: 'Content', icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 20h9" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m0 0H3" /></svg>
-    ) },
-    { key: 'meta', label: 'Meta', icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7" /><path strokeLinecap="round" strokeLinejoin="round" d="M16 3v4M8 3v4M4 11h16" /></svg>
-    ) },
+    { key: 'details', label: 'Details', icon: <List className="w-5 h-5" /> },
+    { key: 'content', label: 'Content', icon: <Edit className="w-5 h-5" /> },
+    { key: 'meta', label: 'Meta', icon: <Calendar className="w-5 h-5" /> }
   ];
   const tabRefs = useRef([]);
-
-  // Keyboard navigation for tabs
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (['ArrowLeft', 'ArrowRight'].includes(e.key)) {
-        const idx = tabList.findIndex(t => t.key === activeTab);
-        if (e.key === 'ArrowLeft') {
-          setActiveTab(tabList[(idx + tabList.length - 1) % tabList.length].key);
-        } else if (e.key === 'ArrowRight') {
-          setActiveTab(tabList[(idx + 1) % tabList.length].key);
-        }
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeTab, tabList]);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -57,21 +47,34 @@ export default function BlogManager({ showCreateForm = false }) {
 
   const categories = [
     'Web Development',
-    'React',
-    'SEO',
-    'UI/UX',
-    'Performance',
-    'Backend',
-    'Mobile'
+    'Mobile Development', 
+    'Data Science',
+    'AI/ML',
+    'DevOps',
+    'UI/UX Design',
+    'Backend Development',
+    'Frontend Development',
+    'Full Stack Development',
+    'Technology News',
+    'Programming Tips',
+    'Career Advice',
+    'Industry Insights',
+    'Tutorial',
+    'Review',
+    'Opinion',
+    'Case Study',
+    'Best Practices',
+    'Tools & Resources',
+    'Open Source'
   ];
 
   // Add filter buttons for status
   const statusFilters = [
-    { label: 'All', value: 'all' },
-    { label: 'Published', value: 'published' },
-    { label: 'Draft', value: 'draft' },
-    { label: 'Archived', value: 'archived' },
-    { label: 'Deleted', value: 'deleted' },
+    { value: 'all', label: 'All Posts' },
+    { value: 'published', label: 'Published' },
+    { value: 'draft', label: 'Drafts' },
+    { value: 'archived', label: 'Archived' },
+    { value: 'deleted', label: 'Deleted' }
   ];
 
   // Load posts
@@ -81,15 +84,19 @@ export default function BlogManager({ showCreateForm = false }) {
 
   const loadPosts = async () => {
     try {
-      const status = filterStatus === 'all' ? null : filterStatus;
-      const response = await apiService.getPosts(1, 100, null, status);
-      if (response.success) {
-        setPosts(response.data.posts);
-      } else {
-        console.error('Failed to load posts:', response.message);
+      setLoading(true);
+      const response = await apiService.get('/posts');
+      let filteredPosts = response.data || [];
+      
+      // Apply status filter
+      if (filterStatus !== 'all') {
+        filteredPosts = filteredPosts.filter(post => post.status === filterStatus);
       }
+      
+      setPosts(filteredPosts);
     } catch (error) {
       console.error('Error loading posts:', error);
+      setPosts([]);
     } finally {
       setLoading(false);
     }
@@ -97,17 +104,23 @@ export default function BlogManager({ showCreateForm = false }) {
 
   // Handle image upload
   const handleImageUpload = async (file) => {
-    if (!file) return '';
-    
+    if (!file) return null;
+
+    const uploadFormData = new FormData();
+    uploadFormData.append('image', file);
+
     try {
       setUploadProgress(0);
-      const response = await apiService.uploadImage(file);
-      if (response.success) {
-        setUploadProgress(100);
-        return response.data.url;
-      } else {
-        throw new Error(response.message || 'Upload failed');
-      }
+      const response = await apiService.post('/upload', uploadFormData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        onUploadProgress: (progressEvent) => {
+          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          setUploadProgress(progress);
+        },
+      });
+      return response.data.url;
     } catch (error) {
       console.error('Error uploading image:', error);
       throw error;
@@ -120,17 +133,11 @@ export default function BlogManager({ showCreateForm = false }) {
     setLoading(true);
 
     try {
-      console.log('BlogManager: Starting form submission...');
-      console.log('BlogManager: Form data:', formData);
-      console.log('BlogManager: Current user:', currentUser);
-
       let imageUrl = formData.featured_image;
       
-      // Upload new image if selected
+      // Upload image if selected
       if (imageUpload) {
-        console.log('BlogManager: Uploading image...');
         imageUrl = await handleImageUpload(imageUpload);
-        console.log('BlogManager: Image uploaded:', imageUrl);
       }
 
       const postData = {
@@ -141,37 +148,21 @@ export default function BlogManager({ showCreateForm = false }) {
         tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
         featured_image: imageUrl,
         status: formData.status,
-        author_name: currentUser?.displayName || 'Admin User',
-        readTime: Math.ceil(formData.content.split(' ').length / 200) + ' min read'
+        author_name: currentUser?.displayName || 'Admin User'
       };
-
-      console.log('BlogManager: Prepared post data:', postData);
 
       let response;
       if (editingPost) {
-        // Update existing post
-        console.log('BlogManager: Updating existing post with ID:', editingPost.id);
-        response = await apiService.updatePost(editingPost.id, postData);
+        response = await apiService.put(`/posts/${editingPost.id}`, postData);
       } else {
-        // Create new post
-        console.log('BlogManager: Creating new post...');
-        response = await apiService.createPost(postData);
+        response = await apiService.post('/posts', postData);
       }
 
-      console.log('BlogManager: API response:', response);
-
-      if (response.success) {
-        console.log('BlogManager: Post saved successfully!');
-        // Reset form and reload posts
-        resetForm();
-        await loadPosts();
-        setShowForm(false);
-      } else {
-        console.error('BlogManager: API returned error:', response.message);
-        throw new Error(response.message || 'Failed to save post');
-      }
+      resetForm();
+      await loadPosts();
+      setShowForm(false);
     } catch (error) {
-      console.error('BlogManager: Error saving post:', error);
+      console.error('Error saving post:', error);
       alert('Error saving post. Please try again.');
     } finally {
       setLoading(false);
@@ -191,18 +182,15 @@ export default function BlogManager({ showCreateForm = false }) {
       status: post.status || 'draft'
     });
     setShowForm(true);
+    setActiveTab('details');
   };
 
   // Handle delete
   const handleDelete = async (postId) => {
     if (window.confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
       try {
-        const response = await apiService.deletePost(postId);
-        if (response.success) {
-          await loadPosts();
-        } else {
-          throw new Error(response.message || 'Failed to delete post');
-        }
+        await apiService.delete(`/posts/${postId}`);
+        await loadPosts();
       } catch (error) {
         console.error('Error deleting post:', error);
         alert('Error deleting post. Please try again.');
@@ -217,15 +205,10 @@ export default function BlogManager({ showCreateForm = false }) {
     
     if (window.confirm(`Are you sure you want to ${action} this post?`)) {
       try {
-        const response = await apiService.updatePost(post.id, {
-          ...post,
+        await apiService.put(`/posts/${post.id}`, {
           status: newStatus
         });
-        if (response.success) {
-          await loadPosts();
-        } else {
-          throw new Error(response.message || `Failed to ${action} post`);
-        }
+        await loadPosts();
       } catch (error) {
         console.error(`Error ${action}ing post:`, error);
         alert(`Error ${action}ing post. Please try again.`);
@@ -237,13 +220,10 @@ export default function BlogManager({ showCreateForm = false }) {
   const handleRestore = async (postId) => {
     if (window.confirm('Are you sure you want to restore this post? This will move it back to Drafts.')) {
       try {
-        const response = await apiService.updatePost(postId, { status: 'draft' });
-        if (response.success) {
-          await loadPosts();
-        } else {
-          throw new Error(response.message || 'Failed to restore post');
-        }
+        await apiService.put(`/posts/${postId}`, { status: 'draft' });
+        await loadPosts();
       } catch (error) {
+        console.error('Error restoring post:', error);
         alert('Error restoring post. Please try again.');
       }
     }
@@ -253,13 +233,10 @@ export default function BlogManager({ showCreateForm = false }) {
   const handlePermanentDelete = async (postId) => {
     if (window.confirm('This will permanently delete the post and it cannot be recovered. Are you absolutely sure?')) {
       try {
-        const response = await apiService.permanentDeletePost(postId);
-        if (response.success) {
-          await loadPosts();
-        } else {
-          throw new Error(response.message || 'Failed to permanently delete post');
-        }
+        await apiService.delete(`/posts/${postId}?permanent=true`);
+        await loadPosts();
       } catch (error) {
+        console.error('Error permanently deleting post:', error);
         alert('Error permanently deleting post. Please try again.');
       }
     }
@@ -369,6 +346,7 @@ export default function BlogManager({ showCreateForm = false }) {
                 ref={el => tabRefs.current[i] = el}
                 type="button"
                 onClick={() => setActiveTab(tab.key)}
+                
                 className={`flex items-center gap-2 px-3 py-2 rounded-t-lg font-medium focus:outline-none transition-all duration-200 transform ${activeTab === tab.key ? 'bg-blue-100 text-blue-700 border-b-2 border-blue-600 shadow-sm scale-105' : 'text-gray-500 hover:text-blue-600 hover:bg-blue-50 scale-100'}`}
                 tabIndex={0}
                 aria-selected={activeTab === tab.key}
@@ -385,7 +363,7 @@ export default function BlogManager({ showCreateForm = false }) {
               <div className="mb-6 rounded-3xl border border-blue-100/60 shadow-2xl bg-white/70 backdrop-blur-md transition-all duration-200 hover:shadow-blue-200 hover:ring-2 hover:ring-blue-200 hover:scale-[1.01]">
                 <div className="px-8 pt-8 pb-2 flex items-center justify-between">
                   <h4 className="text-2xl font-extrabold text-blue-900 tracking-tight flex items-center gap-3">
-                    <svg className="w-8 h-8 text-blue-400 drop-shadow" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="4" /><path strokeLinecap="round" strokeLinejoin="round" d="M8 10h8M8 14h5" /></svg>
+                    <FileText className="w-8 h-8 text-blue-400 drop-shadow" />
                     Post Details
                   </h4>
                 </div>
@@ -393,16 +371,16 @@ export default function BlogManager({ showCreateForm = false }) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-0 divide-y md:divide-y-0 px-8 pb-8">
                   {/* Title */}
                   <div className="py-4 md:pr-6 flex flex-col justify-center">
-                    <label className="block text-sm font-semibold text-gray-700 mb-1 flex items-center gap-2">
-                      <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 17l6-6 4 4 6-6" /></svg>
+                    <label className="text-sm font-semibold text-gray-700 mb-1 flex items-center gap-2">
+                      <TrendingUp className="w-5 h-5 text-blue-400" />
                       Title *
                     </label>
                     <input type="text" required value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:border-2 focus:bg-blue-50 bg-white hover:shadow transition-all duration-200 text-base outline-none" placeholder="Enter post title" />
                   </div>
                   {/* Category */}
                   <div className="py-4 md:pl-6 flex flex-col justify-center md:border-l md:border-blue-50">
-                    <label className="block text-sm font-semibold text-gray-700 mb-1 flex items-center gap-2">
-                      <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h8M12 8v8" /></svg>
+                    <label className="text-sm font-semibold text-gray-700 mb-1 flex items-center gap-2">
+                      <Plus className="w-5 h-5 text-purple-400" />
                       Category *
                     </label>
                     <div className="relative w-full flex items-center">
@@ -410,14 +388,14 @@ export default function BlogManager({ showCreateForm = false }) {
                         {categories.map(category => (<option key={category} value={category}>{category}</option>))}
                       </select>
                       <span className="pointer-events-none absolute right-2 top-0 bottom-0 my-auto flex items-center h-10">
-                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                        <ChevronDown className="w-5 h-5 text-gray-400" />
                       </span>
                     </div>
                   </div>
                   {/* Status */}
                   <div className="py-4 md:pr-6 flex flex-col justify-center">
-                    <label className="block text-sm font-semibold text-gray-700 mb-1 flex items-center gap-2">
-                      <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4" /></svg>
+                    <label className="text-sm font-semibold text-gray-700 mb-1 flex items-center gap-2">
+                      <Check className="w-5 h-5 text-green-400" />
                       Status *
                     </label>
                     <div className="relative w-full flex items-center">
@@ -426,14 +404,14 @@ export default function BlogManager({ showCreateForm = false }) {
                         <option value="published">Published</option>
                       </select>
                       <span className="pointer-events-none absolute right-2 top-0 bottom-0 my-auto flex items-center h-10">
-                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                        <ChevronDown className="w-5 h-5 text-gray-400" />
                       </span>
                     </div>
                   </div>
                   {/* Tags */}
                   <div className="py-4 md:pl-6 flex flex-col justify-center md:border-l md:border-blue-50">
                     <label className="block text-sm font-semibold text-gray-700 mb-1 flex items-center gap-2">
-                      <svg className="w-5 h-5 text-pink-400" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h8" /></svg>
+                      <Minus className="w-5 h-5 text-pink-400" />
                       Tags
                     </label>
                     <input type="text" value={formData.tags} onChange={(e) => setFormData({...formData, tags: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-400 focus:border-pink-400 focus:border-2 focus:bg-pink-50 bg-white hover:shadow transition-all duration-200 text-base outline-none" placeholder="Enter tags separated by commas (e.g., React, JavaScript, Web Development)" />
@@ -447,7 +425,7 @@ export default function BlogManager({ showCreateForm = false }) {
               <div className="mb-6 rounded-3xl border border-purple-100/60 shadow-2xl bg-white/70 backdrop-blur-md transition-all duration-200 hover:shadow-purple-200 hover:ring-2 hover:ring-purple-200 hover:scale-[1.01]">
                 <div className="px-8 pt-8 pb-2 flex items-center justify-between">
                   <h4 className="text-2xl font-extrabold text-purple-900 tracking-tight flex items-center gap-3">
-                    <svg className="w-8 h-8 text-purple-400 drop-shadow" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="4" /><path strokeLinecap="round" strokeLinejoin="round" d="M8 10h8M8 14h5" /></svg>
+                    <Edit className="w-8 h-8 text-purple-400 drop-shadow" />
                     Content
                   </h4>
                 </div>
@@ -457,7 +435,7 @@ export default function BlogManager({ showCreateForm = false }) {
                   <div className="py-4 md:pr-6 flex flex-col justify-center md:col-span-2">
                     <div className="flex items-center justify-between w-full mb-2">
                       <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
-                        <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="4" /><path strokeLinecap="round" strokeLinejoin="round" d="M8 10h8M8 14h5" /></svg>
+                        <Edit className="w-5 h-5 text-purple-400" />
                         Content *
                       </label>
                       <button type="button" onClick={() => setIsFullScreen(!isFullScreen)} className="ml-2 px-3 py-1 rounded bg-purple-600 text-white text-xs font-semibold hover:bg-purple-700 focus:outline-none">Full Screen</button>
@@ -471,7 +449,7 @@ export default function BlogManager({ showCreateForm = false }) {
                   {/* Excerpt */}
                   <div className="py-10 md:pl-6 flex flex-col justify-center">
                     <label className="block text-sm font-semibold text-gray-700 mb-1 flex items-center gap-2">
-                      <svg className="w-5 h-5 text-pink-400" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="4" /><path strokeLinecap="round" strokeLinejoin="round" d="M8 10h8" /></svg>
+                      <Minus className="w-5 h-5 text-pink-400" />
                       Excerpt *
                     </label>
                     <textarea required rows={3} value={formData.excerpt} onChange={(e) => setFormData({...formData, excerpt: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-400 focus:border-pink-400 focus:border-2 focus:bg-pink-50 bg-white hover:shadow transition-all duration-200 text-base outline-none" placeholder="Enter a brief summary of the post (this will appear in the blog listing)" />
@@ -485,7 +463,7 @@ export default function BlogManager({ showCreateForm = false }) {
               <div className="mb-6 rounded-3xl border border-pink-100/60 shadow-2xl bg-white/70 backdrop-blur-md transition-all duration-200 hover:shadow-pink-200 hover:ring-2 hover:ring-pink-200 hover:scale-[1.01]">
                 <div className="px-8 pt-8 pb-2 flex items-center justify-between">
                   <h4 className="text-2xl font-extrabold text-pink-900 tracking-tight flex items-center gap-3">
-                    <svg className="w-8 h-8 text-pink-400 drop-shadow" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="4" /><path strokeLinecap="round" strokeLinejoin="round" d="M8 10h8M8 14h5" /></svg>
+                    <Calendar className="w-8 h-8 text-pink-400 drop-shadow" />
                     Meta
                   </h4>
                 </div>
@@ -494,7 +472,7 @@ export default function BlogManager({ showCreateForm = false }) {
                   {/* Image Upload */}
                   <div className="py-4 flex flex-col justify-center">
                     <label className="block text-sm font-semibold text-gray-700 mb-1 flex items-center gap-2">
-                      <svg className="w-5 h-5 text-pink-400" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="4" /><path strokeLinecap="round" strokeLinejoin="round" d="M8 10h8" /></svg>
+                      <Minus className="w-5 h-5 text-pink-400" />
                       Featured Image
                     </label>
                     <div className="flex items-center gap-4">
@@ -583,7 +561,101 @@ export default function BlogManager({ showCreateForm = false }) {
         ) : (
           posts.map((post) => (
             <div key={post.id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
-              {/* ...existing post rendering... */}
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="text-lg font-semibold text-gray-900">{post.title}</h3>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(post.status)}`}>
+                      {post.status}
+                    </span>
+                  </div>
+                  <p className="text-gray-600 text-sm mb-2">{post.excerpt}</p>
+                  <div className="flex items-center gap-4 text-xs text-gray-500">
+                    <span>Category: {post.category}</span>
+                    <span>Author: {post.author_name}</span>
+                    <span>Created: {new Date(post.created_at).toLocaleDateString()}</span>
+                    {post.read_time && <span>Read Time: {post.read_time}</span>}
+                  </div>
+                </div>
+                {post.featured_image && (
+                  <div className="ml-4 flex-shrink-0">
+                    <img 
+                      src={post.featured_image} 
+                      alt={post.title}
+                      className="w-20 h-20 object-cover rounded-lg"
+                    />
+                  </div>
+                )}
+              </div>
+              
+              {/* Action Buttons */}
+              <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                <div className="flex items-center gap-2">
+                  {post.tags && Array.isArray(post.tags) && post.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {post.tags.slice(0, 3).map((tag, index) => (
+                        <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                          {tag}
+                        </span>
+                      ))}
+                      {post.tags.length > 3 && (
+                        <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                          +{post.tags.length - 3} more
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  {/* Edit Button */}
+                  <button
+                    onClick={() => handleEdit(post)}
+                    className="px-3 py-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors duration-200 text-sm font-medium"
+                  >
+                    Edit
+                  </button>
+                  
+                  {/* Publish/Unpublish Button */}
+                  {post.status !== 'deleted' && (
+                    <button
+                      onClick={() => handleToggleStatus(post)}
+                      className={`px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200 ${
+                        post.status === 'published'
+                          ? 'text-yellow-600 hover:text-yellow-800 hover:bg-yellow-50'
+                          : 'text-green-600 hover:text-green-800 hover:bg-green-50'
+                      }`}
+                    >
+                      {post.status === 'published' ? 'Unpublish' : 'Publish'}
+                    </button>
+                  )}
+                  
+                  {/* Delete/Restore Button */}
+                  {post.status === 'deleted' ? (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleRestore(post.id)}
+                        className="px-3 py-1 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-md transition-colors duration-200 text-sm font-medium"
+                      >
+                        Restore
+                      </button>
+                      <button
+                        onClick={() => handlePermanentDelete(post.id)}
+                        className="px-3 py-1 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors duration-200 text-sm font-medium"
+                      >
+                        Delete Forever
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => handleDelete(post.id)}
+                      className="px-3 py-1 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors duration-200 text-sm font-medium"
+                    >
+                      Delete
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
           ))
         )}

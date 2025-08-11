@@ -7,9 +7,9 @@ try {
   if (!$id) {
     // List all pages
     if ($deleted) {
-      $stmt = $pdo->query("SELECT id, title, updated_at, position FROM pages WHERE deleted = 1 ORDER BY position ASC, updated_at DESC");
+      $stmt = $pdo->query("SELECT id, title, updated_at, position as `order` FROM pages WHERE deleted = 1 ORDER BY position ASC, updated_at DESC");
     } else {
-      $stmt = $pdo->query("SELECT id, title, updated_at, position FROM pages WHERE deleted = 0 ORDER BY position ASC, updated_at DESC");
+      $stmt = $pdo->query("SELECT id, title, updated_at, position as `order` FROM pages WHERE deleted = 0 ORDER BY position ASC, updated_at DESC");
     }
     $pages = $stmt->fetchAll();
     echo json_encode(['success' => true, 'pages' => $pages]);
@@ -30,4 +30,4 @@ try {
     'message' => 'Server error: ' . $e->getMessage()
   ]);
   exit;
-} 
+}

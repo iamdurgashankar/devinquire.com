@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import apiService from '../services/api';
+import { motion } from 'framer-motion';
+import { 
+  Bell, 
+  Check, 
+  Trash2, 
+  Mail, 
+  AlertCircle,
+  CheckCircle,
+  XCircle,
+  Activity 
+} from 'lucide-react';
 
 export default function NotificationManager() {
   const [notifications, setNotifications] = useState([]);
@@ -42,21 +53,30 @@ export default function NotificationManager() {
     switch (type) {
       case 'approval':
         return (
-          <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+          <motion.div
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            transition={{ duration: 0.2 }}
+          >
+            <CheckCircle className="w-5 h-5 text-green-600" />
+          </motion.div>
         );
       case 'rejection':
         return (
-          <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+          <motion.div
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            transition={{ duration: 0.2 }}
+          >
+            <XCircle className="w-5 h-5 text-red-600" />
+          </motion.div>
         );
       default:
         return (
-          <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM4 19h6v-2H4v2zM4 15h6v-2H4v2zM4 11h6V9H4v2zM4 7h6V5H4v2z" />
-          </svg>
+          <motion.div
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Activity className="w-5 h-5 text-blue-600" />
+          </motion.div>
         );
     }
   };
@@ -107,9 +127,13 @@ export default function NotificationManager() {
 
           {notifications.length === 0 ? (
             <div className="px-6 py-12 text-center">
-              <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
+              <motion.div
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                transition={{ duration: 0.2 }}
+                className="mx-auto"
+              >
+                <Mail className="h-12 w-12 text-gray-400" />
+              </motion.div>
               <h3 className="mt-2 text-sm font-medium text-gray-900">No notifications sent</h3>
               <p className="mt-1 text-sm text-gray-500">
                 Email notifications will appear here when users are approved or rejected.
@@ -181,4 +205,4 @@ export default function NotificationManager() {
       )}
     </div>
   );
-} 
+}

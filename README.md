@@ -1,4 +1,68 @@
-# DevInquire - Development Agency Website
+# DevInquire
+
+A modern web application platform with separate frontend and dashboard applications.
+
+## Project Structure
+
+This is a monorepo containing:
+
+- **Main Frontend** (`/src`) - Public-facing website with marketing pages, blog, and user features
+- **Dashboard** (`/dashboard`) - Admin dashboard for content management and user administration  
+- **API** (`/api`) - PHP backend API for data management
+
+## Applications
+
+### Main Frontend
+- **Port**: 3000 (default)
+- **Purpose**: Public website with home, about, services, products, blog, and contact pages
+- **Key Features**: 
+  - Marketing website
+  - Blog system
+  - Contact forms
+  - Support agent integration
+
+### Dashboard
+- **Port**: 3002 (configured)
+- **Purpose**: Admin interface for managing content and users
+- **Key Features**:
+  - User management
+  - Content management
+  - Analytics dashboard
+  - Page builder
+
+## Getting Started
+
+### Main Frontend
+```bash
+npm install
+npm start
+```
+
+### Dashboard
+```bash
+cd dashboard
+npm install
+npm start
+```
+
+### API Server
+```bash
+npm run server
+```
+
+## Build Commands
+
+- `npm run build` - Build main frontend
+- `npm run build:dashboard` - Build dashboard with dashboard-specific configuration
+- `cd dashboard && npm run build` - Build dashboard from dashboard directory
+
+## Environment
+
+- React 18.2.0
+- Tailwind CSS
+- Framer Motion
+- React Router DOM
+- PHP Backend API
 
 A comprehensive web platform for development agencies featuring a modern frontend, powerful admin dashboard, and complete blog management system.
 
@@ -176,16 +240,43 @@ dev-setup.bat
 
 ### Production
 
-1. **Build the React application**:
+#### Automatic Deployment (Hostinger)
+
+This project is configured for automatic deployment to Hostinger:
+
+- **Auto-deploy**: Pushes to `main` branch automatically trigger deployment
+- **Webhook URL**: `https://webhooks.hostinger.com/deploy/6a336b05bd6b1e6e2060ee80c41c2c01`
+- **GitHub Actions**: Builds and deploys both main app and dashboard
+- **Live URL**: `https://devinquire.com`
+- **Dashboard URL**: `https://devinquire.com/dashboard`
+
+📖 **For detailed deployment setup**: See [DEPLOYMENT.md](./DEPLOYMENT.md)
+
+#### Manual Deployment
+
+1. **Build the React applications**:
 
 ```bash
+# Build main application
 npm run build
+
+# Build dashboard
+cd dashboard
+npm run build
+cd ..
 ```
 
-2. **Deploy the files**:
+2. **Deploy using the deployment script**:
 
-- Upload the `build` folder contents to your web server
-- Upload the `api` folder to your server's API directory
+```bash
+./deploy.sh
+```
+
+3. **Manual file deployment**:
+
+- Upload the `build` folder contents to your web server's `public_html`
+- Upload the `dashboard/build` contents to `public_html/dashboard`
+- Upload the `api` folder to `public_html/api`
 - Ensure the API base URL in `src/services/api.js` points to your production domain
 
 ## Default Admin Credentials

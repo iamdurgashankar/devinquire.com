@@ -8,7 +8,8 @@ export default function PageManager() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('/api/get_page.php')
+    const API_BASE_URL = process.env.NODE_ENV === 'development' ? 'http://localhost:8001' : '';
+    fetch(`${API_BASE_URL}/get_page.php`)
       .then(res => res.json())
       .then(data => {
         if (data.success) setPages(data.pages);
@@ -19,11 +20,11 @@ export default function PageManager() {
   const handleCreate = () => {
     if (!newPageId.trim()) return alert('Enter a page ID');
     // Go to builder for new page
-    navigate(`/admin/page-builder/${encodeURIComponent(newPageId)}`);
+    navigate(`/page-builder/${encodeURIComponent(newPageId)}`);
   };
 
   const handleEdit = (id) => {
-    navigate(`/admin/page-builder/${encodeURIComponent(id)}`);
+    navigate(`/page-builder/${encodeURIComponent(id)}`);
   };
 
   return (
@@ -60,4 +61,4 @@ export default function PageManager() {
       )}
     </div>
   );
-} 
+}

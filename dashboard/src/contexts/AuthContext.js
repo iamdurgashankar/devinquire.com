@@ -118,12 +118,21 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // Function to update current user data
+  const updateCurrentUser = (updatedData) => {
+    setCurrentUser(prev => ({
+      ...prev,
+      ...updatedData
+    }));
+  };
+
   const value = {
     currentUser,
     signInWithEmail,
     signUp,
     changePassword,
     logout,
+    updateCurrentUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

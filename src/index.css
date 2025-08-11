@@ -30,10 +30,10 @@
 @keyframes pulse-glow {
   0%,
   100% {
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 20px rgba(65, 105, 225, 0.3);
   }
   50% {
-    box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
+    box-shadow: 0 0 30px rgba(156, 39, 176, 0.6);
   }
 }
 
@@ -56,24 +56,16 @@
   }
 }
 
-/* Enhanced floating animation for particles */
+/* Subtle floating animation for particles */
 @keyframes float-particle {
   0%,
   100% {
-    transform: translateY(0px) translateX(0px);
-    opacity: 0.3;
-  }
-  25% {
-    transform: translateY(-20px) translateX(10px);
-    opacity: 0.6;
-  }
-  50% {
-    transform: translateY(-10px) translateX(-5px);
+    transform: translateY(0px);
     opacity: 0.4;
   }
-  75% {
-    transform: translateY(-15px) translateX(15px);
-    opacity: 0.7;
+  50% {
+    transform: translateY(-8px);
+    opacity: 0.6;
   }
 }
 
@@ -163,9 +155,9 @@
   background: linear-gradient(
     135deg,
     #0f172a 0%,
-    #1e3a8a 25%,
-    #3730a3 50%,
-    #1e40af 75%,
+    #4169e1 25%,
+    #6366f1 50%,
+    #9c27b0 75%,
     #0f172a 100%
   );
   background-size: 400% 400%;
@@ -200,7 +192,7 @@
 
 /* Gradient text */
 .gradient-text {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4169e1 0%, #6366f1 50%, #9c27b0 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -227,13 +219,13 @@
 }
 
 .hover-glow:hover {
-  box-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 0 30px rgba(65, 105, 225, 0.4);
   transform: translateY(-2px);
 }
 
 /* Professional button styles */
 .btn-primary {
-  @apply bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-lg;
+  @apply bg-gradient-to-r from-[#4169e1] via-[#6366f1] to-[#9c27b0] hover:from-[#3b5998] hover:to-[#8b5cf6] text-white font-medium py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#4169e1] focus:ring-offset-2 shadow-lg;
 }
 
 .btn-secondary {

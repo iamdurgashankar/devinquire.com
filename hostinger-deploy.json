@@ -1,0 +1,84 @@
+{
+  "name": "DevInquire Auto-Deployment",
+  "description": "Automated deployment configuration for DevInquire React application with PHP backend",
+  "version": "1.0.0",
+  "deployment": {
+    "type": "webhook",
+    "webhook_url": "https://webhooks.hostinger.com/deploy/6a336b05bd6b1e6e2060ee80c41c2c01",
+    "github_repository": "https://github.com/iamdurgashankar/devinquire.com",
+    "branch": "main",
+    "build_command": "./deploy.sh",
+    "public_directory": "public_html"
+  },
+  "requirements": {
+    "node_version": ">=16.0.0",
+    "npm_version": ">=8.0.0",
+    "php_version": ">=7.4",
+    "mysql_version": ">=5.7"
+  },
+  "build_process": {
+    "steps": [
+      "Install Node.js dependencies",
+      "Install dashboard dependencies",
+      "Build main React application",
+      "Build dashboard React application",
+      "Copy built files to public_html",
+      "Copy API files",
+      "Set up .htaccess files",
+      "Set proper file permissions"
+    ]
+  },
+  "file_structure": {
+    "public_html/": "Main website files (React build)",
+    "public_html/dashboard/": "Admin dashboard files",
+    "public_html/api/": "PHP backend API files",
+    "public_html/.htaccess": "Main site routing configuration",
+    "public_html/dashboard/.htaccess": "Dashboard routing configuration"
+  },
+  "environment_variables": {
+    "required": [
+      "DATABASE_HOST",
+      "DATABASE_NAME",
+      "DATABASE_USER",
+      "DATABASE_PASSWORD"
+    ],
+    "optional": [
+      "GEMINI_API_KEY",
+      "SMTP_HOST",
+      "SMTP_USER",
+      "SMTP_PASSWORD"
+    ]
+  },
+  "database_setup": {
+    "files": [
+      "api/schema.sql",
+      "api/posts_schema.sql",
+      "api/users_schema.sql"
+    ],
+    "note": "Import these SQL files to set up the database structure"
+  },
+  "post_deployment": {
+    "tasks": [
+      "Update database credentials in api/db.php",
+      "Verify API endpoints are accessible",
+      "Test main website functionality",
+      "Test dashboard login and features",
+      "Check SSL certificate configuration"
+    ]
+  },
+  "troubleshooting": {
+    "common_issues": {
+      "404_errors": "Check .htaccess files are properly configured",
+      "api_errors": "Verify database connection in api/db.php",
+      "build_failures": "Ensure Node.js version is compatible",
+      "permission_errors": "Check file permissions (644 for files, 755 for directories)"
+    }
+  },
+  "monitoring": {
+    "health_checks": [
+      "https://devinquire.com/",
+      "https://devinquire.com/dashboard/",
+      "https://devinquire.com/api/session.php"
+    ]
+  }
+}

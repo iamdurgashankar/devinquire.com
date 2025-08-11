@@ -4,7 +4,11 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 // CORS headers
-header('Access-Control-Allow-Origin: http://localhost:3000');
+$allowed_origins = ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002'];
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (in_array($origin, $allowed_origins)) {
+    header('Access-Control-Allow-Origin: ' . $origin);
+}
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 header('Access-Control-Allow-Credentials: true');
@@ -23,6 +27,7 @@ try {
     $html = $data['html'] ?? '';
     $css = $data['css'] ?? '';
     $title = trim($data['title'] ?? $id);
+    $order = $data['order'] ?? 0;
     if (!$id) {
         echo json_encode(['success' => false, 'message' => 'Page ID is required.']);
         exit;
@@ -35,11 +40,11 @@ try {
         echo json_encode(['success' => false, 'message' => 'Page ID already exists.']);
         exit;
     }
-    $stmt = $pdo->prepare('INSERT INTO pages (id, title, html, css, deleted) VALUES (?, ?, ?, ?, 0)');
-    $stmt->execute([$id, $title, $html, $css]);
+    $stmt = $pdo->prepare('INSERT INTO pages (id, title, html, css, deleted, position) VALUES (?, ?, ?, ?, 0, ?)');
+    $stmt->execute([$id, $title, $html, $css, $order]);
     echo json_encode(['success' => true, 'message' => 'Page created successfully.']);
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Server error: ' . $e->getMessage()]);
     exit;
-} 
+}
