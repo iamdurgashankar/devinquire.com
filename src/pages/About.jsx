@@ -22,12 +22,12 @@ const About = () => {
       social: { linkedin: "https://www.linkedin.com/in/anurag-mohapatra-a87505144/", github: "#" }
     },
     {
-      name: "Karishma Ray",
+      name: "Akash K",
       role: "UI/UX Designer",
-      image: require('../images/Karishma.jpg'),
+      image: require('../images/Akash.jpeg'),
       bio: "Creative designer focused on user-centered design and accessibility.",
       skills: ["Figma", "Adobe XD", "Prototyping", "User Research"],
-      social: { linkedin: "https://www.linkedin.com/in/karishma-ray/", behance: "#" }
+      social: { linkedin: "https://www.linkedin.com/in/ak-as-k/", behance: "#" }
     },
     {
       name: "Hari Shankar",
@@ -38,12 +38,12 @@ const About = () => {
       social: { linkedin: "#", github: "#" }
     },
     {
-      name: "Sanit Mohapatra",
+      name: "Karishma Ray",
       role: "Digital Marketing & SEO Specialist",
-      image: require('../images/Sanjit.jpg'),
+      image: require('../images/Karishma.jpg'),
       bio: "Expert in digital marketing strategies and search engine optimization to boost online presence.",
       skills: ["SEO", "Google Ads", "Social Media", "Analytics"],
-      social: { linkedin: "https://www.linkedin.com/in/sanjitmohapatra/", twitter: "#" }
+      social: { linkedin: "https://www.linkedin.com/in/karishma-ray/", twitter: "#" }
     },
     {
       name: "Sidha Panda",

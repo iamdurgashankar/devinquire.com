@@ -10,15 +10,17 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $data = json_decode(file_get_contents('php://input'), true);
-if (!is_array($data) || empty($data['name']) || empty($data['email']) || empty($data['subject']) || empty($data['message'])) {
+if (!is_array($data) || empty($data['name']) || empty($data['email']) || empty($data['message'])) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'All fields are required.']);
+    echo json_encode(['success' => false, 'message' => 'Name, email, and message are required.']);
     exit;
 }
 
 $name = strip_tags($data['name']);
 $email = filter_var($data['email'], FILTER_VALIDATE_EMAIL);
-$subject = strip_tags($data['subject']);
+$phone = isset($data['phone']) ? strip_tags($data['phone']) : '';
+$service = isset($data['service']) ? strip_tags($data['service']) : '';
+$subject = isset($data['subject']) ? strip_tags($data['subject']) : 'Contact Form Submission';
 $message = strip_tags($data['message']);
 
 if (!$email) {
@@ -35,12 +37,16 @@ $headers = "From: $name <$email>\r\n" .
 $body = "You have received a new message from the contact form on Devinquire.com:\n\n" .
         "Name: $name\n" .
         "Email: $email\n" .
+        ($phone ? "Phone: $phone\n" : "") .
+        ($service ? "Service Interest: $service\n" : "") .
         "Subject: $subject\n" .
-        "Message:\n$message\n";
+        "Message:\n$message\n\n" .
+        "---\n" .
+        "This message was sent from the Services page contact form.";
 
 if (mail($to, "[Devinquire Contact] $subject", $body, $headers)) {
     echo json_encode(['success' => true, 'message' => 'Message sent successfully.']);
 } else {
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Failed to send email. Please try again later.']);
-} 
+}

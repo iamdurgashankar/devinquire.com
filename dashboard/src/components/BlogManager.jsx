@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import apiService from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { motion } from 'framer-motion';
 import { 
   List, 
   Edit, 
@@ -17,7 +16,7 @@ import {
   Minus 
 } from 'lucide-react';
 
-export default function BlogManager({ showCreateForm = false }) {
+const BlogManager = React.memo(function BlogManager({ showCreateForm = false }) {
   const { currentUser } = useAuth();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,11 +27,11 @@ export default function BlogManager({ showCreateForm = false }) {
   const [filterStatus, setFilterStatus] = useState('all');
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [activeTab, setActiveTab] = useState('details');
-  const tabList = [
+  const tabList = useMemo(() => [
     { key: 'details', label: 'Details', icon: <List className="w-5 h-5" /> },
     { key: 'content', label: 'Content', icon: <Edit className="w-5 h-5" /> },
     { key: 'meta', label: 'Meta', icon: <Calendar className="w-5 h-5" /> }
-  ];
+  ], []);
   const tabRefs = useRef([]);
 
   const [formData, setFormData] = useState({
@@ -45,7 +44,7 @@ export default function BlogManager({ showCreateForm = false }) {
     status: 'draft'
   });
 
-  const categories = [
+  const categories = useMemo(() => [
     'Web Development',
     'Mobile Development', 
     'Data Science',
@@ -66,23 +65,23 @@ export default function BlogManager({ showCreateForm = false }) {
     'Best Practices',
     'Tools & Resources',
     'Open Source'
-  ];
+  ], []);
 
   // Add filter buttons for status
-  const statusFilters = [
+  const statusFilters = useMemo(() => [
     { value: 'all', label: 'All Posts' },
     { value: 'published', label: 'Published' },
     { value: 'draft', label: 'Drafts' },
     { value: 'archived', label: 'Archived' },
     { value: 'deleted', label: 'Deleted' }
-  ];
+  ], []);
 
   // Load posts
   useEffect(() => {
     loadPosts();
   }, [filterStatus]);
 
-  const loadPosts = async () => {
+  const loadPosts = useCallback(async () => {
     try {
       setLoading(true);
       const response = await apiService.get('/posts');
@@ -100,10 +99,10 @@ export default function BlogManager({ showCreateForm = false }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filterStatus]);
 
   // Handle image upload
-  const handleImageUpload = async (file) => {
+  const handleImageUpload = useCallback(async (file) => {
     if (!file) return null;
 
     const uploadFormData = new FormData();
@@ -125,10 +124,10 @@ export default function BlogManager({ showCreateForm = false }) {
       console.error('Error uploading image:', error);
       throw error;
     }
-  };
+  }, []);
 
   // Handle form submission
-  const handleSubmit = async (e) => {
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     setLoading(true);
 
@@ -151,11 +150,10 @@ export default function BlogManager({ showCreateForm = false }) {
         author_name: currentUser?.displayName || 'Admin User'
       };
 
-      let response;
       if (editingPost) {
-        response = await apiService.put(`/posts/${editingPost.id}`, postData);
+        await apiService.put(`/posts/${editingPost.id}`, postData);
       } else {
-        response = await apiService.post('/posts', postData);
+        await apiService.post('/posts', postData);
       }
 
       resetForm();
@@ -167,10 +165,10 @@ export default function BlogManager({ showCreateForm = false }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [formData, imageUpload, editingPost, currentUser, handleImageUpload, loadPosts]);
 
   // Handle edit
-  const handleEdit = (post) => {
+  const handleEdit = useCallback((post) => {
     setEditingPost(post);
     setFormData({
       title: post.title,
@@ -183,10 +181,10 @@ export default function BlogManager({ showCreateForm = false }) {
     });
     setShowForm(true);
     setActiveTab('details');
-  };
+  }, []);
 
   // Handle delete
-  const handleDelete = async (postId) => {
+  const handleDelete = useCallback(async (postId) => {
     if (window.confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
       try {
         await apiService.delete(`/posts/${postId}`);
@@ -196,10 +194,10 @@ export default function BlogManager({ showCreateForm = false }) {
         alert('Error deleting post. Please try again.');
       }
     }
-  };
+  }, [loadPosts]);
 
   // Handle publish/unpublish
-  const handleToggleStatus = async (post) => {
+  const handleToggleStatus = useCallback(async (post) => {
     const newStatus = post.status === 'published' ? 'draft' : 'published';
     const action = newStatus === 'published' ? 'publish' : 'unpublish';
     
@@ -214,10 +212,10 @@ export default function BlogManager({ showCreateForm = false }) {
         alert(`Error ${action}ing post. Please try again.`);
       }
     }
-  };
+  }, [loadPosts]);
 
   // Restore a deleted post
-  const handleRestore = async (postId) => {
+  const handleRestore = useCallback(async (postId) => {
     if (window.confirm('Are you sure you want to restore this post? This will move it back to Drafts.')) {
       try {
         await apiService.put(`/posts/${postId}`, { status: 'draft' });
@@ -227,10 +225,10 @@ export default function BlogManager({ showCreateForm = false }) {
         alert('Error restoring post. Please try again.');
       }
     }
-  };
+  }, [loadPosts]);
 
   // Permanently delete a post
-  const handlePermanentDelete = async (postId) => {
+  const handlePermanentDelete = useCallback(async (postId) => {
     if (window.confirm('This will permanently delete the post and it cannot be recovered. Are you absolutely sure?')) {
       try {
         await apiService.delete(`/posts/${postId}?permanent=true`);
@@ -240,10 +238,10 @@ export default function BlogManager({ showCreateForm = false }) {
         alert('Error permanently deleting post. Please try again.');
       }
     }
-  };
+  }, [loadPosts]);
 
   // Reset form
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setFormData({
       title: '',
       excerpt: '',
@@ -256,10 +254,10 @@ export default function BlogManager({ showCreateForm = false }) {
     setEditingPost(null);
     setImageUpload(null);
     setUploadProgress(0);
-  };
+  }, []);
 
   // Get status badge color
-  const getStatusBadgeColor = (status) => {
+  const getStatusBadgeColor = useCallback((status) => {
     switch (status) {
       case 'published':
         return 'bg-green-100 text-green-800';
@@ -270,7 +268,45 @@ export default function BlogManager({ showCreateForm = false }) {
       default:
         return 'bg-gray-100 text-gray-800';
     }
-  };
+  }, []);
+
+  // ReactQuill configuration
+  const quillModules = useMemo(() => ({
+    toolbar: [
+      [{ 'header': [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      ['blockquote', 'code-block'],
+      ['link', 'image'],
+      [{ 'align': [] }],
+      ['clean']
+    ]
+  }), []);
+
+  const quillFormats = useMemo(() => [
+    'header', 'bold', 'italic', 'underline', 'strike',
+    'list', 'bullet', 'blockquote', 'code-block',
+    'link', 'image', 'align'
+  ], []);
+
+  // Form handlers
+  const handleFormDataChange = useCallback((field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  }, []);
+
+  const handleToggleForm = useCallback(() => {
+    if (showForm) {
+      resetForm();
+      setShowForm(false);
+    } else {
+      setShowForm(true);
+    }
+  }, [showForm, resetForm]);
+
+  const handleCancelForm = useCallback(() => {
+    resetForm();
+    setShowForm(false);
+  }, [resetForm]);
 
   // Fullscreen scroll/overflow fix
   useEffect(() => {
@@ -289,7 +325,15 @@ export default function BlogManager({ showCreateForm = false }) {
         <div className="fixed inset-0 z-[9999] flex flex-col justify-center items-center bg-black/70 transition-all duration-300" style={{height: '100vh', width: '100vw', padding: 0, margin: 0}}>
           <div className="bg-white rounded-2xl shadow-2xl border border-purple-200 p-8 w-full max-w-4xl mx-auto my-auto flex-1 flex flex-col relative" style={{height: '80vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', boxShadow: '0 12px 48px rgba(128,0,128,0.12)', transition: 'all 0.3s'}}>
             <button type="button" onClick={() => setIsFullScreen(false)} className="absolute top-4 right-4 z-[10000] text-gray-700 hover:text-red-600 bg-white bg-opacity-90 rounded-full p-2 shadow-2xl border border-gray-300 transition-colors duration-200" style={{fontSize: '1.8rem', lineHeight: 1, boxShadow: '0 8px 32px rgba(0,0,0,0.22)'}} aria-label="Close Full Screen">&times;</button>
-            <ReactQuill theme="snow" value={formData.content} onChange={content => setFormData({...formData, content})} modules={{ toolbar: [[{ 'header': [1, 2, 3, false] }], ['bold', 'italic', 'underline', 'strike'], [{ 'list': 'ordered'}, { 'list': 'bullet' }], ['blockquote', 'code-block'], ['link', 'image'], [{ 'align': [] }], ['clean']] }} formats={['header', 'bold', 'italic', 'underline', 'strike', 'list', 'bullet', 'blockquote', 'code-block', 'link', 'image', 'align']} className="quill-editor-custom w-full text-lg" style={{height: '100%', minHeight: '60vh', fontSize: '1.2rem', background: 'white', borderRadius: '1.2rem'}} />
+            <ReactQuill 
+              theme="snow" 
+              value={formData.content} 
+              onChange={content => handleFormDataChange('content', content)} 
+              modules={quillModules} 
+              formats={quillFormats} 
+              className="quill-editor-custom w-full text-lg" 
+              style={{height: '100%', minHeight: '60vh', fontSize: '1.2rem', background: 'white', borderRadius: '1.2rem'}} 
+            />
           </div>
         </div>,
         document.body
@@ -300,14 +344,7 @@ export default function BlogManager({ showCreateForm = false }) {
           {editingPost ? 'Edit Post' : 'Blog Posts'}
         </h2>
         <button
-          onClick={() => {
-            if (showForm) {
-              resetForm();
-              setShowForm(false);
-            } else {
-              setShowForm(true);
-            }
-          }}
+          onClick={handleToggleForm}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200"
         >
           {showForm ? 'Cancel' : 'Create New Post'}
@@ -375,7 +412,7 @@ export default function BlogManager({ showCreateForm = false }) {
                       <TrendingUp className="w-5 h-5 text-blue-400" />
                       Title *
                     </label>
-                    <input type="text" required value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:border-2 focus:bg-blue-50 bg-white hover:shadow transition-all duration-200 text-base outline-none" placeholder="Enter post title" />
+                    <input type="text" required value={formData.title} onChange={(e) => handleFormDataChange('title', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:border-2 focus:bg-blue-50 bg-white hover:shadow transition-all duration-200 text-base outline-none" placeholder="Enter post title" />
                   </div>
                   {/* Category */}
                   <div className="py-4 md:pl-6 flex flex-col justify-center md:border-l md:border-blue-50">
@@ -384,7 +421,7 @@ export default function BlogManager({ showCreateForm = false }) {
                       Category *
                     </label>
                     <div className="relative w-full flex items-center">
-                      <select value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})} className="w-full h-10 px-4 pr-10 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-purple-400 focus:border-2 focus:bg-purple-50 bg-white hover:shadow transition-all duration-200 appearance-none shadow-sm hover:border-purple-400 outline-none">
+                      <select value={formData.category} onChange={(e) => handleFormDataChange('category', e.target.value)} className="w-full h-10 px-4 pr-10 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-purple-400 focus:border-2 focus:bg-purple-50 bg-white hover:shadow transition-all duration-200 appearance-none shadow-sm hover:border-purple-400 outline-none">
                         {categories.map(category => (<option key={category} value={category}>{category}</option>))}
                       </select>
                       <span className="pointer-events-none absolute right-2 top-0 bottom-0 my-auto flex items-center h-10">
@@ -399,7 +436,7 @@ export default function BlogManager({ showCreateForm = false }) {
                       Status *
                     </label>
                     <div className="relative w-full flex items-center">
-                      <select value={formData.status} onChange={(e) => setFormData({...formData, status: e.target.value})} className="w-full h-10 px-4 pr-10 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:border-2 focus:bg-green-50 bg-white hover:shadow transition-all duration-200 appearance-none shadow-sm hover:border-green-400 outline-none">
+                      <select value={formData.status} onChange={(e) => handleFormDataChange('status', e.target.value)} className="w-full h-10 px-4 pr-10 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:border-2 focus:bg-green-50 bg-white hover:shadow transition-all duration-200 appearance-none shadow-sm hover:border-green-400 outline-none">
                         <option value="draft">Draft</option>
                         <option value="published">Published</option>
                       </select>
@@ -414,7 +451,7 @@ export default function BlogManager({ showCreateForm = false }) {
                       <Minus className="w-5 h-5 text-pink-400" />
                       Tags
                     </label>
-                    <input type="text" value={formData.tags} onChange={(e) => setFormData({...formData, tags: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-400 focus:border-pink-400 focus:border-2 focus:bg-pink-50 bg-white hover:shadow transition-all duration-200 text-base outline-none" placeholder="Enter tags separated by commas (e.g., React, JavaScript, Web Development)" />
+                    <input type="text" value={formData.tags} onChange={(e) => handleFormDataChange('tags', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-400 focus:border-pink-400 focus:border-2 focus:bg-pink-50 bg-white hover:shadow transition-all duration-200 text-base outline-none" placeholder="Enter tags separated by commas (e.g., React, JavaScript, Web Development)" />
                   </div>
                 </div>
               </div>
@@ -442,7 +479,15 @@ export default function BlogManager({ showCreateForm = false }) {
                     </div>
                     {!isFullScreen && (
                       <div className="bg-white rounded-2xl shadow-2xl border border-purple-200 p-0 w-full" style={{minHeight: '180px', height: '180px', borderRadius: '1rem'}}>
-                        <ReactQuill theme="snow" value={formData.content} onChange={content => setFormData({...formData, content})} modules={{ toolbar: [[{ 'header': [1, 2, 3, false] }], ['bold', 'italic', 'underline', 'strike'], [{ 'list': 'ordered'}, { 'list': 'bullet' }], ['blockquote', 'code-block'], ['link', 'image'], [{ 'align': [] }], ['clean']] }} formats={['header', 'bold', 'italic', 'underline', 'strike', 'list', 'bullet', 'blockquote', 'code-block', 'link', 'image', 'align']} className="quill-editor-custom w-full" style={{minHeight: '180px', height: '180px', background: 'white', borderRadius: '1rem'}} />
+                        <ReactQuill 
+                          theme="snow" 
+                          value={formData.content} 
+                          onChange={content => handleFormDataChange('content', content)} 
+                          modules={quillModules} 
+                          formats={quillFormats} 
+                          className="quill-editor-custom w-full" 
+                          style={{minHeight: '180px', height: '180px', background: 'white', borderRadius: '1rem'}} 
+                        />
                       </div>
                     )}
                   </div>
@@ -452,7 +497,7 @@ export default function BlogManager({ showCreateForm = false }) {
                       <Minus className="w-5 h-5 text-pink-400" />
                       Excerpt *
                     </label>
-                    <textarea required rows={3} value={formData.excerpt} onChange={(e) => setFormData({...formData, excerpt: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-400 focus:border-pink-400 focus:border-2 focus:bg-pink-50 bg-white hover:shadow transition-all duration-200 text-base outline-none" placeholder="Enter a brief summary of the post (this will appear in the blog listing)" />
+                    <textarea required rows={3} value={formData.excerpt} onChange={(e) => handleFormDataChange('excerpt', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-400 focus:border-pink-400 focus:border-2 focus:bg-pink-50 bg-white hover:shadow transition-all duration-200 text-base outline-none" placeholder="Enter a brief summary of the post (this will appear in the blog listing)" />
                   </div>
                 </div>
               </div>
@@ -517,7 +562,7 @@ export default function BlogManager({ showCreateForm = false }) {
                         <img src={formData.featured_image} alt="Current" className="w-32 h-20 object-cover rounded" />
                         <button
                           type="button"
-                          onClick={() => setFormData({...formData, featured_image: ''})}
+                          onClick={() => handleFormDataChange('featured_image', '')}
                           className="absolute top-1 right-1 bg-white bg-opacity-80 hover:bg-red-500 hover:text-white text-pink-500 rounded-full p-1 shadow border border-pink-200 transition-colors duration-150"
                           style={{fontSize: '1rem', lineHeight: 1}}
                           aria-label="Remove current image"
@@ -533,7 +578,7 @@ export default function BlogManager({ showCreateForm = false }) {
 
             {/* Sticky Action Bar */}
             <div className="sticky bottom-0 bg-white py-4 flex flex-col sm:flex-row justify-end items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 border-t border-gray-100 z-10 mt-8 px-2 sm:px-0">
-              <button type="button" onClick={() => { resetForm(); setShowForm(false); }} className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200 w-full sm:w-auto">Cancel</button>
+              <button type="button" onClick={handleCancelForm} className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200 w-full sm:w-auto">Cancel</button>
               <button type="submit" disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 disabled:opacity-50 w-full sm:w-auto">{loading ? 'Saving...' : (editingPost ? 'Update Post' : 'Create Post')}</button>
             </div>
           </form>
@@ -560,7 +605,35 @@ export default function BlogManager({ showCreateForm = false }) {
           </div>
         ) : (
           posts.map((post) => (
-            <div key={post.id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
+            <PostItem 
+              key={post.id} 
+              post={post} 
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onToggleStatus={handleToggleStatus}
+              onRestore={handleRestore}
+              onPermanentDelete={handlePermanentDelete}
+              getStatusBadgeColor={getStatusBadgeColor}
+            />
+          ))
+        )}
+      </div>
+    </div>
+  );
+});
+
+// Memoized PostItem component for better performance
+const PostItem = React.memo(function PostItem({ 
+  post, 
+  onEdit, 
+  onDelete, 
+  onToggleStatus, 
+  onRestore, 
+  onPermanentDelete, 
+  getStatusBadgeColor 
+}) {
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
               <div className="flex justify-between items-start mb-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
@@ -610,7 +683,7 @@ export default function BlogManager({ showCreateForm = false }) {
                 <div className="flex items-center gap-2">
                   {/* Edit Button */}
                   <button
-                    onClick={() => handleEdit(post)}
+                    onClick={() => onEdit(post)}
                     className="px-3 py-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors duration-200 text-sm font-medium"
                   >
                     Edit
@@ -619,7 +692,7 @@ export default function BlogManager({ showCreateForm = false }) {
                   {/* Publish/Unpublish Button */}
                   {post.status !== 'deleted' && (
                     <button
-                      onClick={() => handleToggleStatus(post)}
+                      onClick={() => onToggleStatus(post)}
                       className={`px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200 ${
                         post.status === 'published'
                           ? 'text-yellow-600 hover:text-yellow-800 hover:bg-yellow-50'
@@ -634,13 +707,13 @@ export default function BlogManager({ showCreateForm = false }) {
                   {post.status === 'deleted' ? (
                     <div className="flex gap-2">
                       <button
-                        onClick={() => handleRestore(post.id)}
+                        onClick={() => onRestore(post.id)}
                         className="px-3 py-1 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-md transition-colors duration-200 text-sm font-medium"
                       >
                         Restore
                       </button>
                       <button
-                        onClick={() => handlePermanentDelete(post.id)}
+                        onClick={() => onPermanentDelete(post.id)}
                         className="px-3 py-1 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors duration-200 text-sm font-medium"
                       >
                         Delete Forever
@@ -648,7 +721,7 @@ export default function BlogManager({ showCreateForm = false }) {
                     </div>
                   ) : (
                     <button
-                      onClick={() => handleDelete(post.id)}
+                      onClick={() => onDelete(post.id)}
                       className="px-3 py-1 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors duration-200 text-sm font-medium"
                     >
                       Delete
@@ -656,10 +729,8 @@ export default function BlogManager({ showCreateForm = false }) {
                   )}
                 </div>
               </div>
-            </div>
-          ))
-        )}
-      </div>
     </div>
-  );
-}
+   );
+ });
+ 
+ export default BlogManager;

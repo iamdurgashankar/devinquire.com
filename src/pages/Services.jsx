@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Monitor, Rocket, Puzzle, Smartphone, Search, Palette, FileText, ShoppingCart, TrendingUp } from "lucide-react";
+import { Monitor, Rocket, Puzzle, Smartphone, Search, Palette, FileText, ShoppingCart, TrendingUp, X, Mail, User, MessageSquare, Phone } from "lucide-react";
+import { useState } from "react";
 
 const services = [
   {
@@ -78,6 +79,63 @@ const services = [
 ];
 
 export default function Services() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    service: '',
+    message: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState('');
+
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    try {
+      const response = await fetch('/api/contact.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          subject: `Service Inquiry: ${formData.service}`,
+          to: 'contact@devinquire.com'
+        })
+      });
+      
+      if (response.ok) {
+        setSubmitStatus('success');
+        setFormData({ name: '', email: '', phone: '', service: '', message: '' });
+        setTimeout(() => {
+          setIsModalOpen(false);
+          setSubmitStatus('');
+        }, 2000);
+      } else {
+        setSubmitStatus('error');
+      }
+    } catch (error) {
+      setSubmitStatus('error');
+    }
+    
+    setIsSubmitting(false);
+  };
+
+  const openModal = (serviceName) => {
+    setFormData(prev => ({ ...prev, service: serviceName }));
+    setIsModalOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 pt-20">
       {/* Hero Section */}
@@ -164,12 +222,12 @@ export default function Services() {
                   </div>
                   
                   <div className="border-t border-gray-200 pt-6">
-                    <Link 
-                      to="/contact" 
+                    <button 
+                      onClick={() => openModal(service.title)}
                       className="block w-full bg-gradient-to-r from-[#4169e1] via-[#6366f1] to-[#9c27b0] hover:from-[#6366f1] hover:to-[#8b5cf6] text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 group-hover:shadow-lg text-center"
                     >
-                      Get Started
-                    </Link>
+                      🚀 Let's Build This!
+                    </button>
                   </div>
                 </div>
               </div>
@@ -347,6 +405,163 @@ export default function Services() {
           </div>
         </div>
       </section>
+
+      {/* Contact Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          >
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-[#4169e1] to-[#9c27b0] text-white p-6 rounded-t-2xl relative">
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="absolute top-4 right-4 text-white hover:text-gray-200 transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+              <h3 className="text-2xl font-bold mb-2">Let's Start Your Project!</h3>
+              <p className="text-blue-100">Tell us about your {formData.service.toLowerCase()} needs</p>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6">
+              {submitStatus === 'success' && (
+                <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+                  ✅ Thank you! We'll get back to you within 24 hours.
+                </div>
+              )}
+              
+              {submitStatus === 'error' && (
+                <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                  ❌ Something went wrong. Please try again.
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Two Column Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Name Field */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <User className="w-4 h-4 inline mr-2" />
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      placeholder="Enter your full name"
+                    />
+                  </div>
+
+                  {/* Email Field */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <Mail className="w-4 h-4 inline mr-2" />
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      placeholder="Enter your email address"
+                    />
+                  </div>
+
+                  {/* Phone Field */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <Phone className="w-4 h-4 inline mr-2" />
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      placeholder="Enter your phone number"
+                    />
+                  </div>
+
+                  {/* Service Field */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Service Interest
+                    </label>
+                    <select
+                      name="service"
+                      value={formData.service}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    >
+                      <option value="">Select a service</option>
+                      {services.map((service, index) => (
+                        <option key={index} value={service.title}>{service.title}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Message Field - Full Width */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <MessageSquare className="w-4 h-4 inline mr-2" />
+                    Project Details *
+                  </label>
+                  <textarea
+                    name="message"
+                    value={formData.message}
+                    onChange={handleInputChange}
+                    required
+                    rows={4}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                    placeholder="Tell us about your project requirements, timeline, and budget..."
+                  />
+                </div>
+
+                {/* Submit Button */}
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(false)}
+                    className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="flex-1 px-6 py-3 bg-gradient-to-r from-[#4169e1] to-[#9c27b0] text-white rounded-lg hover:from-[#6366f1] hover:to-[#8b5cf6] transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting ? (
+                      <span className="flex items-center justify-center">
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Sending...
+                      </span>
+                    ) : (
+                      '🚀 Send Message'
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
