@@ -41,8 +41,7 @@ import {
   onMessage
 } from 'firebase/messaging';
 import { 
-  getPerformance,
-  isSupported as isPerformanceSupported
+  getPerformance
 } from 'firebase/performance';
 
 // Firebase configuration object
@@ -160,15 +159,13 @@ if (app && shouldInitializeFirebase) {
     });
   }
 
-  // Initialize Performance Monitoring (only in production and if supported)
+  // Initialize Performance Monitoring (only in production)
   if (process.env.NODE_ENV === 'production') {
-    isPerformanceSupported().then(supported => {
-      if (supported) {
-        performance = getPerformance(app);
-      }
-    }).catch(error => {
+    try {
+      performance = getPerformance(app);
+    } catch (error) {
       console.warn('Performance monitoring initialization failed:', error);
-    });
+    }
   }
 }
 

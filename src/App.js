@@ -1,3 +1,4 @@
+import React from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -23,14 +24,10 @@ import TermsOfService from "./pages/TermsOfService";
 import CookiePolicy from "./pages/CookiePolicy";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import apiService from "./services/api";
-import React from "react";
 import SupportAgent from "./components/SupportAgent";
 // Dashboard components removed - handled by separate dashboard app
 
-// Firebase integration test (development only)
-if (process.env.NODE_ENV === 'development') {
-  import('./test/firebase-test');
-}
+
 
 // PageBuilder functionality moved to dashboard
 

@@ -17,7 +17,7 @@
     "firebase:init": "firebase init",
     "firebase:deploy": "firebase deploy",
     "firebase:emulators": "firebase emulators:start",
-    "firebase:test": "node run-firebase-tests.js",
+
     "db:seed": "node scripts/seed-database.js",
     "db:migrate": "node scripts/migrate-database.js",
     "logs": "pm2 logs",
