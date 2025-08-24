@@ -1,4 +1,4 @@
-import { API_BASE } from '../config';
+import firebaseService from './firebaseService';
 
 class ApiService {
   constructor() {
@@ -16,236 +16,113 @@ class ApiService {
 
   // Helper method to check if API is available
   async checkApiAvailability() {
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
-
-      const response = await fetch(`${API_BASE}/session.php`, {
-        method: "GET",
-        credentials: "include",
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-      return response.ok;
-    } catch (error) {
-      return false;
-    }
+    return await firebaseService.checkConnection();
   }
 
   // Get all users (admin)
   async getAllUsers() {
-    const res = await fetch(`${API_BASE}/get_users.php`, {
-      credentials: "include",
-    });
-    return res.json();
+    return await firebaseService.getAllUsers();
   }
 
   // Delete user (admin)
   async deleteUser(userId) {
-    const res = await fetch(`${API_BASE}/delete_user.php`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: userId }),
-      credentials: "include",
-    });
-    return res.json();
+    return await firebaseService.deleteUser(userId);
   }
 
   // Update profile
   async updateProfile(profileData) {
-    const res = await fetch(`${API_BASE}/profile.php`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(profileData),
-      credentials: "include",
-    });
-    return res.json();
+    return await firebaseService.updateProfile(profileData);
   }
 
-  // Get pending users (admin)
+  // Get pending users
   async getPendingUsers() {
-    const res = await fetch(`${API_BASE}/get_pending_users.php`, {
-      credentials: "include",
-    });
-    return res.json();
+    return await firebaseService.getPendingUsers();
   }
 
-  // Approve user (admin)
+  // Approve user
   async approveUser(userId) {
-    const res = await fetch(`${API_BASE}/approve_user.php`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: userId }),
-      credentials: "include",
-    });
-    return res.json();
+    return await firebaseService.approveUser(userId);
   }
 
-  // Reject user (admin)
+  // Reject user
   async rejectUser(userId) {
-    const res = await fetch(`${API_BASE}/reject_user.php`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: userId }),
-      credentials: "include",
-    });
-    return res.json();
+    return await firebaseService.rejectUser(userId);
   }
 
-  // Update user role (admin)
+  // Update user role
   async updateUserRole(userId, newRole) {
-    const res = await fetch(`${API_BASE}/update_user.php`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: userId, role: newRole }),
-      credentials: "include",
-    });
-    return res.json();
+    return await firebaseService.updateUserRole(userId, newRole);
   }
 
-  // Posts
+  // Get posts with pagination and filters
   async getPosts(page = 1, limit = 10, category = null, status = null) {
-    const params = new URLSearchParams({
-      page: page.toString(),
-      limit: limit.toString(),
-    });
-    if (category) params.append("category", category);
-    if (status) params.append("status", status);
-    const res = await fetch(`${API_BASE}/get_posts.php?${params}`, {
-      credentials: "include",
-    });
-    return res.json();
+    return await firebaseService.getPosts(page, limit, category, status);
   }
 
+  // Get single post
   async getPost(id) {
-    const res = await fetch(`${API_BASE}/get_post.php?id=${id}`, {
-      credentials: "include",
-    });
-    return res.json();
+    return await firebaseService.getPost(id);
   }
 
+  // Create new post
   async createPost(postData) {
-    const res = await fetch(`${API_BASE}/create_post.php`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(postData),
-      credentials: "include",
-    });
-    return res.json();
+    return await firebaseService.createPost(postData);
   }
 
+  // Update existing post
   async updatePost(id, postData) {
-    const res = await fetch(`${API_BASE}/update_post.php`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, ...postData }),
-      credentials: "include",
-    });
-    return res.json();
+    return await firebaseService.updatePost(id, postData);
   }
 
+  // Delete post (soft delete)
   async deletePost(id) {
-    const res = await fetch(`${API_BASE}/delete_post.php`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
-      credentials: "include",
-    });
-    return res.json();
+    return await firebaseService.deletePost(id);
   }
 
-  // Permanently delete a post
+  // Permanently delete post
   async permanentDeletePost(id) {
-    const res = await fetch(`${API_BASE}/permanent_delete_post.php`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
-      credentials: "include",
-    });
-    return res.json();
+    return await firebaseService.permanentDeletePost(id);
   }
 
-  // Image upload (mock)
+  // Upload image
   async uploadImage(file) {
-    // In production, implement real image upload
-    return {
-      success: true,
-      data: {
-        filename: `mock-image-${Date.now()}.jpg`,
-        url: "https://via.placeholder.com/400x300/3B82F6/FFFFFF?text=Uploaded+Image",
-      },
-    };
+    return await firebaseService.uploadImage(file);
   }
 
-  // Dashboard stats (implement as needed)
+  // Get dashboard statistics
   async getDashboardStats() {
-    // Return all expected fields with correct types to prevent TypeError
-    return {
-      success: true,
-      data: {
-        totalPosts: 0,
-        recentPosts: 0,
-        totalViews: "0",
-        totalUsers: 0,
-        pendingUsers: 0,
-        categories: {},
-        recentActivity: [],
-      },
-    };
+    return await firebaseService.getDashboardStats();
   }
 
-  // Email notifications (mock)
+  // Get email notifications
   async getEmailNotifications() {
-    // Return a mock response for now
-    return {
-      success: true,
-      data: [],
-    };
+    return await firebaseService.getEmailNotifications();
   }
 
-  // User activity log
+  // Get user activity log
   async getUserActivityLog(userId) {
-    const res = await fetch(
-      `${API_BASE}/profile.php?id=${userId}&activity_log=1`,
-      {
-        credentials: "include",
-      }
-    );
-    return res.json();
+    return await firebaseService.getUserActivityLog(userId);
   }
-  // User preferences
+
+  // Get user preferences
   async getUserPreferences(userId) {
-    const res = await fetch(
-      `${API_BASE}/profile.php?id=${userId}&preferences=1`,
-      {
-        credentials: "include",
-      }
-    );
-    return res.json();
+    return await firebaseService.getUserPreferences(userId);
   }
+
+  // Update user preferences
   async updateUserPreferences(userId, preferences) {
-    const res = await fetch(`${API_BASE}/profile.php`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: userId, preferences }),
-      credentials: "include",
-    });
-    return res.json();
+    return await firebaseService.updateUserPreferences(userId, preferences);
   }
 }
 
+// Save page order function
 export async function savePageOrder(order) {
-  const res = await fetch("/api/save_page_order.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ order }),
-    credentials: "include",
-  });
-  if (!res.ok) throw new Error("Failed to save page order");
-  return res.json();
+  try {
+    return await firebaseService.savePageOrder(order);
+  } catch (error) {
+    console.error('Error saving page order:', error);
+    throw error;
+  }
 }
 
 const apiService = new ApiService();

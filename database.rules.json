@@ -1,0 +1,86 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    
+    "comments": {
+      "$postId": {
+        ".read": true,
+        "$commentId": {
+          ".write": "auth != null && (!data.exists() || data.child('userId').val() == auth.uid)",
+          ".validate": "newData.hasChildren(['userId', 'content', 'timestamp']) && newData.child('content').isString() && newData.child('content').val().length > 0 && newData.child('content').val().length <= 1000 && newData.child('userId').val() == auth.uid",
+          "replies": {
+            "$replyId": {
+              ".write": "auth != null && (!data.exists() || data.child('userId').val() == auth.uid)",
+              ".validate": "newData.hasChildren(['userId', 'content', 'timestamp']) && newData.child('content').isString() && newData.child('content').val().length > 0 && newData.child('content').val().length <= 1000 && newData.child('userId').val() == auth.uid"
+            }
+          }
+        }
+      }
+    },
+    
+    "presence": {
+      "$userId": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid == $userId",
+        ".validate": "newData.hasChildren(['status', 'lastSeen']) && newData.child('status').isString() && newData.child('status').val().matches(/^(online|offline|away)$/)"
+      }
+    },
+    
+    "notifications": {
+      "$userId": {
+        ".read": "auth != null && auth.uid == $userId",
+        "$notificationId": {
+          ".write": "auth != null",
+          ".validate": "newData.hasChildren(['type', 'message', 'timestamp']) && newData.child('message').isString() && newData.child('message').val().length > 0 && newData.child('message').val().length <= 500"
+        }
+      }
+    },
+    
+    "activity": {
+      "$userId": {
+        ".read": "auth != null && (auth.uid == $userId || root.child('users').child(auth.uid).child('role').val() == 'admin')",
+        "$activityId": {
+          ".write": "auth != null && auth.uid == $userId",
+          ".validate": "newData.hasChildren(['action', 'timestamp']) && newData.child('action').isString() && newData.child('action').val().length > 0 && newData.child('action').val().length <= 200"
+        }
+      }
+    },
+    
+    "search": {
+      "comments": {
+        "$searchId": {
+          ".read": "auth != null",
+          ".write": "auth != null",
+          ".validate": "newData.hasChildren(['query', 'results', 'timestamp']) && newData.child('query').isString() && newData.child('query').val().length > 0 && newData.child('query').val().length <= 100"
+        }
+      }
+    },
+    
+    "analytics": {
+      "pageViews": {
+        "$date": {
+          "$pageId": {
+            ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() == 'admin'",
+            ".write": "auth != null",
+            ".validate": "newData.isNumber() && newData.val() >= 0"
+          }
+        }
+      },
+      "userActivity": {
+        "$date": {
+          "$userId": {
+            ".read": "auth != null && (auth.uid == $userId || root.child('users').child(auth.uid).child('role').val() == 'admin')",
+            ".write": "auth != null && auth.uid == $userId",
+            ".validate": "newData.hasChildren(['actions', 'timeSpent']) && newData.child('actions').isNumber() && newData.child('timeSpent').isNumber()"
+          }
+        }
+      }
+    },
+    
+    "config": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() == 'admin'",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() == 'admin'"
+    }
+  }
+}

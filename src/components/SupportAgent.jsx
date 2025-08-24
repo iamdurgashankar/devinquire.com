@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { API_BASE } from '../config';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '../config/firebase';
 
 const FAQ = [
   { q: 'How can I contact support?', a: 'You can contact us via WhatsApp, phone, or email using the buttons below.' },
@@ -9,8 +10,8 @@ const FAQ = [
 ];
 
 const CONTACTS = {
-  whatsapp: 'https://wa.me/918260761291',
-  phone: 'tel:+918260761291',
+    whatsapp: 'https://wa.me/918763155488',
+    phone: 'tel:+918763155488',
   email: 'mailto:contact@devinquire.com',
 };
 
@@ -42,13 +43,14 @@ function getBotReply(input) {
 function showToast(msg) {
   const toast = document.createElement('div');
   toast.textContent = msg;
-  toast.className = 'fixed bottom-8 right-8 z-[9999] bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl shadow-2xl font-semibold text-base animate-fade-in-out';
+  toast.className = 'fixed bottom-8 right-8 z-[9999] bg-[#0077b6] text-white px-6 py-3 rounded-xl shadow-2xl font-semibold text-base animate-fade-in-out';
   document.body.appendChild(toast);
   setTimeout(() => { toast.style.opacity = 0; }, 1800);
   setTimeout(() => { toast.remove(); }, 2200);
 }
 
-const API_AI_ENDPOINT = `${API_BASE}/ai_chat.php`;
+// Firebase Functions endpoint for AI chat
+const aiChatFunction = httpsCallable(functions, 'aiChat');
 
 export default function SupportAgent() {
   const [open, setOpen] = useState(false);
@@ -98,18 +100,14 @@ export default function SupportAgent() {
     setLoading(true);
     setInput('');
     try {
-      const res = await fetch(API_AI_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: input })
-      });
-      const data = await res.json();
-      if (data.success && data.reply) {
-        showTypingEffect(data.reply);
+      const result = await aiChatFunction({ message: input });
+      if (result.data && result.data.success && result.data.reply) {
+        showTypingEffect(result.data.reply);
       } else {
         setMessages((msgs) => [...msgs, { from: 'bot', text: getBotReply(input) }]);
       }
     } catch (err) {
+      console.error('AI chat error:', err);
       setMessages((msgs) => [...msgs, { from: 'bot', text: getBotReply(input) }]);
     } finally {
       setLoading(false);
@@ -126,7 +124,7 @@ export default function SupportAgent() {
     <>
       {/* Floating Button */}
       <button
-        className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl shadow-xl p-2 hover:p-2.5 flex items-center justify-center gap-2 hover:scale-105 transition-all duration-300 focus:outline-none group border border-white/20 backdrop-blur-sm overflow-hidden"
+        className="fixed bottom-6 right-6 z-50 bg-[#0077b6] text-white rounded-xl shadow-xl p-2 hover:p-2.5 flex items-center justify-center gap-2 hover:scale-105 transition-all duration-300 focus:outline-none group border border-white/20 backdrop-blur-sm overflow-hidden"
         onClick={() => setOpen((v) => !v)}
         aria-label="Open DevInquire AI Support Chat"
         style={{ boxShadow: '0 8px 32px rgba(80,0,200,0.18)' }}
@@ -146,10 +144,10 @@ export default function SupportAgent() {
       {/* Chat Widget */}
       {open && (
         <div className="fixed bottom-24 right-6 z-50 w-72 max-w-[95vw] bg-white/95 backdrop-blur-3xl rounded-2xl shadow-2xl border border-white/50 flex flex-col animate-slide-up" style={{ boxShadow: '0 25px 80px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.2), inset 0 1px 0 rgba(255,255,255,0.3)' }}>
-          <div className="flex items-center justify-between px-6 py-5 border-b border-white/20 bg-gradient-to-r from-slate-800 to-slate-900 rounded-t-3xl backdrop-blur-sm relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20"></div>
+          <div className="flex items-center justify-between px-6 py-5 border-b border-white/20 bg-[#0077b6] rounded-t-3xl backdrop-blur-sm relative overflow-hidden">
+            <div className="absolute inset-0 bg-[#0077b6]/20"></div>
             <div className="flex items-center gap-4 relative z-10">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg border-2 border-white/20">
+              <div className="w-10 h-10 bg-[#0077b6] rounded-full flex items-center justify-center shadow-lg border-2 border-white/20">
                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 01-4-.8l-4.28 1.07a1 1 0 01-1.22-1.22l1.07-4.28A8.96 8.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
               </div>
               <div>
@@ -168,10 +166,10 @@ export default function SupportAgent() {
               <svg className="w-5 h-5 group-hover:rotate-90 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
           </div>
-          <div ref={chatRef} className="flex-1 px-3 py-2 space-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent bg-gradient-to-b from-slate-50/50 to-white/50" style={{ maxHeight: 280 }}>
+          <div ref={chatRef} className="flex-1 px-3 py-2 space-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent bg-white/50" style={{ maxHeight: 280 }}>
             {messages.map((msg, i) => (
               <div key={i} className={`flex ${msg.from === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}>
-                <div className={`rounded-lg px-2.5 py-1.5 max-w-[85%] text-xs leading-relaxed shadow-sm ${msg.from === 'user' ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg border border-blue-500/20' : 'bg-white/95 text-slate-700 border border-slate-200/50 backdrop-blur-sm shadow-md'}`}>
+                <div className={`rounded-lg px-2.5 py-1.5 max-w-[85%] text-xs leading-relaxed shadow-sm ${msg.from === 'user' ? 'bg-[#0077b6] text-white shadow-lg border border-blue-500/20' : 'bg-white/95 text-slate-700 border border-slate-200/50 backdrop-blur-sm shadow-md'}`}>
                   {msg.text}
                 </div>
               </div>
@@ -222,7 +220,7 @@ export default function SupportAgent() {
             <button 
                type="submit" 
                disabled={!input.trim() || typing}
-               className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-3 py-1.5 rounded-lg font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center gap-1.5 border border-blue-500/20 text-xs"
+               className="bg-[#0077b6] hover:bg-[#005a8a] text-white px-3 py-1.5 rounded-lg font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center gap-1.5 border border-blue-500/20 text-xs"
              >
               {loading ? (
                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
@@ -234,12 +232,12 @@ export default function SupportAgent() {
               <span className="hidden sm:inline">Send</span>
             </button>
           </form>
-          <div className="flex justify-between gap-1.5 px-3 py-2 border-t border-slate-200/30 bg-gradient-to-r from-slate-50/80 to-white/80 backdrop-blur-sm rounded-b-2xl">
+          <div className="flex justify-between gap-1.5 px-3 py-2 border-t border-slate-200/30 bg-white/80 backdrop-blur-sm rounded-b-2xl">
             <a
                href={CONTACTS.whatsapp}
                target="_blank"
                rel="noopener noreferrer"
-               className="flex-1 flex flex-col items-center justify-center gap-0.5 bg-gradient-to-br from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 focus:from-emerald-800 focus:to-emerald-900 text-white rounded-lg py-2 font-bold transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 group backdrop-blur-sm border border-emerald-500/20"
+               className="flex-1 flex flex-col items-center justify-center gap-0.5 bg-emerald-600 hover:bg-emerald-700 focus:bg-emerald-800 text-white rounded-lg py-2 font-bold transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 group backdrop-blur-sm border border-emerald-500/20"
                onClick={() => handleContactClick('whatsapp')}
                tabIndex={0}
                title="Chat on WhatsApp"
@@ -251,7 +249,7 @@ export default function SupportAgent() {
             </a>
             <a
                href={CONTACTS.phone}
-               className="flex-1 flex flex-col items-center justify-center gap-0.5 bg-gradient-to-br from-blue-700 to-blue-800 hover:from-blue-800 hover:to-blue-900 focus:from-blue-900 focus:to-slate-900 text-white rounded-lg py-2 font-bold transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 group backdrop-blur-sm border border-blue-600/20"
+               className="flex-1 flex flex-col items-center justify-center gap-0.5 bg-[#0077b6] hover:bg-[#005a8a] focus:bg-slate-900 text-white rounded-lg py-2 font-bold transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 group backdrop-blur-sm border border-blue-600/20"
                onClick={() => handleContactClick('phone')}
                tabIndex={0}
                title="Call us"
@@ -263,7 +261,7 @@ export default function SupportAgent() {
             </a>
             <a
                href={CONTACTS.email}
-               className="flex-1 flex flex-col items-center justify-center gap-0.5 bg-gradient-to-br from-purple-700 to-purple-800 hover:from-purple-800 hover:to-purple-900 focus:from-purple-900 focus:to-slate-900 text-white rounded-lg py-2 font-bold transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 group backdrop-blur-sm border border-purple-600/20"
+               className="flex-1 flex flex-col items-center justify-center gap-0.5 bg-purple-700 hover:bg-purple-800 focus:bg-slate-900 text-white rounded-lg py-2 font-bold transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 group backdrop-blur-sm border border-purple-600/20"
                onClick={() => handleContactClick('email')}
                tabIndex={0}
                title="Email us"

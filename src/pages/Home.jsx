@@ -6,6 +6,7 @@ import {
   Target, Smile, Star, Shield, ChevronUp, ChevronLeft, ChevronRight,
   Code, Zap, Wrench, Globe, ArrowUp
 } from "lucide-react";
+import SEO from '../components/SEO';
 
 export default function Home() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -42,6 +43,15 @@ export default function Home() {
 
   return (
     <div className="min-h-screen relative">
+      <SEO 
+        title="Professional Web Development & Digital Solutions"
+        description="DevInquire offers expert web development, mobile app development, and digital solutions. Transform your business with our custom software development services and innovative technology solutions."
+        keywords="web development, mobile app development, custom software, digital solutions, React development, Node.js, professional development services, business automation, e-commerce development"
+        canonical="https://devinquire.com"
+        ogTitle="DevInquire - Professional Web Development & Digital Solutions"
+        ogDescription="Transform your business with expert web development, mobile apps, and custom software solutions. Professional development services for modern businesses."
+        ogUrl="https://devinquire.com"
+      />
       {/* Custom Cursor */}
       <motion.div
         className="fixed w-6 h-6 bg-blue-500/30 rounded-full pointer-events-none z-50 mix-blend-difference hidden lg:block"
@@ -70,7 +80,7 @@ export default function Home() {
           >
             <button
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="group w-14 h-14 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-white hover:scale-110 border border-white/20 backdrop-blur-sm"
+              className="group w-14 h-14 bg-[#0077b6] rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-white hover:scale-110 border border-white/20 backdrop-blur-sm"
               aria-label="Back to top"
             >
               <motion.div
@@ -86,7 +96,7 @@ export default function Home() {
       {/* Hero Section */}
         <motion.section 
           ref={heroRef}
-          className="relative bg-gradient-to-br from-white via-[#ae97ef]/20 to-white text-slate-800 overflow-hidden min-h-screen flex items-center"
+          className="relative bg-slate-900 text-white overflow-hidden min-h-screen flex items-center"
           style={{ y, opacity }}
         >
         {/* Enhanced Light Glass Effect Background */}
@@ -118,7 +128,7 @@ export default function Home() {
                   cx={node.x}
                   cy={node.y}
                   r={node.size}
-                  fill="#ae97ef"
+                  fill="var(--accent)"
                   opacity={0.6}
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ 
@@ -172,7 +182,7 @@ export default function Home() {
                   y1={line.y1}
                   x2={line.x2}
                   y2={line.y2}
-                  stroke="#ae97ef"
+                  stroke="var(--accent)"
                   strokeWidth="1"
                   opacity={0.3}
                   initial={{ pathLength: 0, opacity: 0 }}
@@ -201,7 +211,7 @@ export default function Home() {
                  <motion.circle
                    key={`pulse-${i}`}
                    r="3"
-                   fill="#60a5fa"
+                   fill="var(--secondary)"
                    opacity={0.8}
                    initial={{ 
                      cx: pulse.startX, 
@@ -236,8 +246,8 @@ export default function Home() {
             }}></div>
           </div>
 
-          {/* Additional light glass effect layers */}
-          <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-[#ae97ef]/5 to-white/40"></div>
+          {/* Additional dark glass effect layers */}
+                      <div className="absolute inset-0 bg-slate-800/20"></div>
         </div>
 
         {/* Main Content */}
@@ -250,16 +260,16 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1 }}
             >
-              <span className="inline-flex items-center px-6 py-3 rounded-full text-sm font-medium bg-white/60 text-slate-700 border border-white/40 backdrop-blur-md shadow-lg">
-                <span className="w-2 h-2 bg-green-500 rounded-full mr-3 animate-pulse"></span>
+              <span className="inline-flex items-center px-6 py-3 rounded-full text-sm font-medium bg-slate-800/80 text-slate-200 border border-slate-700/60 backdrop-blur-md shadow-lg">
+                <span className="w-2 h-2 bg-green-400 rounded-full mr-3 animate-pulse"></span>
                 Professional Development Solutions
-                <span className="ml-3 text-xs text-slate-600">✨</span>
+                <span className="ml-3 text-xs text-slate-300">✨</span>
               </span>
             </motion.div>
             
             {/* Main Title with Enhanced Animation */}
             <motion.h1
-              className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-slate-800 via-blue-600 to-purple-600 bg-clip-text text-transparent leading-tight"
+              className="text-5xl md:text-7xl font-bold mb-6 text-white leading-tight"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
@@ -289,12 +299,12 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.7 }}
             >
-              <div className="text-2xl md:text-3xl text-slate-600 max-w-4xl mx-auto leading-relaxed font-light">
-                <span className="text-slate-800 font-medium">
+              <div className="text-2xl md:text-3xl text-slate-300 max-w-4xl mx-auto leading-relaxed font-light">
+                <span className="text-white font-medium">
                   Building Tomorrow's Digital Solutions
                 </span>
                 <br />
-                <span className="text-slate-500">Full-Stack Development • Mobile Apps • Cloud Solutions</span>
+                <span className="text-slate-400">Full-Stack Development • Mobile Apps • Cloud Solutions</span>
               </div>
             </motion.div>
 
@@ -305,7 +315,7 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.9 }}
             >
-              <p className="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-lg md:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
                 We specialize in creating scalable, high-performance applications using cutting-edge technologies. 
                 From concept to deployment, we deliver exceptional digital experiences that drive business growth.
               </p>
@@ -320,7 +330,7 @@ export default function Home() {
             >
               <Link 
                 to="/services" 
-                className="group relative bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 sm:px-8 lg:px-10 py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 transform hover:scale-105 shadow-2xl overflow-hidden border border-blue-500/30 w-full sm:w-auto min-w-0 flex-shrink-0"
+                className="group relative bg-[#0077b6] hover:bg-[#005a8a] text-white px-6 sm:px-8 lg:px-10 py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 transform hover:scale-105 shadow-2xl overflow-hidden border border-[#0077b6]/30 w-full sm:w-auto min-w-0 flex-shrink-0"
               >
                 <span className="relative z-10 flex items-center justify-center">
                   <span className="truncate">View Our Services</span>
@@ -328,12 +338,12 @@ export default function Home() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
                 </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-[#005a8a] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </Link>
               
               <Link 
                 to="/contact" 
-                className="group relative border-2 border-slate-300 text-slate-700 hover:bg-slate-700 hover:text-white px-6 sm:px-8 lg:px-10 py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 overflow-hidden backdrop-blur-sm w-full sm:w-auto min-w-0 flex-shrink-0"
+                className="group relative border-2 border-slate-600 text-slate-200 hover:bg-slate-700 hover:text-white px-6 sm:px-8 lg:px-10 py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 overflow-hidden backdrop-blur-sm w-full sm:w-auto min-w-0 flex-shrink-0"
               >
                 <span className="relative z-10 flex items-center justify-center">
                   <span className="truncate">Start Your Project</span>
@@ -364,12 +374,12 @@ export default function Home() {
                   whileHover={{ scale: 1.05 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <div className="bg-white/60 backdrop-blur-md rounded-2xl p-6 hover:bg-white/80 transition-all duration-300 border border-white/50 shadow-lg">
+                  <div className="bg-slate-800/60 backdrop-blur-md rounded-2xl p-6 hover:bg-slate-700/80 transition-all duration-300 border border-slate-600/50 shadow-lg">
                     <div className="text-4xl mb-3 group-hover:scale-110 transition-transform duration-300">
-                      <stat.icon className="w-10 h-10 mx-auto text-blue-600 group-hover:text-purple-600 transition-colors duration-300" />
+                      <stat.icon className="w-10 h-10 mx-auto text-[#0077b6] group-hover:text-blue-400 transition-colors duration-300" />
                     </div>
-                    <div className="text-3xl font-bold text-slate-800 group-hover:text-blue-600 transition-colors duration-300">{stat.number}</div>
-                    <div className="text-slate-600 text-sm font-medium">{stat.label}</div>
+                    <div className="text-3xl font-bold text-white group-hover:text-[#0077b6] transition-colors duration-300">{stat.number}</div>
+                    <div className="text-slate-300 text-sm font-medium">{stat.label}</div>
                   </div>
                 </motion.div>
               ))}
@@ -384,9 +394,9 @@ export default function Home() {
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1.5 }}
         >
-          <div className="w-6 h-10 border-2 border-black/30 rounded-full flex justify-center backdrop-blur-sm">
+          <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center backdrop-blur-sm">
             <motion.div 
-              className="w-1 h-3 bg-black/50 rounded-full mt-2"
+              className="w-1 h-3 bg-white/70 rounded-full mt-2"
               animate={{ y: [0, 12, 0] }}
               transition={{ duration: 2, repeat: Infinity }}
             ></motion.div>
@@ -397,12 +407,12 @@ export default function Home() {
         <div className="absolute top-1/4 right-10 hidden lg:block">
           <div className="space-y-4">
             {[
-              { icon: Code, name: "React", color: "from-blue-400 to-cyan-400" },
-              { icon: Zap, name: "Next.js", color: "from-purple-400 to-pink-400" },
-              { icon: Settings, name: "Node.js", color: "from-green-400 to-emerald-400" },
-              { icon: Palette, name: "Tailwind", color: "from-cyan-400 to-blue-400" },
-              { icon: Smartphone, name: "Mobile", color: "from-indigo-400 to-purple-400" },
-              { icon: Globe, name: "Web3", color: "from-orange-400 to-red-400" }
+              { icon: Code, name: "React", color: "#0077b6" },
+              { icon: Zap, name: "Next.js", color: "#0077b6" },
+              { icon: Settings, name: "Node.js", color: "#0077b6" },
+              { icon: Palette, name: "Tailwind", color: "#0077b6" },
+              { icon: Smartphone, name: "Mobile", color: "#0077b6" },
+              { icon: Globe, name: "Web3", color: "#0077b6" }
             ].map((tech, index) => (
               <motion.div 
                 key={index}
@@ -413,7 +423,7 @@ export default function Home() {
                 whileHover={{ scale: 1.1 }}
               >
                 <motion.div 
-                  className={`absolute inset-0 bg-gradient-to-r ${tech.color} opacity-0 group-hover:opacity-20 transition-opacity duration-300`}
+                  className="absolute inset-0 bg-[#0077b6] opacity-0 group-hover:opacity-20 transition-opacity duration-300"
                 />
                 <div className="group-hover:scale-110 transition-transform duration-300 relative z-10">
                   <tech.icon className="w-6 h-6 text-white" />
@@ -460,16 +470,17 @@ export default function Home() {
       </motion.section>
 
       {/* Services Preview - Enhanced */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
+      <section className="py-20 bg-gray-50 relative overflow-hidden" aria-labelledby="services-heading">
         {/* Background decoration */}
-        <div className="absolute inset-0">
+        <div className="absolute inset-0" aria-hidden="true">
           <div className="absolute top-20 right-20 w-24 h-24 bg-blue-100/50 rounded-full blur-2xl"></div>
           <div className="absolute bottom-20 left-20 w-32 h-32 bg-purple-100/50 rounded-full blur-2xl"></div>
         </div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <header className="text-center mb-16">
             <motion.h2 
+              id="services-heading"
               className="text-4xl font-bold text-gray-900 mb-4"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -487,66 +498,68 @@ export default function Home() {
             >
               Comprehensive solutions for your digital needs
             </motion.p>
-          </div>
+          </header>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" role="list">
             {[
               {
                 icon: Monitor,
                 title: "Web Development",
                 description: "Modern, responsive websites and web applications",
                 features: ["React/Next.js", "Node.js", "Database Design", "API Integration"],
-                gradient: "from-blue-500 to-cyan-500",
-                bgGradient: "from-blue-50 to-cyan-50"
+                gradient: "#0077b6",
+                bgGradient: "bg-blue-50"
               },
               {
                 icon: Smartphone,
                 title: "Mobile Development",
                 description: "Native and cross-platform mobile applications",
                 features: ["React Native", "iOS/Android", "App Store", "Performance"],
-                gradient: "from-[#4169e1] via-[#6366f1] to-[#9c27b0]",
-                bgGradient: "from-[#4169e1]/10 to-[#9c27b0]/10"
+                        gradient: "#0077b6",
+        bgGradient: "bg-[#0077b6]/10"
               },
               {
                 icon: Palette,
                 title: "UI/UX Design",
                 description: "Beautiful and intuitive user interfaces",
                 features: ["Wireframing", "Prototyping", "User Testing", "Design Systems"],
-                gradient: "from-green-500 to-emerald-500",
-                bgGradient: "from-green-50 to-emerald-50"
+                gradient: "#0077b6",
+                bgGradient: "bg-green-50"
               },
               {
                 icon: Cloud,
                 title: "Cloud Solutions",
                 description: "Scalable cloud infrastructure and deployment",
                 features: ["AWS/Azure", "Docker", "CI/CD", "Monitoring"],
-                gradient: "from-orange-500 to-red-500",
-                bgGradient: "from-orange-50 to-red-50"
+                gradient: "#0077b6",
+                bgGradient: "bg-orange-50"
               },
               {
                 icon: Rocket,
                 title: "Performance",
                 description: "Optimization and maintenance to keep your applications fast",
                 features: ["Speed Optimization", "Caching", "CDN", "Monitoring"],
-                gradient: "from-indigo-500 to-blue-500",
-                bgGradient: "from-indigo-50 to-blue-50"
+                gradient: "#0077b6",
+                bgGradient: "bg-indigo-50"
               },
               {
                 icon: Settings,
                 title: "Custom Solutions",
                 description: "Tailored development solutions for your specific requirements",
                 features: ["API Development", "Database Design", "Cloud Solutions", "Integration"],
-                gradient: "from-teal-500 to-green-500",
-                bgGradient: "from-teal-50 to-green-50"
+                gradient: "#0077b6",
+                bgGradient: "bg-teal-50"
               }
             ].map((service, index) => (
-              <motion.div 
+              <motion.article 
                 key={index} 
                 className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 relative overflow-hidden backdrop-blur-sm"
                 initial={{ opacity: 0, y: 30, rotateY: -15 }}
                 whileInView={{ opacity: 1, y: 0, rotateY: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
+                role="listitem"
+                aria-labelledby={`service-${index}-title`}
               >
                 <div className="relative z-10">
                   <motion.div 
@@ -570,7 +583,7 @@ export default function Home() {
                     }`} />
                   </motion.div>
                   
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                  <h3 id={`service-${index}-title`} className="text-xl font-semibold text-gray-900 mb-3">
                     {service.title}
                   </h3>
                   
@@ -579,9 +592,9 @@ export default function Home() {
                   </p>
                   
                   {/* Enhanced Features list */}
-                  <div className="space-y-3">
+                  <ul className="space-y-3" aria-label={`${service.title} features`}>
                     {service.features.map((feature, featureIndex) => (
-                      <motion.div 
+                      <motion.li 
                         key={featureIndex} 
                         className="flex items-center text-sm text-gray-500"
                         initial={{ opacity: 0, x: -10 }}
@@ -589,20 +602,21 @@ export default function Home() {
                         transition={{ delay: (index * 0.1) + (featureIndex * 0.05) }}
                       >
                         <motion.div 
-                          className={`w-2 h-2 bg-gradient-to-r ${service.gradient} rounded-full mr-3`}
+                          className="w-2 h-2 bg-[#0077b6] rounded-full mr-3"
                           animate={{ scale: [1, 1.3, 1] }}
                           transition={{
                             duration: 2,
                             repeat: Infinity,
                             delay: featureIndex * 0.2
                           }}
+                          aria-hidden="true"
                         ></motion.div>
                         <span className="font-medium">{feature}</span>
-                      </motion.div>
+                      </motion.li>
                     ))}
-                  </div>
+                  </ul>
                 </div>
-              </motion.div>
+              </motion.article>
             ))}
           </div>
           
@@ -627,7 +641,7 @@ export default function Home() {
       </section>
 
       {/* Stats Section - Enhanced */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white relative overflow-hidden">
+      <section className="py-20 bg-[#0077b6] text-white relative overflow-hidden">
         {/* Animated background elements */}
         <div className="absolute inset-0">
           <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
@@ -657,27 +671,27 @@ export default function Home() {
       </section>
 
       {/* Testimonials - Enhanced Interactive Carousel */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
+      <section className="py-20 bg-gray-50 relative overflow-hidden" aria-labelledby="testimonials-heading">
         {/* Animated Background decoration */}
-        <div className="absolute inset-0">
+        <div className="absolute inset-0" aria-hidden="true">
           <div className="absolute top-20 right-20 w-24 h-24 bg-yellow-100/50 rounded-full blur-2xl"></div>
           <div className="absolute bottom-20 left-20 w-32 h-32 bg-blue-100/50 rounded-full blur-2xl"></div>
         </div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div 
+          <motion.header 
             className="text-center mb-16"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">What Our Clients Say</h2>
+            <h2 id="testimonials-heading" className="text-4xl font-bold text-gray-900 mb-4">What Our Clients Say</h2>
             <p className="text-xl text-gray-600">Don't just take our word for it</p>
-          </motion.div>
+          </motion.header>
           
           {/* Interactive Testimonial Carousel */}
-          <div className="relative max-w-4xl mx-auto">
+          <div className="relative max-w-4xl mx-auto" role="region" aria-labelledby="testimonials-heading" aria-live="polite">
             <div className="overflow-hidden rounded-3xl">
               <AnimatePresence mode="wait">
                 {[
@@ -687,7 +701,7 @@ export default function Home() {
                     content: "DevInquire transformed our outdated website into a modern, high-performing platform that increased our conversions by 300%.",
                     avatar: "SJ",
                     rating: 5,
-                    gradient: "from-blue-500 to-purple-600"
+                    gradient: "#0077b6"
                   },
                   {
                     name: "Shivraj",
@@ -695,7 +709,7 @@ export default function Home() {
                     content: "The team at DevInquire delivered our mobile app on time and exceeded our expectations. Highly recommended!",
                     avatar: "MC",
                     rating: 5,
-                    gradient: "from-green-500 to-teal-600"
+                    gradient: "#0077b6"
                   },
                   {
                     name: "Sunil",
@@ -703,20 +717,21 @@ export default function Home() {
                     content: "Their SEO services helped us climb to the top of search results. Our organic traffic has never been better.",
                     avatar: "ER",
                     rating: 5,
-                    gradient: "from-orange-500 to-red-600"
+                    gradient: "#0077b6"
                   }
                 ].map((testimonial, index) => (
                   currentTestimonial === index && (
-                    <motion.div
+                    <motion.article
                       key={index}
                       initial={{ opacity: 0, x: 100, scale: 0.8 }}
                       animate={{ opacity: 1, x: 0, scale: 1 }}
                       exit={{ opacity: 0, x: -100, scale: 0.8 }}
                       transition={{ duration: 0.5, ease: "easeInOut" }}
                       className="bg-white p-12 rounded-3xl shadow-2xl border border-gray-100 relative overflow-hidden"
+                      aria-label={`Testimonial from ${testimonial.name}, ${testimonial.role}`}
                     >
                       {/* Background gradient */}
-                      <div className={`absolute inset-0 bg-gradient-to-br ${testimonial.gradient} opacity-5`}></div>
+                      <div className="absolute inset-0 bg-[#0077b6] opacity-5" aria-hidden="true"></div>
                       
                       <div className="relative z-10 text-center">
                         {/* Large Quote Icon */}
@@ -725,6 +740,7 @@ export default function Home() {
                           animate={{ scale: 1 }}
                           transition={{ delay: 0.2, duration: 0.5 }}
                           className="text-6xl text-gray-200 mb-6"
+                          aria-hidden="true"
                         >
                           "
                         </motion.div>
@@ -734,7 +750,9 @@ export default function Home() {
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
                           transition={{ delay: 0.3, duration: 0.5 }}
-                          className="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto mb-6"
+                          className="w-20 h-20 bg-[#0077b6] rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto mb-6"
+                          role="img"
+                          aria-label={`Avatar for ${testimonial.name}`}
                         >
                           {testimonial.avatar}
                         </motion.div>
@@ -780,7 +798,7 @@ export default function Home() {
                           ))}
                         </motion.div>
                       </div>
-                    </motion.div>
+                    </motion.article>
                   )
                 ))}
               </AnimatePresence>
@@ -790,39 +808,65 @@ export default function Home() {
             <div className="flex justify-center mt-8 space-x-4">
               <button
                 onClick={() => setCurrentTestimonial(prev => prev === 0 ? 2 : prev - 1)}
-                className="w-12 h-12 bg-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-gray-600 hover:text-blue-600 hover:scale-110"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setCurrentTestimonial(prev => prev === 0 ? 2 : prev - 1);
+                  }
+                }}
+                className="w-12 h-12 bg-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-gray-600 hover:text-blue-600 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                aria-label="Previous testimonial"
+                tabIndex={0}
               >
                 <motion.div
                   whileHover={{ x: -2 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <ChevronLeft className="w-6 h-6" />
+                  <ChevronLeft className="w-6 h-6" aria-hidden="true" />
                 </motion.div>
               </button>
               <button
                 onClick={() => setCurrentTestimonial(prev => prev === 2 ? 0 : prev + 1)}
-                className="w-12 h-12 bg-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-gray-600 hover:text-blue-600 hover:scale-110"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setCurrentTestimonial(prev => prev === 2 ? 0 : prev + 1);
+                  }
+                }}
+                className="w-12 h-12 bg-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-gray-600 hover:text-blue-600 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                aria-label="Next testimonial"
+                tabIndex={0}
               >
                 <motion.div
                   whileHover={{ x: 2 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <ChevronRight className="w-6 h-6" />
+                  <ChevronRight className="w-6 h-6" aria-hidden="true" />
                 </motion.div>
               </button>
             </div>
             
             {/* Dots Indicator */}
-            <div className="flex justify-center mt-6 space-x-2">
+            <div className="flex justify-center mt-6 space-x-2" role="tablist" aria-label="Testimonial navigation">
               {[0, 1, 2].map((index) => (
                 <button
                   key={index}
                   onClick={() => setCurrentTestimonial(index)}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setCurrentTestimonial(index);
+                    }
+                  }}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                     currentTestimonial === index 
                       ? 'bg-blue-600 scale-125' 
                       : 'bg-gray-300 hover:bg-gray-400'
                   }`}
+                  role="tab"
+                  aria-selected={currentTestimonial === index}
+                  aria-label={`Go to testimonial ${index + 1}`}
+                  tabIndex={0}
                 />
               ))}
             </div>
@@ -831,11 +875,11 @@ export default function Home() {
       </section>
 
       {/* CTA Banner Section - Professional Banner Style */}
-      <section className="py-16 bg-gray-50 flex items-center justify-center">
+      <section className="py-16 bg-gray-50 flex items-center justify-center" aria-labelledby="cta-heading">
         <div className="w-full max-w-[1140px] h-[400px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative w-full h-full bg-gradient-to-br from-[#4169e1] via-[#6366f1] to-[#9c27b0] rounded-3xl shadow-2xl overflow-hidden">
+          <div className="relative w-full h-full bg-[#0077b6] rounded-3xl shadow-2xl overflow-hidden" role="banner">
             {/* Decorative Background Elements */}
-            <div className="absolute inset-0">
+            <div className="absolute inset-0" aria-hidden="true">
               {/* Geometric Pattern */}
               <div className="absolute top-0 right-0 w-64 h-64 opacity-10">
                 <svg viewBox="0 0 200 200" className="w-full h-full">
@@ -849,13 +893,13 @@ export default function Home() {
               </div>
               
               {/* Floating Code Icons */}
-              <div className="absolute top-8 left-8 text-white/20">
+              <div className="absolute top-8 left-8 text-white/20" aria-hidden="true">
                 <Code className="w-12 h-12" />
               </div>
-              <div className="absolute bottom-8 right-8 text-white/20">
+              <div className="absolute bottom-8 right-8 text-white/20" aria-hidden="true">
                 <Rocket className="w-10 h-10" />
               </div>
-              <div className="absolute top-1/2 left-12 text-white/15">
+              <div className="absolute top-1/2 left-12 text-white/15" aria-hidden="true">
                 <Zap className="w-8 h-8" />
               </div>
               
@@ -902,6 +946,7 @@ export default function Home() {
               
               {/* Main Heading */}
               <motion.h2 
+                id="cta-heading"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
@@ -929,10 +974,12 @@ export default function Home() {
                 transition={{ duration: 0.6, delay: 0.6 }}
                 viewport={{ once: true }}
                 className="flex flex-col sm:flex-row gap-4 justify-center"
+                role="group"
+                aria-label="Call to action buttons"
               >
                 <Link 
                   to="/services" 
-                  className="group relative bg-white text-[#4169e1] hover:bg-gray-50 px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  className="group relative bg-white text-[var(--primary)] hover:bg-gray-50 px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                 >
                   <span className="relative z-10 flex items-center justify-center gap-2">
                     Get Started Today
@@ -962,7 +1009,7 @@ export default function Home() {
             </div>
             
             {/* Bottom Decorative Line */}
-            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/30"></div>
           </div>
         </div>
       </section>

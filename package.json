@@ -7,7 +7,7 @@
     "@google/generative-ai": "^0.24.1",
     "@tailwindcss/forms": "^0.5.10",
     "axios": "^1.6.0",
-    "firebase": "^11.9.1",
+    "firebase": "^11.10.0",
     "framer-motion": "^12.18.1",
     "grapesjs": "^0.21.5",
     "grapesjs-blocks-basic": "^1.0.2",
@@ -22,6 +22,7 @@
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^18.2.0",
     "react-firebase-hooks": "^5.1.1",
+    "react-helmet-async": "^2.0.5",
     "react-quill": "^2.0.0",
     "react-router-dom": "^6.21.0",
     "react-scripts": "^5.0.1",
@@ -40,7 +41,13 @@
     "build:dashboard": "REACT_APP_BUILD_TYPE=dashboard react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "server": "php -S localhost:8000 -t api"
+    "server": "php -S localhost:8000 -t api",
+    "firebase:init": "node deploy-firebase.js init",
+    "firebase:setup-env": "node deploy-firebase.js setup-env",
+    "firebase:deploy": "node deploy-firebase.js deploy",
+    "firebase:test": "node run-firebase-tests.js",
+    "firebase:emulators": "firebase emulators:start",
+    "firebase:emulators:ui": "firebase emulators:start --import=./firebase-export --export-on-exit"
   },
   "browserslist": {
     "production": [

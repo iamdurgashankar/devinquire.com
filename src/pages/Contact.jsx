@@ -1,41 +1,106 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Mail, Phone, Globe, Monitor } from 'lucide-react';
-import { API_BASE } from '../config';
+import PageLayout from '../components/PageLayout';
+import SEO from '../components/SEO';
+import { responsiveTypography, responsiveSpacing, responsiveContainers } from '../utils/responsive';
+import { submitContactForm } from '../services/emailService';
 
 const Contact = () => {
 
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
+    company: '',
     subject: '',
+    service: '',
+    timeline: '',
     message: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
+  const [validationErrors, setValidationErrors] = useState({});
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    
+    // Clear validation error when user starts typing
+    if (validationErrors[name]) {
+      setValidationErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    
+    // Required field validation
+    if (!formData.name.trim()) {
+      errors.name = 'Full name is required';
+    }
+    
+    if (!formData.email.trim()) {
+      errors.email = 'Email address is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+    
+    if (!formData.service) {
+      errors.service = 'Please select a service';
+    }
+    
+    if (!formData.subject.trim()) {
+      errors.subject = 'Subject is required';
+    }
+    
+    if (!formData.message.trim()) {
+      errors.message = 'Message is required';
+    } else if (formData.message.trim().length < 10) {
+      errors.message = 'Message must be at least 10 characters long';
+    }
+    
+    // Phone validation (if provided)
+    if (formData.phone && !/^[\+]?[1-9][\d]{0,15}$/.test(formData.phone.replace(/[\s\-\(\)]/g, ''))) {
+      errors.phone = 'Please enter a valid phone number';
+    }
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate form before submission
+    if (!validateForm()) {
+      return;
+    }
+    
     setIsSubmitting(true);
     setSubmitStatus(null);
 
     try {
-      const response = await fetch(`${API_BASE}/contact.php`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-      const result = await response.json();
-      if (response.ok && result.success) {
+      const result = await submitContactForm(formData);
+      if (result.success) {
         setSubmitStatus('success');
-        setFormData({ name: '', email: '', subject: '', message: '' });
+        setFormData({ 
+          name: '', 
+          email: '', 
+          phone: '', 
+          company: '', 
+          subject: '', 
+          service: '', 
+          timeline: '', 
+          message: '' 
+        });
+        setValidationErrors({});
       } else {
         setSubmitStatus(result.message || 'error');
       }
@@ -63,8 +128,8 @@ const Contact = () => {
     {
       icon: Phone,
       title: "Phone",
-      details: "+91 8260761291",
-      link: "tel:+918260761291"
+      details: "+91 8763155488",
+      link: "tel:+918763155488"
     },
     {
       icon: Globe,
@@ -100,34 +165,24 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-blue-700 text-white py-20 relative overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-white/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-pulse delay-500"></div>
-        </div>
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <h1 className="text-5xl font-bold mb-6 animate-fade-in-up">Get in Touch</h1>
-            <p className="text-xl text-blue-100 max-w-3xl mx-auto animate-fade-in-up" style={{animationDelay: '0.2s'}}>
-              Ready to start your next project? We'd love to hear from you. 
-              Let's discuss how we can help bring your ideas to life.
-            </p>
-          </motion.div>
-        </div>
-      </section>
+    <>
+      <SEO 
+        title="Contact Us - Get In Touch with DevInquire"
+        description="Ready to transform your digital presence? Contact DevInquire for web development, mobile apps, and digital solutions. Get a free consultation and project quote today."
+        keywords="contact DevInquire, web development consultation, project quote, digital solutions inquiry, get in touch, free consultation"
+        canonical="https://devinquire.com/contact"
+        ogTitle="Contact DevInquire - Free Consultation & Project Quotes"
+        ogDescription="Ready to transform your digital presence? Contact us for web development, mobile apps, and digital solutions. Get your free consultation today."
+        ogUrl="https://devinquire.com/contact"
+      />
+      <PageLayout
+        title="Get in Touch"
+        subtitle="Ready to start your next project? We'd love to hear from you. Let's discuss how we can help bring your ideas to life."
+      >
 
       {/* Contact Form & Info Section */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className={`${responsiveSpacing.sectionPadding}`}>
+        <div className={responsiveContainers.standard}>
           <div className="grid lg:grid-cols-2 gap-16">
             {/* Contact Form */}
             <motion.div
@@ -137,7 +192,7 @@ const Contact = () => {
               transition={{ duration: 0.8 }}
               className="bg-white rounded-2xl shadow-xl p-8"
             >
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">Send us a Message</h2>
+              <h2 className={`${responsiveTypography.sectionTitle} text-gray-900 mb-6`}>Send us a Message</h2>
               
               {submitStatus === 'success' && (
                 <motion.div
@@ -160,6 +215,7 @@ const Contact = () => {
               )}
 
               <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Personal Information */}
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
                     <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
@@ -172,9 +228,14 @@ const Contact = () => {
                       value={formData.name}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300"
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 ${
+                        validationErrors.name ? 'border-red-500' : 'border-gray-300'
+                      }`}
                       placeholder="John Doe"
                     />
+                    {validationErrors.name && (
+                      <p className="text-red-500 text-sm mt-1">{validationErrors.name}</p>
+                    )}
                   </div>
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -187,31 +248,133 @@ const Contact = () => {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300"
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 ${
+                        validationErrors.email ? 'border-red-500' : 'border-gray-300'
+                      }`}
                       placeholder="john@example.com"
+                    />
+                    {validationErrors.email && (
+                      <p className="text-red-500 text-sm mt-1">{validationErrors.email}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      id="phone"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 ${
+                        validationErrors.phone ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                      placeholder="+1 (555) 123-4567"
+                    />
+                    {validationErrors.phone && (
+                      <p className="text-red-500 text-sm mt-1">{validationErrors.phone}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-2">
+                      Company/Organization
+                    </label>
+                    <input
+                      type="text"
+                      id="company"
+                      name="company"
+                      value={formData.company}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300"
+                      placeholder="Your Company Name"
                     />
                   </div>
                 </div>
                 
-                <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-                    Subject *
-                  </label>
-                  <input
-                    type="text"
-                    id="subject"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300"
-                    placeholder="Project Inquiry"
-                  />
+                {/* Project Details */}
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="service" className="block text-sm font-medium text-gray-700 mb-2">
+                      Service Interest *
+                    </label>
+                    <select
+                      id="service"
+                      name="service"
+                      value={formData.service}
+                      onChange={handleChange}
+                      required
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 ${
+                        validationErrors.service ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                    >
+                      <option value="">Select a service...</option>
+                      <option value="web-development">Web Development</option>
+                      <option value="mobile-app">Mobile App Development</option>
+                      <option value="ui-ux-design">UI/UX Design</option>
+                      <option value="ecommerce">E-commerce Solutions</option>
+                      <option value="digital-marketing">Digital Marketing</option>
+                      <option value="consulting">Technology Consulting</option>
+                      <option value="maintenance">Website Maintenance</option>
+                      <option value="other">Other</option>
+                    </select>
+                    {validationErrors.service && (
+                      <p className="text-red-500 text-sm mt-1">{validationErrors.service}</p>
+                    )}
+                  </div>
+
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="timeline" className="block text-sm font-medium text-gray-700 mb-2">
+                      Project Timeline
+                    </label>
+                    <select
+                      id="timeline"
+                      name="timeline"
+                      value={formData.timeline}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300"
+                    >
+                      <option value="">Select timeline...</option>
+                      <option value="asap">ASAP</option>
+                      <option value="1-month">Within 1 Month</option>
+                      <option value="2-3-months">2-3 Months</option>
+                      <option value="3-6-months">3-6 Months</option>
+                      <option value="6-months-plus">6+ Months</option>
+                      <option value="flexible">Flexible</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
+                      Subject *
+                    </label>
+                    <input
+                      type="text"
+                      id="subject"
+                      name="subject"
+                      value={formData.subject}
+                      onChange={handleChange}
+                      required
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 ${
+                        validationErrors.subject ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                      placeholder="Project Inquiry"
+                    />
+                    {validationErrors.subject && (
+                      <p className="text-red-500 text-sm mt-1">{validationErrors.subject}</p>
+                    )}
+                  </div>
                 </div>
                 
+                {/* Message Section */}
                 <div>
                   <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                    Message *
+                    Project Details & Message *
                   </label>
                   <textarea
                     id="message"
@@ -220,15 +383,23 @@ const Contact = () => {
                     onChange={handleChange}
                     required
                     rows={6}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 resize-none"
-                    placeholder="Tell us about your project..."
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 resize-none ${
+                      validationErrors.message ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Please describe your project in detail. Include any specific requirements, features you need, design preferences, or questions you have. The more information you provide, the better we can assist you."
                   ></textarea>
+                  {validationErrors.message && (
+                    <p className="text-red-500 text-sm mt-1">{validationErrors.message}</p>
+                  )}
+                  <p className="text-sm text-gray-500 mt-2">
+                    💡 Tip: Include details about your target audience, preferred technologies, existing systems to integrate with, or any specific challenges you're facing.
+                  </p>
                 </div>
                 
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-6 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-[#0077b6] text-white py-3 px-6 rounded-lg font-semibold hover:bg-[#005a8a] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? (
                     <span className="flex items-center justify-center">
@@ -254,7 +425,7 @@ const Contact = () => {
               className="space-y-8"
             >
               <div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-6">Contact Information</h2>
+                <h2 className={`${responsiveTypography.sectionTitle} text-gray-900 mb-6`}>Contact Information</h2>
                 <motion.div 
                   className="space-y-6"
                   variants={containerVariants}
@@ -285,8 +456,8 @@ const Contact = () => {
                     <info.icon className="w-6 h-6" />
                   </motion.div>
                       <div>
-                        <h3 className="font-semibold text-gray-900">{info.title}</h3>
-                        <p className="text-gray-600">{info.details}</p>
+                        <h3 className={`${responsiveTypography.cardTitle} text-gray-900`}>{info.title}</h3>
+                        <p className={`${responsiveTypography.bodyBase} text-gray-600`}>{info.details}</p>
                       </div>
                     </motion.a>
                   ))}
@@ -294,13 +465,13 @@ const Contact = () => {
               </div>
 
               <motion.div 
-                className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-8 text-white"
+                className="bg-[#0077b6] rounded-2xl p-8 text-white"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.8, delay: 0.2 }}
               >
-                <h3 className="text-2xl font-bold mb-4">Business Hours</h3>
+                <h3 className={`${responsiveTypography.cardTitle} mb-4`}>Business Hours</h3>
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span>Monday - Friday</span>
@@ -325,8 +496,8 @@ const Contact = () => {
       </section>
 
       {/* Services Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className={`${responsiveSpacing.sectionPadding} bg-white`}>
+        <div className={responsiveContainers.standard}>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -334,8 +505,8 @@ const Contact = () => {
             transition={{ duration: 0.8 }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Services</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <h2 className={`${responsiveTypography.pageTitle} text-gray-900 mb-4`}>Our Services</h2>
+            <p className={`${responsiveTypography.bodyLarge} text-gray-600 max-w-2xl mx-auto`}>
               We offer a comprehensive range of development and design services to meet your needs.
             </p>
           </motion.div>
@@ -366,8 +537,8 @@ const Contact = () => {
                 >
                   <Monitor className="w-8 h-8" />
                 </motion.div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{service}</h3>
-                <p className="text-gray-600">
+                <h3 className={`${responsiveTypography.cardTitle} text-gray-900 mb-2`}>{service}</h3>
+                <p className={`${responsiveTypography.bodyBase} text-gray-600`}>
                   Professional {service.toLowerCase()} services tailored to your specific requirements.
                 </p>
               </motion.div>
@@ -377,8 +548,8 @@ const Contact = () => {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className={`${responsiveSpacing.sectionPadding} bg-gray-50`}>
+        <div className={responsiveContainers.narrow}>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -386,8 +557,8 @@ const Contact = () => {
             transition={{ duration: 0.8 }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
-            <p className="text-xl text-gray-600">
+            <h2 className={`${responsiveTypography.pageTitle} text-gray-900 mb-4`}>Frequently Asked Questions</h2>
+            <p className={`${responsiveTypography.bodyLarge} text-gray-600`}>
               Get answers to common questions about our services and process.
             </p>
           </motion.div>
@@ -422,8 +593,8 @@ const Contact = () => {
                 variants={itemVariants}
                 className="bg-white rounded-xl p-6 shadow-sm"
               >
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">{faq.question}</h3>
-                <p className="text-gray-600">{faq.answer}</p>
+                <h3 className={`${responsiveTypography.bodyLarge} font-semibold text-gray-900 mb-3`}>{faq.question}</h3>
+                <p className={`${responsiveTypography.bodyBase} text-gray-600`}>{faq.answer}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -431,18 +602,18 @@ const Contact = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-blue-700">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <section className={`${responsiveSpacing.sectionPadding} bg-[#0077b6]`}>
+        <div className={`${responsiveContainers.narrow} text-center`}>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="text-4xl font-bold text-white mb-6">
+            <h2 className={`${responsiveTypography.pageTitle} text-white mb-6`}>
               Ready to Start Your Project?
             </h2>
-            <p className="text-xl text-blue-100 mb-8">
+            <p className={`${responsiveTypography.bodyLarge} text-blue-100 mb-8`}>
               Let's discuss your ideas and create something amazing together.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -462,7 +633,8 @@ const Contact = () => {
           </motion.div>
         </div>
       </section>
-    </div>
+      </PageLayout>
+    </>
   );
 };
 

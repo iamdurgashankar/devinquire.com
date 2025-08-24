@@ -5,21 +5,21 @@ export default function Footer() {
   const { displayText, showCursor } = useTypingEffect("DevInquire", 150, 2000);
   
   return (
-    <footer className="bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 text-white">
+    <footer className="bg-[#0077b6] text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-8">
           {/* Company Info */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform duration-200 bg-gradient-to-br from-[#4169e1] via-[#6366f1] to-[#9c27b0] shadow-lg relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-50"></div>
+                             <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform duration-200 bg-[#0077b6] shadow-lg relative overflow-hidden">
+                <div className="absolute inset-0 bg-white/20 opacity-50"></div>
                 <div className="relative z-10 flex items-center justify-center text-white font-bold text-sm">
                   <span className="text-white/80 mr-0.5 text-xs">&#123;</span>
                   <span className="text-white font-bold">DI</span>
                   <span className="text-white/80 ml-0.5 text-xs">&#125;</span>
                 </div>
               </div>
-              <span className="font-bold text-2xl bg-gradient-to-r from-[#4169e1] via-[#6366f1] to-[#9c27b0] bg-clip-text text-transparent drop-shadow-lg flex items-center">
+                             <span className="font-bold text-2xl text-white drop-shadow-lg flex items-center">
                 {displayText}
                 <span className={`ml-0.5 ${showCursor ? 'opacity-100' : 'opacity-0'} transition-opacity duration-100`}>|</span>
               </span>
@@ -114,7 +114,7 @@ export default function Footer() {
                   </div>
                   <div>
                     <p className="text-sm font-medium">Phone</p>
-                    <p className="text-sm">+91 8260761291</p>
+                    <p className="text-sm">+91 8763155488</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-3 text-gray-300 hover:text-white transition-colors duration-200">

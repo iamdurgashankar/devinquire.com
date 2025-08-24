@@ -1,0 +1,376 @@
+{
+  "timestamp": "2025-08-24T11:48:14.909Z",
+  "environment": "development",
+  "tests": [
+    {
+      "name": "Emulator Check",
+      "status": "PASSED",
+      "message": "Firebase emulators are running",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:19.984Z"
+    },
+    {
+      "name": "Auth: Email/Password Registration",
+      "status": "FAILED",
+      "message": "Email/Password Registration failed - simulated error for testing",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:20.491Z"
+    },
+    {
+      "name": "Auth: Email/Password Login",
+      "status": "PASSED",
+      "message": "Email/Password Login completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:21.172Z"
+    },
+    {
+      "name": "Auth: Google OAuth",
+      "status": "PASSED",
+      "message": "Google OAuth completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:22.274Z"
+    },
+    {
+      "name": "Auth: GitHub OAuth",
+      "status": "PASSED",
+      "message": "GitHub OAuth completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:22.972Z"
+    },
+    {
+      "name": "Auth: Anonymous Authentication",
+      "status": "PASSED",
+      "message": "Anonymous Authentication completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:23.960Z"
+    },
+    {
+      "name": "Auth: Password Reset",
+      "status": "PASSED",
+      "message": "Password Reset completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:25.088Z"
+    },
+    {
+      "name": "Auth: Profile Update",
+      "status": "PASSED",
+      "message": "Profile Update completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:26.129Z"
+    },
+    {
+      "name": "Auth: User Presence",
+      "status": "PASSED",
+      "message": "User Presence completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:27.169Z"
+    },
+    {
+      "name": "Firestore: User Document Creation",
+      "status": "PASSED",
+      "message": "User Document Creation completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:28.244Z"
+    },
+    {
+      "name": "Firestore: Post CRUD Operations",
+      "status": "PASSED",
+      "message": "Post CRUD Operations completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:28.945Z"
+    },
+    {
+      "name": "Firestore: Subscription Management",
+      "status": "PASSED",
+      "message": "Subscription Management completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:29.895Z"
+    },
+    {
+      "name": "Firestore: Contact Form Submissions",
+      "status": "PASSED",
+      "message": "Contact Form Submissions completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:31.031Z"
+    },
+    {
+      "name": "Firestore: Security Rules Validation",
+      "status": "PASSED",
+      "message": "Security Rules Validation completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:31.944Z"
+    },
+    {
+      "name": "Firestore: Data Validation",
+      "status": "FAILED",
+      "message": "Data Validation failed - simulated error for testing",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:33.352Z"
+    },
+    {
+      "name": "Firestore: Query Performance",
+      "status": "PASSED",
+      "message": "Query Performance completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:34.690Z"
+    },
+    {
+      "name": "Realtime: Comments System",
+      "status": "FAILED",
+      "message": "Comments System failed - simulated error for testing",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:36.074Z"
+    },
+    {
+      "name": "Realtime: Real-time Presence",
+      "status": "PASSED",
+      "message": "Real-time Presence completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:36.981Z"
+    },
+    {
+      "name": "Realtime: Notifications",
+      "status": "PASSED",
+      "message": "Notifications completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:37.731Z"
+    },
+    {
+      "name": "Realtime: Activity Logging",
+      "status": "PASSED",
+      "message": "Activity Logging completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:38.930Z"
+    },
+    {
+      "name": "Realtime: Search Functionality",
+      "status": "PASSED",
+      "message": "Search Functionality completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:40.346Z"
+    },
+    {
+      "name": "Realtime: Connection Monitoring",
+      "status": "PASSED",
+      "message": "Connection Monitoring completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:41.487Z"
+    },
+    {
+      "name": "Email: Contact Form Email",
+      "status": "PASSED",
+      "message": "Contact Form Email completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:42.238Z"
+    },
+    {
+      "name": "Email: Newsletter Subscription",
+      "status": "PASSED",
+      "message": "Newsletter Subscription completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:43.047Z"
+    },
+    {
+      "name": "Email: Email Validation",
+      "status": "PASSED",
+      "message": "Email Validation completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:43.796Z"
+    },
+    {
+      "name": "Email: Spam Detection",
+      "status": "PASSED",
+      "message": "Spam Detection completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:45.062Z"
+    },
+    {
+      "name": "Email: Rate Limiting",
+      "status": "PASSED",
+      "message": "Rate Limiting completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:46.124Z"
+    },
+    {
+      "name": "Email: Template Rendering",
+      "status": "FAILED",
+      "message": "Template Rendering failed - simulated error for testing",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:46.632Z"
+    },
+    {
+      "name": "Newsletter: Subscription Management",
+      "status": "FAILED",
+      "message": "Subscription Management failed - simulated error for testing",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:47.902Z"
+    },
+    {
+      "name": "Newsletter: Campaign Creation",
+      "status": "PASSED",
+      "message": "Campaign Creation completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:49.060Z"
+    },
+    {
+      "name": "Newsletter: Email Sending",
+      "status": "PASSED",
+      "message": "Email Sending completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:50.225Z"
+    },
+    {
+      "name": "Newsletter: Unsubscribe Flow",
+      "status": "FAILED",
+      "message": "Unsubscribe Flow failed - simulated error for testing",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:51.463Z"
+    },
+    {
+      "name": "Newsletter: Analytics Tracking",
+      "status": "PASSED",
+      "message": "Analytics Tracking completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:52.111Z"
+    },
+    {
+      "name": "Newsletter: A/B Testing",
+      "status": "PASSED",
+      "message": "A/B Testing completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:52.631Z"
+    },
+    {
+      "name": "Integration: Auth + Firestore Integration",
+      "status": "PASSED",
+      "message": "Auth + Firestore Integration completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:53.165Z"
+    },
+    {
+      "name": "Integration: Email + Newsletter Integration",
+      "status": "FAILED",
+      "message": "Email + Newsletter Integration failed - simulated error for testing",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:54.285Z"
+    },
+    {
+      "name": "Integration: Realtime + Auth Integration",
+      "status": "PASSED",
+      "message": "Realtime + Auth Integration completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:55.378Z"
+    },
+    {
+      "name": "Integration: End-to-End User Flow",
+      "status": "PASSED",
+      "message": "End-to-End User Flow completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:56.735Z"
+    },
+    {
+      "name": "Integration: Cross-Service Communication",
+      "status": "PASSED",
+      "message": "Cross-Service Communication completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:57.440Z"
+    },
+    {
+      "name": "Security: Firestore Security Rules",
+      "status": "PASSED",
+      "message": "Firestore Security Rules completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:58.255Z"
+    },
+    {
+      "name": "Security: Realtime Database Rules",
+      "status": "PASSED",
+      "message": "Realtime Database Rules completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:48:58.936Z"
+    },
+    {
+      "name": "Security: Authentication Security",
+      "status": "PASSED",
+      "message": "Authentication Security completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:49:00.301Z"
+    },
+    {
+      "name": "Security: Input Validation",
+      "status": "PASSED",
+      "message": "Input Validation completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:49:01.467Z"
+    },
+    {
+      "name": "Security: Rate Limiting",
+      "status": "PASSED",
+      "message": "Rate Limiting completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:49:02.106Z"
+    },
+    {
+      "name": "Security: Data Sanitization",
+      "status": "PASSED",
+      "message": "Data Sanitization completed successfully",
+      "duration": 0,
+      "timestamp": "2025-08-24T11:49:02.793Z"
+    }
+  ],
+  "summary": {
+    "total": 45,
+    "passed": 38,
+    "failed": 7,
+    "skipped": 0
+  },
+  "coverage": {},
+  "performance": {
+    "averageTestDuration": 0,
+    "slowestTests": [],
+    "fastestTests": [],
+    "categoryPerformance": {
+      "Emulator Check": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0
+      },
+      "Auth": {
+        "total": 8,
+        "passed": 7,
+        "failed": 1
+      },
+      "Firestore": {
+        "total": 7,
+        "passed": 6,
+        "failed": 1
+      },
+      "Realtime": {
+        "total": 6,
+        "passed": 5,
+        "failed": 1
+      },
+      "Email": {
+        "total": 6,
+        "passed": 5,
+        "failed": 1
+      },
+      "Newsletter": {
+        "total": 6,
+        "passed": 4,
+        "failed": 2
+      },
+      "Integration": {
+        "total": 5,
+        "passed": 4,
+        "failed": 1
+      },
+      "Security": {
+        "total": 6,
+        "passed": 6,
+        "failed": 0
+      }
+    }
+  },
+  "errors": []
+}

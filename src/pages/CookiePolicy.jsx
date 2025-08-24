@@ -3,7 +3,7 @@ import React from 'react';
 const CookiePolicy = () => (
   <div className="min-h-screen bg-gray-50 pt-20">
     {/* Hero Section */}
-    <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20 relative overflow-hidden">
+    <section className="bg-[#0077b6] text-white py-20 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl animate-pulse"></div>

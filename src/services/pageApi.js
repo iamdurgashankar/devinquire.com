@@ -1,30 +1,9 @@
-// Page management API functions
-const API_BASE_URL =
-  process.env.NODE_ENV === "development" ? "http://localhost:8000" : "";
+// Page management API functions - Firebase only
+import firebaseService from './firebaseService';
 
 export async function createPage(pageData) {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/create_page.php`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(pageData),
-      credentials: "include",
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.message || "Failed to create page");
-    }
-
-    if (!data.success) {
-      throw new Error(data.message || "Failed to create page");
-    }
-
-    return data;
+    return await firebaseService.createPage(pageData);
   } catch (err) {
     console.error("Create page error:", err);
     throw new Error(err.message || "Failed to create page. Please try again.");
@@ -32,78 +11,58 @@ export async function createPage(pageData) {
 }
 
 export async function getPage(id = null, includeDeleted = false) {
-  const url = new URL(`${API_BASE_URL}/api/get_page.php`);
-  if (id) url.searchParams.append("id", id);
-  if (includeDeleted) url.searchParams.append("deleted", "1");
-
-  const res = await fetch(url, {
-    credentials: "include",
-  });
-  if (!res.ok) throw new Error("Failed to get page");
-  return res.json();
+  try {
+    if (includeDeleted) {
+      return await firebaseService.getDeletedPages();
+    }
+    return id ? await firebaseService.getPage(id) : await firebaseService.getPages();
+  } catch (err) {
+    console.error("Get page error:", err);
+    throw new Error(err.message || "Failed to get page");
+  }
 }
 
 export async function savePage(id, content) {
-  const res = await fetch(`${API_BASE_URL}/api/save_page.php`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ id, content }),
-    credentials: "include",
-  });
-  if (!res.ok) throw new Error("Failed to save page");
-  return res.json();
+  try {
+    return await firebaseService.savePage(id, content);
+  } catch (err) {
+    console.error("Save page error:", err);
+    throw new Error(err.message || "Failed to save page");
+  }
 }
 
 export async function deletePage(id) {
-  const res = await fetch(`${API_BASE_URL}/api/delete_page.php`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ id }),
-    credentials: "include",
-  });
-  if (!res.ok) throw new Error("Failed to delete page");
-  return res.json();
+  try {
+    return await firebaseService.deletePage(id);
+  } catch (err) {
+    console.error("Delete page error:", err);
+    throw new Error(err.message || "Failed to delete page");
+  }
 }
 
 export async function renamePage(id, newId, title) {
-  const res = await fetch("/api/rename_page.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ id, newId, title }),
-    credentials: "include",
-  });
-  if (!res.ok) throw new Error("Failed to rename page");
-  return res.json();
+  try {
+    return await firebaseService.renamePage(id, title);
+  } catch (err) {
+    console.error("Rename page error:", err);
+    throw new Error(err.message || "Failed to rename page");
+  }
 }
 
 export async function duplicatePage(id, newId) {
-  const res = await fetch("/api/duplicate_page.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ id, newId }),
-    credentials: "include",
-  });
-  if (!res.ok) throw new Error("Failed to duplicate page");
-  return res.json();
+  try {
+    return await firebaseService.duplicatePage(id);
+  } catch (err) {
+    console.error("Duplicate page error:", err);
+    throw new Error(err.message || "Failed to duplicate page");
+  }
 }
 
 export async function restorePage(id) {
-  const res = await fetch("/api/restore_page.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ id }),
-    credentials: "include",
-  });
-  if (!res.ok) throw new Error("Failed to restore page");
-  return res.json();
+  try {
+    return await firebaseService.restorePage(id);
+  } catch (err) {
+    console.error("Restore page error:", err);
+    throw new Error(err.message || "Failed to restore page");
+  }
 }

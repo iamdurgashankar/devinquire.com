@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import apiService from "../services/api";
+import SEO from '../components/SEO';
 
 export default function BlogPost() {
   const { id } = useParams();
@@ -62,9 +63,25 @@ export default function BlogPost() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20">
+    <>
+      <SEO 
+        title={`${post.title} - DevInquire Blog`}
+        description={post.excerpt || `Read ${post.title} on DevInquire blog. Expert insights on web development, mobile apps, and digital innovation.`}
+        keywords={`${post.category}, ${post.title}, web development, programming, tech blog, ${Array.isArray(post.tags) ? post.tags.join(', ') : ''}`}
+        canonical={`https://devinquire.com/blog/${post.id}`}
+        ogTitle={post.title}
+        ogDescription={post.excerpt || `Read ${post.title} on DevInquire blog.`}
+        ogUrl={`https://devinquire.com/blog/${post.id}`}
+        ogImage={post.featured_image}
+        schemaType="BlogPosting"
+        author={post.author_name || 'DevInquire Team'}
+        datePublished={post.created_at}
+        dateModified={post.updated_at || post.created_at}
+        articleSection={post.category}
+      />
+      <div className="min-h-screen bg-gray-50 pt-20">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20 relative overflow-hidden">
+      <section className="bg-[#0077b6] text-white py-20 relative overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-white/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -123,7 +140,7 @@ export default function BlogPost() {
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <img
               src={post.featured_image}
-              alt={post.title}
+              alt={`Featured image for article: ${post.title}`}
               className="w-full h-64 md:h-96 object-cover rounded-2xl shadow-lg"
             />
           </div>
@@ -159,7 +176,7 @@ export default function BlogPost() {
           {/* Author Info */}
           <div className="mt-12 pt-8 border-t border-gray-200">
             <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
+              <div className="w-16 h-16 bg-[#0077b6] rounded-full flex items-center justify-center text-white font-bold text-xl">
                 {(post.author_name || 'Admin User').split(' ').map(n => n[0]).join('')}
               </div>
               <div>
@@ -188,6 +205,7 @@ export default function BlogPost() {
           </div>
         </div>
       </section>
-    </div>
+      </div>
+    </>
   );
 }

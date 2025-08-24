@@ -1,6 +1,10 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import apiService from "../services/api";
+import PageLayout from '../components/PageLayout';
+import SEO from '../components/SEO';
+import { responsiveTypography, responsiveSpacing, responsiveContainers } from '../utils/responsive';
+import '../components/NewsletterShadowComponent';
 
 const categories = [
   "All",
@@ -17,10 +21,6 @@ export default function Blog() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [blogPosts, setBlogPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [subscriberEmail, setSubscriberEmail] = useState("");
-  const [subStatus, setSubStatus] = useState(null);
-  const [subLoading, setSubLoading] = useState(false);
-
   const [error, setError] = useState(null);
 
   // Load published posts from API
@@ -77,60 +77,33 @@ export default function Blog() {
     ? filteredPosts.slice(1) 
     : [];
 
-  const handleSubscribe = async (e) => {
-    e.preventDefault();
-    setSubStatus(null);
-    setSubLoading(true);
-    try {
-      const response = await fetch("/api/subscribe.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: subscriberEmail }),
-      });
-      const result = await response.json();
-      if (response.ok && result.success) {
-        setSubStatus("success");
-        setSubscriberEmail("");
-      } else {
-        setSubStatus(result.message || "error");
-      }
-    } catch (error) {
-      setSubStatus("Failed to subscribe. Please try again later.");
-    } finally {
-      setSubLoading(false);
-      setTimeout(() => setSubStatus(null), 4000);
-    }
-  };
+
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-[#4169e1] via-[#6366f1] to-[#9c27b0] text-white py-20 relative overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-white/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-pulse delay-500"></div>
-        </div>
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl font-bold mb-6 animate-fade-in-up">Our Blog</h1>
-          <p className="text-xl text-blue-100 max-w-3xl mx-auto animate-fade-in-up" style={{animationDelay: '0.2s'}}>
-            Insights, tutorials, and industry updates from our team of experts. 
-            Stay ahead of the curve with the latest in web development and digital innovation.
-          </p>
-        </div>
-      </section>
+    <>
+      <SEO 
+        title="Blog - Latest Web Development & Tech Insights"
+        description="Stay updated with DevInquire's blog featuring the latest trends, insights, and best practices in web development, mobile apps, and digital innovation. Expert articles and tutorials."
+        keywords="web development blog, tech insights, programming tutorials, mobile app development, digital innovation, coding best practices, technology trends"
+        canonical="https://devinquire.com/blog"
+        ogTitle="DevInquire Blog - Web Development Insights & Tech Trends"
+        ogDescription="Expert insights on web development, mobile apps, and digital innovation. Stay updated with the latest trends and best practices."
+        ogUrl="https://devinquire.com/blog"
+      />
+      <PageLayout
+        title="Our Blog"
+        subtitle="Insights, tutorials, and industry updates from our team of experts. Stay ahead of the curve with the latest in web development and digital innovation."
+      >
 
       {/* Categories */}
-      <section className="py-8 bg-white border-b border-gray-200 relative overflow-hidden">
+      <section className={`${responsiveSpacing.sectionPaddingSmall} bg-white border-b border-gray-200 relative overflow-hidden`}>
         {/* Background decoration */}
         <div className="absolute inset-0">
           <div className="absolute top-1/2 left-10 w-16 h-16 bg-blue-100/50 rounded-full blur-2xl"></div>
           <div className="absolute top-1/2 right-10 w-20 h-20 bg-purple-100/50 rounded-full blur-2xl"></div>
         </div>
         
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className={`relative ${responsiveContainers.standard}`}>
           <div className="flex flex-wrap gap-4 justify-center">
             {categories.map((category, index) => (
               <button
@@ -144,7 +117,7 @@ export default function Blog() {
               >
                 {category}
                 {selectedCategory === category && (
-                  <div className="absolute -inset-1 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+                  <div className="absolute -inset-1 bg-[#0077b6] rounded-full blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
                 )}
               </button>
             ))}
@@ -180,7 +153,7 @@ export default function Blog() {
                 <div className="md:w-1/2 relative overflow-hidden">
                   <img
                     src={featuredPost.image}
-                    alt={featuredPost.title}
+                    alt={`Featured image for blog post: ${featuredPost.title}`}
                     className="w-full h-64 md:h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -208,7 +181,7 @@ export default function Blog() {
                   
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                      <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold group-hover:scale-110 transition-transform duration-300">
+                      <div className="w-10 h-10 bg-[#0077b6] rounded-full flex items-center justify-center text-white text-sm font-bold group-hover:scale-110 transition-transform duration-300">
                         {featuredPost.author.split(' ').map(n => n[0]).join('')}
                       </div>
                       <div>
@@ -218,7 +191,7 @@ export default function Blog() {
                     </div>
                     <Link
                       to={`/blog/${featuredPost.id}`}
-                      className="group/link bg-gradient-to-r from-[#4169e1] via-[#6366f1] to-[#9c27b0] hover:from-[#6366f1] hover:to-[#8b5cf6] text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105"
+                      className="group/link bg-[#0077b6] hover:bg-[#005a8a] text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105"
                     >
                       Read More
                     </Link>
@@ -231,14 +204,14 @@ export default function Blog() {
       )}
 
       {/* Blog Posts Grid */}
-      <section className="py-16 relative">
+      <section className={`${responsiveSpacing.sectionPadding} relative`}>
         {/* Background decoration */}
         <div className="absolute inset-0">
           <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-yellow-100/30 rounded-full blur-3xl"></div>
           <div className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-blue-100/30 rounded-full blur-3xl"></div>
         </div>
         
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className={`relative ${responsiveContainers.standard}`}>
           <h2 className="text-3xl font-bold text-gray-900 mb-8 animate-fade-in-up">
             {selectedCategory === "All" ? "Latest Posts" : `More ${selectedCategory} Posts`}
           </h2>
@@ -249,7 +222,7 @@ export default function Blog() {
                   <div className="relative overflow-hidden">
                     <img
                       src={post.image}
-                      alt={post.title}
+                      alt={`Blog post thumbnail for: ${post.title}`}
                       className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -261,10 +234,10 @@ export default function Blog() {
                       </span>
                       <span className="text-gray-500 text-sm group-hover:text-gray-700 transition-colors duration-300">{post.readTime}</span>
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors duration-300">
+                    <h3 className={`${responsiveTypography.cardTitle} text-gray-900 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors duration-300`}>
                       {post.title}
                     </h3>
-                    <p className="text-gray-600 mb-4 line-clamp-3 group-hover:text-gray-700 transition-colors duration-300">{post.excerpt}</p>
+                    <p className={`${responsiveTypography.bodyBase} text-gray-600 mb-4 line-clamp-3 group-hover:text-gray-700 transition-colors duration-300`}>{post.excerpt}</p>
                     
                     {/* Tags */}
                     <div className="flex flex-wrap gap-1 mb-4">
@@ -277,7 +250,7 @@ export default function Blog() {
                     
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold group-hover:scale-110 transition-transform duration-300">
+                        <div className="w-8 h-8 bg-[#0077b6] rounded-full flex items-center justify-center text-white text-sm font-bold group-hover:scale-110 transition-transform duration-300">
                           {post.author.split(' ').map(n => n[0]).join('')}
                         </div>
                         <div>
@@ -287,7 +260,7 @@ export default function Blog() {
                       </div>
                       <Link
                         to={`/blog/${post.id}`}
-                        className="text-[#4169e1] hover:text-[#6366f1] font-medium text-sm group-hover:translate-x-1 transition-transform duration-300"
+                        className="text-[var(--primary)] hover:text-[var(--secondary)] font-medium text-sm group-hover:translate-x-1 transition-transform duration-300"
                       >
                         Read More →
                       </Link>
@@ -311,51 +284,11 @@ export default function Blog() {
         </div>
       </section>
 
-      {/* Newsletter Signup */}
-      <section className="py-16 bg-gradient-to-r from-gray-900 to-blue-900 text-white relative overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0">
-          <div className="absolute top-1/3 left-1/3 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-1/3 right-1/3 w-80 h-80 bg-blue-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        </div>
-        
-        <div className="relative max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold mb-4 animate-fade-in-up">Stay Updated</h2>
-          <p className="text-xl text-gray-300 mb-8 animate-fade-in-up" style={{animationDelay: '0.2s'}}>
-            Get the latest insights and tutorials delivered to your inbox.
-          </p>
-          {subStatus === 'success' && (
-            <div className="mb-4 p-4 bg-green-100 text-green-700 rounded-lg border border-green-200 text-center">
-              ✅ Thank you for subscribing!
-            </div>
-          )}
-          {subStatus && subStatus !== 'success' && (
-            <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-lg border border-red-200 text-center">
-              ❌ {subStatus}
-            </div>
-          )}
-          <form className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto" onSubmit={handleSubscribe}>
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transform hover:scale-105 transition-transform duration-300"
-              value={subscriberEmail}
-              onChange={e => setSubscriberEmail(e.target.value)}
-              required
-              disabled={subLoading}
-            />
-            <button
-              type="submit"
-              className="group relative bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={subLoading}
-            >
-              <span className="relative z-10">{subLoading ? 'Subscribing...' : 'Subscribe'}</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="absolute -inset-1 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
-            </button>
-          </form>
-        </div>
-      </section>
-    </div>
+        {/* Newsletter Signup - Shadow DOM Component */}
+        <section className={`${responsiveSpacing.sectionPadding}`}>
+          <newsletter-shadow></newsletter-shadow>
+        </section>
+      </PageLayout>
+    </>
   );
 }

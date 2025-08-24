@@ -1,18 +1,4 @@
-:root {
-  --primary-rgb: 65, 105, 225; /* Blue-violet primary RGB values */
-  --secondary-rgb: 99, 102, 241; /* Blue-violet secondary RGB values */
-  --accent-rgb: 156, 39, 176; /* Violet accent RGB values */
-  --primary: rgb(var(--primary-rgb));
+/* Theme structure - Colors are now defined in base-theme.css */
+/* This file can be used for additional theme-specific overrides if needed */
 
-  /* Background gradients for the glass effect */
-  --glass-gradient-from: rgba(var(--primary-rgb), 0.05);
-  --glass-gradient-to: rgba(var(--accent-rgb), 0.1);
-  --glass-gradient-scrolled-from: rgba(var(--primary-rgb), 0.15);
-  --glass-gradient-scrolled-to: rgba(var(--accent-rgb), 0.2);
-}
-
-/* Dark theme colors */
-[data-theme="dark"] {
-  --primary-rgb: 99, 102, 241; /* Blue-violet secondary RGB values for dark mode */
-  --accent-rgb: 139, 92, 246; /* Lighter violet for dark mode */
-}
+/* Additional theme customizations can go here */

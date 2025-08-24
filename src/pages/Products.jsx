@@ -2,6 +2,10 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Globe, BarChart3, ShoppingCart, Bot, Smartphone, Shield } from "lucide-react";
+import PageLayout from '../components/PageLayout';
+import Banner728x98 from '../components/Banner728x98';
+import SEO from '../components/SEO';
+import { responsiveTypography, responsiveSpacing, responsiveContainers } from '../utils/responsive';
 
 const products = [
   {
@@ -71,24 +75,20 @@ export default function Products() {
     : products.filter(product => product.category === selectedCategory);
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20 relative overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-white/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-pulse delay-500"></div>
-        </div>
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl font-bold mb-6 animate-fade-in-up">Our Products</h1>
-          <p className="text-xl text-blue-100 max-w-3xl mx-auto animate-fade-in-up" style={{animationDelay: '0.2s'}}>
-            Innovative software solutions designed to accelerate your business growth. 
-            From content management to AI-powered tools, we've got you covered.
-          </p>
-        </div>
-      </section>
+    <>
+      <SEO 
+        title="Our Products - Innovative Software Solutions"
+        description="Discover DevInquire's innovative software products including CMS, analytics platforms, e-commerce suites, AI chatbots, and mobile frameworks. Accelerate your business growth with our tools."
+        keywords="DevInquire CMS, analytics platform, e-commerce suite, AI chatbot, mobile app framework, security solutions, software products, business tools"
+        canonical="https://devinquire.com/products"
+        ogTitle="DevInquire Products - Innovative Software Solutions for Business Growth"
+        ogDescription="Innovative software solutions from CMS to AI-powered tools. Accelerate your business growth with our comprehensive product suite."
+        ogUrl="https://devinquire.com/products"
+      />
+      <PageLayout
+        title="Our Products"
+        subtitle="Innovative software solutions designed to accelerate your business growth. From content management to AI-powered tools, we've got you covered."
+      >
 
       {/* Categories */}
       <section className="py-8 bg-white border-b border-gray-200 relative overflow-hidden">
@@ -106,13 +106,13 @@ export default function Products() {
                 onClick={() => setSelectedCategory(category)}
                 className={`group relative px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 ${
                   selectedCategory === category
-                    ? 'bg-gradient-to-r from-[#4169e1] via-[#6366f1] to-[#9c27b0] text-white shadow-lg'
+                    ? 'bg-[#0077b6] text-white shadow-lg'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
                 {category}
                 {selectedCategory === category && (
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+                  <div className="absolute inset-0 bg-[#0077b6] rounded-full blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
                 )}
               </button>
             ))}
@@ -121,7 +121,7 @@ export default function Products() {
       </section>
 
       {/* Products Grid */}
-      <section className="py-20 relative">
+      <section className={`${responsiveSpacing.sectionPadding} relative`}>
         {/* Background decoration */}
         <div className="absolute inset-0">
           <div className="absolute top-20 left-20 w-32 h-32 bg-blue-100/50 rounded-full blur-3xl"></div>
@@ -129,7 +129,7 @@ export default function Products() {
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-yellow-100/30 rounded-full blur-3xl"></div>
         </div>
         
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className={`relative ${responsiveContainers.standard}`}>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredProducts.map((product, index) => (
               <motion.div 
@@ -152,7 +152,7 @@ export default function Products() {
                 </div>
 
                 {/* Hover background effect */}
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="absolute inset-0 bg-blue-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 
                 <div className="relative z-10 p-8">
                   <motion.div
@@ -168,8 +168,8 @@ export default function Products() {
                   >
                     <product.icon className="w-12 h-12" />
                   </motion.div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3">{product.title}</h3>
-                  <p className="text-gray-600 mb-6">{product.description}</p>
+                  <h3 className={`${responsiveTypography.cardTitle} text-gray-900 mb-3`}>{product.title}</h3>
+                  <p className={`${responsiveTypography.bodyBase} text-gray-600 mb-6`}>{product.description}</p>
                   
                   <div className="mb-6">
                     <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
@@ -205,7 +205,7 @@ export default function Products() {
                   <div className="pt-6 border-t border-gray-100">
                     <Link 
                       to="/contact" 
-                      className="w-full bg-gradient-to-r from-[#4169e1] via-[#6366f1] to-[#9c27b0] hover:from-[#6366f1] hover:to-[#8b5cf6] text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 group-hover:shadow-lg text-center block"
+                      className="w-full bg-[#0077b6] hover:bg-[#005a8a] text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 group-hover:shadow-lg text-center block"
                     >
                       Get Started
                     </Link>
@@ -217,41 +217,18 @@ export default function Products() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-blue-700 text-white relative overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-white/5 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-white/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        </div>
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          >
-            <h2 className="text-4xl font-bold mb-6">Ready to Transform Your Business?</h2>
-            <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-              Join thousands of businesses already using our products to streamline operations and drive growth.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link 
-                to="/contact" 
-                className="bg-white text-blue-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg"
-              >
-                Contact Sales
-              </Link>
-              <Link 
-                to="/services" 
-                className="border-2 border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white hover:text-blue-600 transition-all duration-300 transform hover:scale-105"
-              >
-                View Services
-              </Link>
-            </div>
-          </motion.div>
-        </div>
+      {/* CTA Banner Section */}
+      <section className={`${responsiveSpacing.sectionPadding} flex justify-center`}>
+        <Banner728x98 
+          title="Ready to Transform Your Business?"
+          subtitle="Join thousands of businesses already using our products to streamline operations and drive growth."
+          primaryButtonText="Contact Sales"
+          primaryButtonLink="/contact"
+          secondaryButtonText="View Services"
+          secondaryButtonLink="/services"
+        />
       </section>
-    </div>
+    </PageLayout>
+    </>
   );
 }

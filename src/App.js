@@ -5,6 +5,7 @@ import {
   useLocation,
   useParams,
 } from "react-router-dom";
+import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from "./contexts/AuthContext";
 import Home from "./pages/Home";
 import About from "./pages/About";
@@ -26,6 +27,11 @@ import React from "react";
 import SupportAgent from "./components/SupportAgent";
 // Dashboard components removed - handled by separate dashboard app
 
+// Firebase integration test (development only)
+if (process.env.NODE_ENV === 'development') {
+  import('./test/firebase-test');
+}
+
 // PageBuilder functionality moved to dashboard
 
 function AppContent() {
@@ -34,17 +40,28 @@ function AppContent() {
 
   return (
     <div className="dynamic-bg">
-      <div className="gradient-orb orb-1" style={{ top: "10%", left: "5%" }} />
+      {/* Skip to main content link for accessibility */}
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
+      
+      <div className="gradient-orb orb-1" style={{ top: "10%", left: "5%" }} aria-hidden="true" />
       <div
         className="gradient-orb orb-2"
         style={{ top: "60%", right: "10%" }}
+        aria-hidden="true"
       />
       <div
         className="gradient-orb orb-3"
         style={{ top: "30%", right: "30%" }}
+        aria-hidden="true"
       />
-      <Navbar />
-      <div className="min-h-screen relative z-10">
+      
+      <header role="banner">
+        <Navbar />
+      </header>
+      
+      <main id="main-content" role="main" className="min-h-screen relative z-10">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route
@@ -72,8 +89,11 @@ function AppContent() {
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/cookie-policy" element={<CookiePolicy />} />
         </Routes>
-      </div>
-      <Footer />
+      </main>
+      
+      <footer role="contentinfo">
+        <Footer />
+      </footer>
     </div>
   );
 }
@@ -97,13 +117,15 @@ export default function App() {
     loadThemePref();
   }, []);
   return (
-    <ThemeProvider initialTheme={initialTheme}>
-      <AuthProvider>
-        <Router>
-          <AppContent />
-          <SupportAgent />
-        </Router>
-      </AuthProvider>
-    </ThemeProvider>
+    <HelmetProvider>
+      <ThemeProvider initialTheme={initialTheme}>
+        <AuthProvider>
+          <Router>
+            <AppContent />
+            <SupportAgent />
+          </Router>
+        </AuthProvider>
+      </ThemeProvider>
+    </HelmetProvider>
   );
 }
