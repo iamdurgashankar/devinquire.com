@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import useTypingEffect from "../hooks/useTypingEffect";
 
@@ -10,23 +10,46 @@ export default function Navbar() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
+  const [isOverHero, setIsOverHero] = useState(true);
+  const [isLargeDevice, setIsLargeDevice] = useState(false);
   const prevScrollY = useRef(0);
+  const location = useLocation();
   const { currentUser, logout } = useAuth();
   const { displayText, showCursor } = useTypingEffect("DevInquire", 150, 2000);
+  
+  const isHomePage = location.pathname === '/';
 
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
+      const heroHeight = window.innerHeight; // Assuming hero section is full viewport height
+      
       if (currentScrollY <= 0) {
         setIsScrolled(false);
       } else {
         setIsScrolled(true);
       }
+      
+      // Check if navbar is over hero section (within first viewport height)
+      setIsOverHero(currentScrollY < heroHeight * 0.8); // 80% of hero height for smooth transition
+      
       setIsVisible(true); // Always visible (sticky)
     };
+    
+    const handleResize = () => {
+      setIsLargeDevice(window.innerWidth > 768);
+    };
+    
+    // Initial checks
+    handleScroll();
+    handleResize();
+    
     window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleResize, { passive: true });
+    
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
@@ -40,8 +63,9 @@ export default function Navbar() {
     <nav
       className={`
         fixed top-0 left-0 right-0 z-50
-        transition-transform duration-300 ease-in-out
-        translate-y-0
+        transition-all duration-300 ease-in-out mobile-navbar
+        ${isVisible ? 'translate-y-0' : '-translate-y-full'}
+        ${isHomePage && isLargeDevice && isOverHero && !isScrolled ? 'hero-transparent-navbar' : ''}
       `}
       style={{
         willChange: 'transform',
@@ -49,35 +73,40 @@ export default function Navbar() {
     >
       <div
         className={`
-          mx-auto transition-all duration-300 ease-in-out
+          mx-auto transition-all duration-500 ease-out transform-gpu mobile-navbar-inner
           ${isScrolled
-            ? 'w-[94%] max-w-7xl glass-navbar backdrop-blur-md bg-white/70 shadow-lg rounded-2xl border border-white/20 mt-4'
-            : 'w-full bg-transparent'
+            ? 'w-[95%] md:w-[94%] max-w-7xl glass-navbar backdrop-blur-md bg-white/80 shadow-lg rounded-xl md:rounded-2xl border border-white/30 mt-2 md:mt-4'
+            : 'w-full bg-white/95 backdrop-blur-sm rounded-none border-transparent shadow-sm mt-0'
           }
         `}
-        style={{ pointerEvents: 'auto' }}
+        style={{ 
+          pointerEvents: 'auto',
+          willChange: 'transform, width, background-color, border-radius, box-shadow',
+          backfaceVisibility: 'hidden',
+          perspective: '1000px'
+        }}
       >
-        <div className="px-4 sm:px-6 lg:px-8 transition-all duration-500">
+        <div className="px-3 sm:px-4 md:px-6 lg:px-8 transition-all duration-500">
           <div className={`
             flex justify-between items-center transition-all duration-500
-            ${isScrolled ? 'h-14' : 'h-20'}
+            ${isScrolled ? 'h-12 sm:h-14' : 'h-16 sm:h-20'}
           `}>
             {/* Logo */}
-            <div className="w-[200px] flex-shrink-0">
+            <div className="w-[160px] sm:w-[180px] md:w-[200px] flex-shrink-0">
               <Link 
                 to="/" 
                 className="flex items-center space-x-3 group"
                 onClick={() => setIsMenuOpen(false)}
               >
-                                <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-110 bg-[#0077b6] shadow-lg relative overflow-hidden">
+                                <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-lg sm:rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-110 bg-[#0077b6] shadow-lg relative overflow-hidden mobile-logo">
                   <div className="absolute inset-0 bg-white/20 opacity-50"></div>
-                  <div className="relative z-10 flex items-center justify-center text-white font-bold text-sm">
+                  <div className="relative z-10 flex items-center justify-center text-white font-bold text-xs sm:text-sm">
                     <span className="text-white/80 mr-0.5 text-xs">&#123;</span>
                     <span className="text-white font-bold">DI</span>
                     <span className="text-white/80 ml-0.5 text-xs">&#125;</span>
                   </div>
                 </div>
-                                <span className="font-semibold text-lg text-[#0077b6] flex items-center min-w-0">
+                <span className="font-semibold text-base sm:text-lg md:text-xl text-[#0077b6] flex items-center min-w-0 mobile-brand-text">
                   <span className="truncate">{displayText}</span>
                   <span className={`ml-0.5 flex-shrink-0 ${showCursor ? 'opacity-100' : 'opacity-0'} transition-opacity duration-100`}>|</span>
                 </span>
@@ -87,11 +116,11 @@ export default function Navbar() {
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center flex-1">
               {/* Left spacer to balance the logo width */}
-              <div className="w-[50px] flex-shrink-0"></div>
+              <div className="w-[30px] lg:w-[50px] flex-shrink-0"></div>
               
               {/* Centered Navigation Links */}
               <div className="flex-1 flex items-center justify-center" style={{ pointerEvents: 'auto' }}>
-                <div className="flex items-center space-x-4 lg:space-x-6" style={{ pointerEvents: 'auto' }}>
+                <div className="flex items-center space-x-3 lg:space-x-6" style={{ pointerEvents: 'auto' }}>
                   {[
                     ['About', '/about'],
                     ['Services', '/services'],
@@ -101,23 +130,30 @@ export default function Navbar() {
                     <Link 
                       key={path}
                       to={path} 
-                      className={`px-3 lg:px-4 py-2 font-medium transition-all duration-300 relative group text-sm lg:text-base ${
-                                                isScrolled ? 'text-gray-700 hover:text-gray-900' : 'text-[var(--neutral-500)] hover:text-[var(--primary)]'
+                      className={`nav-item px-2 md:px-3 lg:px-4 py-2 font-medium relative group text-sm md:text-base transition-all duration-300 ease-out ${
+                        isScrolled ? 'text-gray-700 hover:text-[#0077b6]' : 'text-gray-600 hover:text-[#0077b6]'
                       }`}
                       style={{ pointerEvents: 'auto' }}
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      <span>{label}</span>
-                      {isScrolled && (
-                                                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#0077b6] transition-all duration-300 group-hover:w-full"></span>
-                        )}
+                      <span className="relative z-10 transition-all duration-300 ease-out">{label}</span>
+                      <span className={`absolute bottom-0 left-0 h-0.5 bg-[#0077b6] transition-all duration-500 ease-out transform origin-left ${
+                        isScrolled 
+                          ? 'w-0 group-hover:w-full opacity-100 scale-x-0 group-hover:scale-x-100' 
+                          : 'w-0 opacity-0 scale-x-0'
+                      }`}></span>
+                      <span className={`absolute inset-0 rounded-lg transition-all duration-300 ease-out ${
+                        isScrolled 
+                          ? 'bg-gray-100/0 group-hover:bg-gray-100/50' 
+                          : 'bg-[var(--primary)]/0 group-hover:bg-[var(--primary)]/5'
+                      }`}></span>
                     </Link>
                   ))}
                 </div>
               </div>
               
               {/* Right side action buttons */}
-              <div className="w-50 flex-shrink-0 flex justify-end items-center space-x-3 lg:space-x-4" style={{ pointerEvents: 'auto' }}>
+              <div className="w-auto flex-shrink-0 flex justify-end items-center space-x-2 md:space-x-3 lg:space-x-4" style={{ pointerEvents: 'auto' }}>
                 {/* User Authentication */}
                 {currentUser ? (
                   <div className="relative">
@@ -201,24 +237,20 @@ export default function Navbar() {
                   )}
                   </div>
                 ) : (
-                  <div className="flex items-center space-x-2 lg:space-x-4">
+                  <div className="flex items-center space-x-2 md:space-x-3">
                     <Link 
                       to="/contact" 
-                      className={`px-3 lg:px-4 py-2 border-2 rounded-full font-medium transition-all duration-300 text-sm lg:text-base ${
+                      className={`auth-button sign-in px-3 md:px-4 py-2 border-2 rounded-full font-medium transition-all duration-300 text-sm md:text-base whitespace-nowrap ${
                         isScrolled 
-                          ? 'border-[#0077b6] text-[#0077b6] hover:border-[#005a8a] hover:text-[#005a8a] hover:bg-[#0077b6]/5'
-                          : 'border-gray-900 text-gray-900 bg-white/95 hover:bg-white hover:border-gray-700 shadow-sm backdrop-blur-sm'
+                          ? 'border-[#0077b6] text-[#0077b6] hover:border-[#005a8a] hover:text-white hover:bg-[#0077b6]'
+                          : 'border-[#0077b6] text-[#0077b6] bg-white/90 hover:bg-[#0077b6] hover:text-white shadow-sm backdrop-blur-sm'
                       }`}
                     >
                       Get Started
                     </Link>
                     <a 
                       href="https://dashboard.devinquire.com" 
-                      className={`px-3 lg:px-4 py-2 rounded-full font-medium transition-all duration-300 text-sm lg:text-base ${
-                        isScrolled
-                          ? 'bg-[#0077b6] hover:bg-[#005a8a]'
-                          : 'bg-[#0077b6] hover:bg-[#005a8a]'
-                      } text-white`}
+                      className="auth-button sign-up px-3 md:px-4 py-2 rounded-full font-medium transition-all duration-300 text-sm md:text-base bg-[#0077b6] hover:bg-[#005a8a] text-white shadow-sm whitespace-nowrap"
                     >
                       Dashboard
                     </a>
@@ -235,31 +267,35 @@ export default function Navbar() {
                   e.stopPropagation();
                   setIsMenuOpen(!isMenuOpen);
                 }}
-                className={`w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-300 focus:outline-none z-[70] relative ${
+                className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-lg md:rounded-xl transition-all duration-300 ease-out focus:outline-none z-[70] relative transform-gpu mobile-menu-button ${
                   isScrolled 
-                    ? 'bg-white hover:bg-gray-50 border border-gray-300 shadow-sm' 
-                    : 'bg-gray-900/80 hover:bg-gray-900/90 backdrop-blur-sm border border-gray-700'
+                    ? 'bg-white hover:bg-gray-50 border border-gray-200 shadow-sm hover:shadow-md' 
+                    : 'bg-white/90 hover:bg-white border border-gray-200 shadow-sm backdrop-blur-sm'
                 }`}
+                style={{
+                  willChange: 'background-color, border-color, box-shadow, transform',
+                  backfaceVisibility: 'hidden'
+                }}
                 aria-label="Toggle menu"
               >
-                <div className="w-6 h-6 relative flex items-center justify-center transform transition-all duration-300">
-                  <span className={`absolute h-0.5 w-6 transform transition-all duration-300 ${
-                    isScrolled ? 'bg-gray-700' : 'bg-white'
-                  } ${isMenuOpen ? 'rotate-45 translate-y-0' : '-translate-y-1.5'}`}></span>
-                  <span className={`absolute h-0.5 w-6 transform transition-all duration-300 ${
-                    isScrolled ? 'bg-gray-700' : 'bg-white'
-                  } ${isMenuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
-                  <span className={`absolute h-0.5 w-6 transform transition-all duration-300 ${
-                    isScrolled ? 'bg-gray-700' : 'bg-white'
-                  } ${isMenuOpen ? '-rotate-45 translate-y-0' : 'translate-y-1.5'}`}></span>
+                <div className="w-5 h-5 md:w-6 md:h-6 relative flex items-center justify-center transform transition-all duration-300 ease-out mobile-hamburger">
+                  <span className={`absolute h-0.5 w-5 md:w-6 transform transition-all duration-300 ease-out bg-gray-700 ${
+                    isMenuOpen ? 'rotate-45 translate-y-0' : '-translate-y-1.5'
+                  }`} style={{ transformOrigin: 'center' }}></span>
+                  <span className={`absolute h-0.5 w-5 md:w-6 transform transition-all duration-300 ease-out bg-gray-700 ${
+                    isMenuOpen ? 'opacity-0 scale-x-0' : 'opacity-100 scale-x-100'
+                  }`} style={{ transformOrigin: 'center' }}></span>
+                  <span className={`absolute h-0.5 w-5 md:w-6 transform transition-all duration-300 ease-out bg-gray-700 ${
+                    isMenuOpen ? '-rotate-45 translate-y-0' : 'translate-y-1.5'
+                  }`} style={{ transformOrigin: 'center' }}></span>
                 </div>
               </button>
             </div>
           </div>
 
           {/* Mobile Navigation */}
-          <div className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out z-[60] relative ${isMenuOpen ? 'max-h-screen opacity-100 visible' : 'max-h-0 opacity-0 invisible'}`} style={{ pointerEvents: 'auto' }}>
-            <div className="px-4 pt-4 pb-6 space-y-3 bg-white/98 backdrop-blur-lg my-2 mx-2 border border-gray-200 rounded-xl shadow-2xl">
+          <div className={`md:hidden overflow-hidden transition-all duration-300 ease-out z-[60] relative transform-gpu ${isMenuOpen ? 'max-h-screen opacity-100 visible' : 'max-h-0 opacity-0 invisible'}`} style={{ pointerEvents: 'auto', willChange: 'max-height, opacity, visibility' }}>
+            <div className="px-3 md:px-4 pt-3 md:pt-4 pb-4 md:pb-6 space-y-2 md:space-y-3 bg-white/95 backdrop-blur-lg my-2 mx-2 md:mx-3 border border-gray-200 rounded-lg md:rounded-xl shadow-xl transition-all duration-300 ease-out transform-gpu mobile-nav-container" style={{ willChange: 'transform, opacity' }}>
               {[
                 ['About', '/about'],
                 ['Services', '/services'],
@@ -269,7 +305,8 @@ export default function Navbar() {
                 <Link 
                   key={path}
                   to={path} 
-                  className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 block px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 border-b border-gray-100 last:border-b-0"
+                  className="text-gray-700 hover:text-[#0077b6] hover:bg-blue-50/50 block px-3 md:px-4 py-2 md:py-3 rounded-lg text-sm md:text-base font-medium transition-all duration-300 ease-out border-b border-gray-100 last:border-b-0 transform-gpu hover:translate-x-1 mobile-nav-link"
+                  style={{ willChange: 'background-color, color, transform' }}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {label}
@@ -277,17 +314,17 @@ export default function Navbar() {
               ))}
 
               {/* Mobile User Authentication */}
-              <div className="pt-4 border-t border-gray-200">
+              <div className="pt-3 md:pt-4 border-t border-gray-200 mobile-auth-section">
                 {currentUser ? (
                   <>
-                    <div className="px-4 py-3 bg-gray-50 rounded-lg mb-3">
-                      <div className="text-sm text-gray-600">Signed in as</div>
-                      <div className="text-gray-900 font-medium">{currentUser.displayName || currentUser.email}</div>
+                    <div className="px-3 md:px-4 py-2 md:py-3 bg-gray-50 rounded-lg mb-2 md:mb-3 mobile-user-info">
+                      <div className="text-xs md:text-sm text-gray-600">Signed in as</div>
+                      <div className="text-sm md:text-base text-gray-900 font-medium">{currentUser.displayName || currentUser.email}</div>
                       <div className="text-xs text-[var(--primary)]">{currentUser.role}</div>
                     </div>
                     <a 
                       href="https://dashboard.devinquire.com" 
-                      className="bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)] text-white block px-4 py-3 rounded-lg text-base font-medium transition-all duration-300 mb-2"
+                      className="bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)] text-white block px-3 md:px-4 py-2 md:py-3 rounded-lg text-sm md:text-base font-medium transition-all duration-300 mb-2 mobile-auth-button"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Dashboard
@@ -295,7 +332,7 @@ export default function Navbar() {
                     {currentUser.role === 'admin' && (
                       <a 
                         href="https://dashboard.devinquire.com" 
-                        className="bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)] text-white block px-4 py-3 rounded-lg text-base font-medium transition-all duration-300 mb-2"
+                        className="bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)] text-white block px-3 md:px-4 py-2 md:py-3 rounded-lg text-sm md:text-base font-medium transition-all duration-300 mb-2 mobile-auth-button"
                         onClick={() => setIsMenuOpen(false)}
                       >
                         Admin Panel
@@ -303,7 +340,7 @@ export default function Navbar() {
                     )}
                     <button
                       onClick={handleLogout}
-                      className="w-full text-left text-gray-700 hover:text-red-600 hover:bg-red-50 block px-4 py-3 rounded-lg text-base font-medium transition-all duration-200"
+                      className="w-full text-left text-gray-700 hover:text-red-600 hover:bg-red-50 block px-3 md:px-4 py-2 md:py-3 rounded-lg text-sm md:text-base font-medium transition-all duration-200 mobile-auth-button"
                     >
                       Sign Out
                     </button>
@@ -312,14 +349,14 @@ export default function Navbar() {
                   <>
                     <Link 
                       to="/contact" 
-                      className="border-2 border-[#0077b6] text-[#0077b6] hover:border-[#005a8a] hover:text-[#005a8a] hover:bg-[#0077b6]/10 bg-[#0077b6]/5 block px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 mb-2 text-center shadow-sm"
+                      className="border-2 border-[#0077b6] text-[#0077b6] hover:border-[#005a8a] hover:text-[#005a8a] hover:bg-[#0077b6]/10 bg-[#0077b6]/5 block px-3 md:px-4 py-2 md:py-3 rounded-lg text-sm md:text-base font-medium transition-all duration-200 mb-2 text-center shadow-sm mobile-auth-button"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Get Started
                     </Link>
                     <a 
                       href="https://dashboard.devinquire.com" 
-                      className="bg-[#0077b6] hover:bg-[#005a8a] text-white block px-4 py-3 rounded-lg text-base font-medium transition-all duration-300"
+                      className="bg-[#0077b6] hover:bg-[#005a8a] text-white block px-3 md:px-4 py-2 md:py-3 rounded-lg text-sm md:text-base font-medium transition-all duration-300 mobile-auth-button"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Dashboard

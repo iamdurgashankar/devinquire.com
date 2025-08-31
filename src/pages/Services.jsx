@@ -39,7 +39,7 @@ const services = [
     description: "Native and cross-platform mobile apps for iOS and Android",
     features: ["iOS Development", "Android Development", "Cross-platform", "Push Notifications", "Offline Support", "App Store Deployment"],
     //price: "Starting from $15,000",
-    technologies: ["React Native", "Flutter", "Swift", "Kotlin", "Firebase", "App Store"]
+    technologies: ["React Native", "Flutter", "Swift", "Kotlin", "MySQL", "App Store"]
   },
   {
     icon: Search,
@@ -354,7 +354,7 @@ export default function Services() {
                       value={formData.name}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900 bg-white"
                       placeholder="Enter your full name"
                     />
                   </div>
@@ -371,7 +371,7 @@ export default function Services() {
                       value={formData.email}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900 bg-white"
                       placeholder="Enter your email address"
                     />
                   </div>
@@ -387,7 +387,7 @@ export default function Services() {
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900 bg-white"
                       placeholder="Enter your phone number"
                     />
                   </div>
@@ -401,7 +401,7 @@ export default function Services() {
                       name="service"
                       value={formData.service}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900 bg-white"
                     >
                       <option value="">Select a service</option>
                       {services.map((service, index) => (
@@ -423,7 +423,7 @@ export default function Services() {
                     onChange={handleInputChange}
                     required
                     rows={4}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none text-gray-900 bg-white"
                     placeholder="Tell us about your project requirements, timeline, and budget..."
                   />
                 </div>

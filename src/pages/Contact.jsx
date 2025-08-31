@@ -14,7 +14,6 @@ const Contact = () => {
     phone: '',
     company: '',
     subject: '',
-    service: '',
     timeline: '',
     message: ''
   });
@@ -24,6 +23,7 @@ const Contact = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    // Preserve original value but ensure proper handling of spacing
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -38,37 +38,85 @@ const Contact = () => {
     }
   };
 
+  // Rate limiting check
+  const checkRateLimit = () => {
+    const now = Date.now();
+    const attempts = JSON.parse(localStorage.getItem('contact_attempts') || '[]');
+    const recentAttempts = attempts.filter(time => now - time < 900000); // 15 minutes
+    
+    if (recentAttempts.length >= 3) {
+      return {
+        allowed: false,
+        resetTime: new Date(recentAttempts[0] + 900000)
+      };
+    }
+    
+    recentAttempts.push(now);
+    localStorage.setItem('contact_attempts', JSON.stringify(recentAttempts));
+    return { allowed: true };
+  };
+
   const validateForm = () => {
     const errors = {};
     
-    // Required field validation
+    // Required field validation with enhanced checks
     if (!formData.name.trim()) {
       errors.name = 'Full name is required';
+    } else if (formData.name.trim().length < 2) {
+      errors.name = 'Name must be at least 2 characters long';
+    } else if (formData.name.trim().length > 100) {
+      errors.name = 'Name must be less than 100 characters';
     }
     
     if (!formData.email.trim()) {
       errors.email = 'Email address is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       errors.email = 'Please enter a valid email address';
+    } else if (formData.email.length > 254) {
+      errors.email = 'Email address is too long';
     }
     
-    if (!formData.service) {
-      errors.service = 'Please select a service';
-    }
+
     
     if (!formData.subject.trim()) {
       errors.subject = 'Subject is required';
+    } else if (formData.subject.trim().length < 3) {
+      errors.subject = 'Subject must be at least 3 characters long';
+    } else if (formData.subject.trim().length > 200) {
+      errors.subject = 'Subject must be less than 200 characters';
     }
     
     if (!formData.message.trim()) {
       errors.message = 'Message is required';
     } else if (formData.message.trim().length < 10) {
       errors.message = 'Message must be at least 10 characters long';
+    } else if (formData.message.trim().length > 5000) {
+      errors.message = 'Message must be less than 5000 characters';
     }
     
-    // Phone validation (if provided)
-    if (formData.phone && !/^[\+]?[1-9][\d]{0,15}$/.test(formData.phone.replace(/[\s\-\(\)]/g, ''))) {
-      errors.phone = 'Please enter a valid phone number';
+    // Enhanced phone validation (if provided)
+    if (formData.phone && formData.phone.trim()) {
+      const cleanPhone = formData.phone.replace(/[\s\-\(\)\+]/g, '');
+      if (!/^[0-9]{7,15}$/.test(cleanPhone)) {
+        errors.phone = 'Please enter a valid phone number (7-15 digits)';
+      }
+    }
+    
+    // Company name validation (if provided)
+    if (formData.company && formData.company.trim().length > 200) {
+      errors.company = 'Company name must be less than 200 characters';
+    }
+    
+    // Basic spam detection
+    const spamPatterns = [
+      /\b(viagra|cialis|casino|lottery|winner|congratulations)\b/i,
+      /\b(click here|act now|limited time|urgent)\b/i,
+      /(http:\/\/|https:\/\/)[^\s]{10,}/g
+    ];
+    
+    const messageText = formData.message.toLowerCase();
+    if (spamPatterns.some(pattern => pattern.test(messageText))) {
+      errors.message = 'Message contains prohibited content';
     }
     
     setValidationErrors(errors);
@@ -83,32 +131,75 @@ const Contact = () => {
       return;
     }
     
+    // Check rate limiting
+    const rateCheck = checkRateLimit();
+    if (!rateCheck.allowed) {
+      setSubmitStatus({
+        type: 'error',
+        message: `Too many submissions. Please try again after ${rateCheck.resetTime.toLocaleTimeString()}`
+      });
+      setTimeout(() => setSubmitStatus(null), 8000);
+      return;
+    }
+    
     setIsSubmitting(true);
     setSubmitStatus(null);
 
     try {
       const result = await submitContactForm(formData);
       if (result.success) {
-        setSubmitStatus('success');
-        setFormData({ 
-          name: '', 
-          email: '', 
-          phone: '', 
-          company: '', 
-          subject: '', 
-          service: '', 
-          timeline: '', 
-          message: '' 
+        setSubmitStatus({
+          type: 'success',
+          message: result.message || 'Thank you for your message! We\'ll get back to you within 24 hours.'
+        });
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          company: '',
+          subject: '',
+          timeline: '',
+          message: ''
         });
         setValidationErrors({});
+        
+        // Track successful form submission
+        if (typeof gtag !== 'undefined') {
+          gtag('event', 'contact_form_submit', {
+            event_category: 'engagement',
+            event_label: 'contact_form',
+            value: 1
+          });
+        }
+        
+        // Auto-hide success message after 8 seconds
+        setTimeout(() => setSubmitStatus(null), 8000);
       } else {
-        setSubmitStatus(result.message || 'error');
+        setSubmitStatus({
+          type: 'error',
+          message: result.error || result.message || 'Submission failed. Please try again or contact us directly at contact@devinquire.com'
+        });
+        setTimeout(() => setSubmitStatus(null), 8000);
       }
     } catch (error) {
-      setSubmitStatus('Failed to send. Please try again later.');
+      console.error('Contact form submission error:', error);
+      let errorMessage = 'An unexpected error occurred. Please try again.';
+      
+      if (error.name === 'NetworkError' || error.message.includes('fetch')) {
+        errorMessage = 'Network error. Please check your internet connection and try again.';
+      } else if (error.message.includes('Server')) {
+        errorMessage = 'Service temporarily unavailable. Please try again in a few minutes or contact us directly.';
+      } else if (error.code === 'permission-denied') {
+        errorMessage = 'Permission denied. Please refresh the page and try again.';
+      }
+      
+      setSubmitStatus({
+        type: 'error',
+        message: errorMessage
+      });
+      setTimeout(() => setSubmitStatus(null), 8000);
     } finally {
       setIsSubmitting(false);
-      setTimeout(() => setSubmitStatus(null), 4000);
     }
   };
 
@@ -194,23 +285,31 @@ const Contact = () => {
             >
               <h2 className={`${responsiveTypography.sectionTitle} text-gray-900 mb-6`}>Send us a Message</h2>
               
-              {submitStatus === 'success' && (
+              {submitStatus?.type === 'success' && (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg"
+                  className="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex items-start gap-3"
                 >
-                  ✅ Thank you! Your message has been sent successfully. We'll get back to you soon.
+                  <span className="text-green-600 text-xl">✅</span>
+                  <div>
+                    <p className="font-semibold">Message Sent Successfully!</p>
+                    <p className="text-sm">{submitStatus.message}</p>
+                  </div>
                 </motion.div>
               )}
 
-              {submitStatus && submitStatus !== 'success' && (
+              {submitStatus?.type === 'error' && (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg"
+                  className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-start gap-3"
                 >
-                  ❌ {submitStatus}
+                  <span className="text-red-600 text-xl">❌</span>
+                  <div>
+                    <p className="font-semibold">Submission Failed</p>
+                    <p className="text-sm">{submitStatus.message}</p>
+                  </div>
                 </motion.div>
               )}
 
@@ -228,7 +327,7 @@ const Contact = () => {
                       value={formData.name}
                       onChange={handleChange}
                       required
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 ${
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 text-gray-900 bg-white ${
                         validationErrors.name ? 'border-red-500' : 'border-gray-300'
                       }`}
                       placeholder="John Doe"
@@ -248,7 +347,7 @@ const Contact = () => {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 ${
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 text-gray-900 bg-white ${
                         validationErrors.email ? 'border-red-500' : 'border-gray-300'
                       }`}
                       placeholder="john@example.com"
@@ -270,7 +369,7 @@ const Contact = () => {
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 ${
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 text-gray-900 bg-white ${
                         validationErrors.phone ? 'border-red-500' : 'border-gray-300'
                       }`}
                       placeholder="+1 (555) 123-4567"
@@ -289,45 +388,13 @@ const Contact = () => {
                       name="company"
                       value={formData.company}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 text-gray-900 bg-white"
                       placeholder="Your Company Name"
                     />
                   </div>
                 </div>
                 
                 {/* Project Details */}
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="service" className="block text-sm font-medium text-gray-700 mb-2">
-                      Service Interest *
-                    </label>
-                    <select
-                      id="service"
-                      name="service"
-                      value={formData.service}
-                      onChange={handleChange}
-                      required
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 ${
-                        validationErrors.service ? 'border-red-500' : 'border-gray-300'
-                      }`}
-                    >
-                      <option value="">Select a service...</option>
-                      <option value="web-development">Web Development</option>
-                      <option value="mobile-app">Mobile App Development</option>
-                      <option value="ui-ux-design">UI/UX Design</option>
-                      <option value="ecommerce">E-commerce Solutions</option>
-                      <option value="digital-marketing">Digital Marketing</option>
-                      <option value="consulting">Technology Consulting</option>
-                      <option value="maintenance">Website Maintenance</option>
-                      <option value="other">Other</option>
-                    </select>
-                    {validationErrors.service && (
-                      <p className="text-red-500 text-sm mt-1">{validationErrors.service}</p>
-                    )}
-                  </div>
-
-                </div>
-
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
                     <label htmlFor="timeline" className="block text-sm font-medium text-gray-700 mb-2">
@@ -338,15 +405,16 @@ const Contact = () => {
                       name="timeline"
                       value={formData.timeline}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 text-gray-900 bg-white"
+                      style={{ color: '#111827' }}
                     >
-                      <option value="">Select timeline...</option>
-                      <option value="asap">ASAP</option>
-                      <option value="1-month">Within 1 Month</option>
-                      <option value="2-3-months">2-3 Months</option>
-                      <option value="3-6-months">3-6 Months</option>
-                      <option value="6-months-plus">6+ Months</option>
-                      <option value="flexible">Flexible</option>
+                      <option value="" style={{ color: '#6b7280' }}>Select timeline...</option>
+                      <option value="asap" style={{ color: '#111827' }}>ASAP</option>
+                      <option value="1-month" style={{ color: '#111827' }}>Within 1 Month</option>
+                      <option value="2-3-months" style={{ color: '#111827' }}>2-3 Months</option>
+                      <option value="3-6-months" style={{ color: '#111827' }}>3-6 Months</option>
+                      <option value="6-months-plus" style={{ color: '#111827' }}>6+ Months</option>
+                      <option value="flexible" style={{ color: '#111827' }}>Flexible</option>
                     </select>
                   </div>
                   <div>
@@ -360,7 +428,7 @@ const Contact = () => {
                       value={formData.subject}
                       onChange={handleChange}
                       required
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 ${
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 text-gray-900 bg-white ${
                         validationErrors.subject ? 'border-red-500' : 'border-gray-300'
                       }`}
                       placeholder="Project Inquiry"
@@ -383,7 +451,7 @@ const Contact = () => {
                     onChange={handleChange}
                     required
                     rows={6}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 resize-none ${
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 resize-none text-gray-900 bg-white ${
                       validationErrors.message ? 'border-red-500' : 'border-gray-300'
                     }`}
                     placeholder="Please describe your project in detail. Include any specific requirements, features you need, design preferences, or questions you have. The more information you provide, the better we can assist you."

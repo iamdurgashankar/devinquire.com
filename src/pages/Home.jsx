@@ -96,7 +96,7 @@ export default function Home() {
       {/* Hero Section */}
         <motion.section 
           ref={heroRef}
-          className="relative bg-slate-900 text-white overflow-hidden min-h-screen flex items-center"
+          className="relative bg-slate-900 text-white overflow-hidden min-h-screen flex items-center hero-section-overlay"
           style={{ y, opacity }}
         >
         {/* Enhanced Light Glass Effect Background */}

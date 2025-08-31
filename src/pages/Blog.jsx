@@ -1,12 +1,13 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import apiService from "../services/api";
+// API service removed - using PHP backend directly
 import PageLayout from '../components/PageLayout';
 import SEO from '../components/SEO';
 import { responsiveTypography, responsiveSpacing, responsiveContainers } from '../utils/responsive';
 import '../components/NewsletterShadowComponent';
 
-const categories = [
+// Categories will be loaded from API
+const defaultCategories = [
   "All",
   "Web Development",
   "React",
@@ -20,39 +21,66 @@ const categories = [
 export default function Blog() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [blogPosts, setBlogPosts] = useState([]);
+  const [categories, setCategories] = useState(defaultCategories);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Load published posts from API
+  // Load published posts and categories from API
   useEffect(() => {
+    loadCategories();
     loadPosts();
   }, [selectedCategory]);
+  
+  const loadCategories = async () => {
+    try {
+      const response = await fetch('/api/blog.php?action=categories');
+      const data = await response.json();
+      
+      if (data.success && data.data.length > 0) {
+        const categoryNames = data.data.map(cat => cat.name);
+        setCategories(['All', ...categoryNames]);
+      }
+    } catch (error) {
+      console.error('Error loading categories:', error);
+      // Keep default categories on error
+    }
+  };
 
   const loadPosts = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await apiService.getPosts(1, 100, selectedCategory === 'All' ? null : selectedCategory, 'published');
-      if (response.success) {
-        // Transform API data to match blog format
-        const transformedPosts = response.data.posts.map(post => ({
+      
+      // Build API URL with category filter if needed
+      let apiUrl = '/api/blog.php?action=posts&status=published&limit=20';
+      if (selectedCategory !== 'All') {
+        const categorySlug = selectedCategory.toLowerCase().replace(/\s+/g, '-');
+        apiUrl += `&category=${encodeURIComponent(categorySlug)}`;
+      }
+      
+      const response = await fetch(apiUrl);
+      const data = await response.json();
+      
+      if (data.success) {
+        const transformedPosts = (data.data || []).map(post => ({
           id: post.id,
           title: post.title,
           excerpt: post.excerpt,
           author: post.author_name || 'Admin User',
-          date: new Date(post.created_at).toLocaleDateString('en-US', {
+          date: new Date(post.published_at || post.created_at).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric'
           }),
-          category: post.category,
-          readTime: post.readTime || '5 min read',
+          category: post.category_name || 'Uncategorized',
+          readTime: post.read_time ? `${post.read_time} min read` : '5 min read',
           image: post.featured_image || `https://images.unsplash.com/photo-1461749280684-dccba630e2f6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80`,
-          tags: Array.isArray(post.tags) ? post.tags : []
+          tags: Array.isArray(post.tags) ? post.tags : [],
+          slug: post.slug
         }));
         setBlogPosts(transformedPosts);
       } else {
-        setError(response.message || 'Failed to load posts');
+        setError(data.error || 'Failed to load posts');
         setBlogPosts([]);
       }
     } catch (error) {
@@ -119,6 +147,21 @@ export default function Blog() {
                 {selectedCategory === category && (
                   <div className="absolute -inset-1 bg-[#0077b6] rounded-full blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
                 )}
+          
+          {/* Error State */}
+          {error && (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">⚠️</div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Posts</h3>
+              <p className="text-gray-600 mb-4">{error}</p>
+              <button
+                onClick={() => loadPosts()}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-300"
+              >
+                Try Again
+              </button>
+            </div>
+          )}
               </button>
             ))}
           </div>
@@ -190,7 +233,7 @@ export default function Blog() {
                       </div>
                     </div>
                     <Link
-                      to={`/blog/${featuredPost.id}`}
+                      to={`/blog/${featuredPost.slug || featuredPost.id}`}
                       className="group/link bg-[#0077b6] hover:bg-[#005a8a] text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105"
                     >
                       Read More
@@ -259,7 +302,7 @@ export default function Blog() {
                         </div>
                       </div>
                       <Link
-                        to={`/blog/${post.id}`}
+                        to={`/blog/${post.slug || post.id}`}
                         className="text-[var(--primary)] hover:text-[var(--secondary)] font-medium text-sm group-hover:translate-x-1 transition-transform duration-300"
                       >
                         Read More →

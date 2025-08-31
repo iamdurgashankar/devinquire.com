@@ -275,7 +275,7 @@ class NewsletterShadowComponent extends HTMLElement {
       submitBtn.querySelector('.btn-text').textContent = 'Subscribing...';
 
       try {
-        // Subscribe using Firebase service
+        // Subscribe using PHP service
         const result = await subscribeToNewsletter({ email });
         
         if (result.success) {

@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import apiService from "../services/api";
+// API service removed - using PHP backend directly
 import SEO from '../components/SEO';
 
 export default function BlogPost() {
@@ -17,11 +17,29 @@ export default function BlogPost() {
     try {
       setLoading(true);
       setError(null);
-      const response = await apiService.getPost(id);
-      if (response.success && response.data) {
-        setPost(response.data);
+      
+      // Fetch post by slug or ID from PHP backend
+      const response = await fetch(`/api/blog.php?action=post&slug=${encodeURIComponent(id)}`);
+      const data = await response.json();
+      
+      if (data.success && data.data) {
+        const postData = data.data;
+        setPost({
+          id: postData.id,
+          title: postData.title,
+          excerpt: postData.excerpt,
+          content: postData.content,
+          author_name: postData.author_name || 'Admin User',
+          created_at: postData.published_at || postData.created_at,
+          updated_at: postData.updated_at,
+          category: postData.category_name || 'Uncategorized',
+          featured_image: postData.featured_image,
+          tags: Array.isArray(postData.tags) ? postData.tags : [],
+          readTime: postData.read_time ? `${postData.read_time} min read` : '5 min read',
+          slug: postData.slug
+        });
       } else {
-        setError(response.message || 'Post not found');
+        setError(data.error || 'Post not found');
       }
     } catch (error) {
       console.error('Error loading post:', error);
@@ -47,16 +65,28 @@ export default function BlogPost() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-4">
           <div className="text-6xl mb-4">📝</div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Post Not Found</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            {error ? 'Error Loading Post' : 'Post Not Found'}
+          </h1>
           <p className="text-gray-600 mb-6">
-            The blog post you're looking for doesn't exist or has been removed.
+            {error || 'The blog post you\'re looking for doesn\'t exist or has been removed.'}
           </p>
-          <Link
-            to="/blog"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200"
-          >
-            Back to Blog
-          </Link>
+          <div className="space-y-3">
+            {error && (
+              <button
+                onClick={() => loadPost()}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 mr-3"
+              >
+                Try Again
+              </button>
+            )}
+            <Link
+              to="/blog"
+              className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200"
+            >
+              Back to Blog
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -68,10 +98,10 @@ export default function BlogPost() {
         title={`${post.title} - DevInquire Blog`}
         description={post.excerpt || `Read ${post.title} on DevInquire blog. Expert insights on web development, mobile apps, and digital innovation.`}
         keywords={`${post.category}, ${post.title}, web development, programming, tech blog, ${Array.isArray(post.tags) ? post.tags.join(', ') : ''}`}
-        canonical={`https://devinquire.com/blog/${post.id}`}
+        canonical={`https://devinquire.com/blog/${post.slug || post.id}`}
         ogTitle={post.title}
         ogDescription={post.excerpt || `Read ${post.title} on DevInquire blog.`}
-        ogUrl={`https://devinquire.com/blog/${post.id}`}
+        ogUrl={`https://devinquire.com/blog/${post.slug || post.id}`}
         ogImage={post.featured_image}
         schemaType="BlogPosting"
         author={post.author_name || 'DevInquire Team'}

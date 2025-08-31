@@ -32,11 +32,6 @@ const About = () => {
       icon: Gem,
       title: "Quality",
       description: "Every line of code and every design element is crafted with precision and care."
-    },
-    {
-      icon: Target,
-      title: "Results",
-      description: "We focus on delivering measurable outcomes that drive business growth."
     }
   ];
 
@@ -137,12 +132,12 @@ const About = () => {
           subtitle="The principles that guide everything we do and every decision we make."
         />
 
-        <Grid cols={4}>
+        <Grid cols={3}>
           {values.map((value, index) => (
             <AnimatedCard
               key={index}
               delay={index * 0.1}
-              className="text-center bg-gray-50 hover:bg-blue-50 transition-colors duration-300"
+              className="text-center bg-gray-50 hover:bg-blue-50 transition-colors duration-300 min-h-[280px] flex flex-col justify-start"
             >
               <motion.div
                 className="text-4xl mb-4 flex justify-center"
@@ -160,7 +155,7 @@ const About = () => {
                 <value.icon className="w-12 h-12 text-blue-600" />
               </motion.div>
               <h3 className={`${responsiveTypography.cardTitle} text-gray-900 mb-3`}>{value.title}</h3>
-              <p className={`${responsiveTypography.bodyBase} text-gray-600`}>{value.description}</p>
+              <p className={`${responsiveTypography.bodyBase} text-gray-600 flex-grow`}>{value.description}</p>
             </AnimatedCard>
           ))}
         </Grid>

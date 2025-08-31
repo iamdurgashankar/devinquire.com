@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import authService from "../services/authService";
 
 const AuthContext = createContext();
 
@@ -9,15 +8,17 @@ export function useAuth() {
 
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // No auth loading needed
 
   useEffect(() => {
-    validateAndSetUser();
+    // No Firebase auth - set loading to false immediately
+    setLoading(false);
   }, []);
 
   const validateAndSetUser = async () => {
     try {
-      const user = await authService.getCurrentUser();
+      // TODO: Implement your chosen authentication system
+      const user = null; // No user authentication for now
       if (user) {
         setCurrentUser({
           id: user.id,
@@ -36,20 +37,8 @@ export function AuthProvider({ children }) {
 
   async function signInWithEmail(email, password) {
     try {
-      const response = await authService.login(email, password);
-      if (response.success) {
-        const user = {
-          id: response.user.id,
-          email: response.user.email,
-          displayName: response.user.name,
-          photoURL: null,
-          role: response.user.role,
-        };
-        setCurrentUser(user);
-        return user;
-      } else {
-        throw new Error(response.message || "Login failed");
-      }
+      // TODO: Implement your chosen authentication system
+      throw new Error("Authentication not implemented yet");
     } catch (error) {
       console.error("Login error:", error);
       throw error;
@@ -61,13 +50,8 @@ export function AuthProvider({ children }) {
       if (password !== confirmPassword) {
         throw new Error("Passwords do not match");
       }
-
-      const response = await authService.register(name, email, password);
-      if (response.success) {
-        return response;
-      } else {
-        throw new Error(response.message || "Registration failed");
-      }
+      // TODO: Implement your chosen authentication system
+      throw new Error("Registration not implemented yet");
     } catch (error) {
       console.error("Registration error:", error);
       throw error;
@@ -92,16 +76,8 @@ export function AuthProvider({ children }) {
         throw new Error("New password must be at least 6 characters long");
       }
 
-      const response = await authService.changePassword(
-        currentPassword,
-        newPassword
-      );
-
-      if (response.success) {
-        return response;
-      } else {
-        throw new Error(response.message || "Password change failed");
-      }
+      // TODO: Implement your chosen authentication system
+      throw new Error("Password change not implemented yet");
     } catch (error) {
       console.error("Password change error:", error);
       throw error;
@@ -110,7 +86,8 @@ export function AuthProvider({ children }) {
 
   function logout() {
     try {
-      authService.logout();
+      // TODO: Implement your chosen authentication system logout
+      console.log("User logged out");
     } catch (error) {
       console.error("Logout error:", error);
     } finally {

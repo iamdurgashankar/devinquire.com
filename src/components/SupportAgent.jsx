@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { httpsCallable } from 'firebase/functions';
-import { functions } from '../config/firebase';
+// Firebase Functions removed - implement alternative AI chat service
 
 const FAQ = [
   { q: 'How can I contact support?', a: 'You can contact us via WhatsApp, phone, or email using the buttons below.' },
@@ -49,8 +48,8 @@ function showToast(msg) {
   setTimeout(() => { toast.remove(); }, 2200);
 }
 
-// Firebase Functions endpoint for AI chat
-const aiChatFunction = httpsCallable(functions, 'aiChat');
+// TODO: Implement alternative AI chat service
+// const aiChatFunction = alternativeAIService.chat;
 
 export default function SupportAgent() {
   const [open, setOpen] = useState(false);
@@ -100,12 +99,11 @@ export default function SupportAgent() {
     setLoading(true);
     setInput('');
     try {
-      const result = await aiChatFunction({ message: input });
-      if (result.data && result.data.success && result.data.reply) {
-        showTypingEffect(result.data.reply);
-      } else {
-        setMessages((msgs) => [...msgs, { from: 'bot', text: getBotReply(input) }]);
-      }
+      // TODO: Replace with alternative AI service call
+      // const result = await aiChatFunction({ message: input });
+      // For now, use local bot reply
+      const reply = getBotReply(input);
+      showTypingEffect(reply);
     } catch (err) {
       console.error('AI chat error:', err);
       setMessages((msgs) => [...msgs, { from: 'bot', text: getBotReply(input) }]);

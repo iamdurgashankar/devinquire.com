@@ -1,93 +1,111 @@
 # DevInquire
 
-A modern web application platform with separate frontend and dashboard applications.
+A modern web application platform featuring a React frontend with comprehensive PHP backend API for blog management, contact forms, and newsletter subscriptions.
 
 ## Project Structure
 
-This is a monorepo containing:
+This project contains:
 
-- **Main Frontend** (`/src`) - Public-facing website with marketing pages, blog, and user features
-- **Dashboard** (`/dashboard`) - Admin dashboard for content management and user administration  
-- **API** (`/api`) - PHP backend API for data management
+- **Frontend Application** (`/src`) - React-based public website with marketing pages, blog system, and user features
+- **PHP Backend API** (`/api`) - RESTful API with comprehensive database schema for all backend operations
+- **Database Schema** (`/api/sql`) - Complete MySQL database structure with advanced features
 
 ## Applications
 
-### Main Frontend
+### Frontend Application
 - **Port**: 3000 (default)
 - **Purpose**: Public website with home, about, services, products, blog, and contact pages
 - **Key Features**: 
-  - Marketing website
-  - Blog system
-  - Contact forms
+  - Modern React-based marketing website
+  - Dynamic blog system with categories and tags
+  - Contact forms with backend integration
+  - Newsletter subscription system
   - Support agent integration
+  - SEO optimized pages
 
-### Dashboard
-- **Port**: 3002 (configured)
-- **Purpose**: Admin interface for managing content and users
+### PHP Backend API
+- **Port**: 8000 (development)
+- **Purpose**: RESTful API for all backend operations
 - **Key Features**:
-  - User management
-  - Content management
-  - Analytics dashboard
-  - Page builder
+  - Blog management (CRUD operations)
+  - Contact form processing
+  - Newsletter subscription management
+  - Rate limiting and security
+  - Comprehensive logging system
+  - File upload management
 
 ## Getting Started
 
-### Main Frontend
+### Frontend Application
 ```bash
 npm install
 npm start
 ```
 
-### Dashboard
-```bash
-cd dashboard
-npm install
-npm start
-```
-
-### API Server
+### PHP Backend API
 ```bash
 npm run server
+# or manually:
+cd api
+php -S localhost:8000
 ```
 
 ## Build Commands
 
-- `npm run build` - Build main frontend
-- `npm run build:dashboard` - Build dashboard with dashboard-specific configuration
-- `cd dashboard && npm run build` - Build dashboard from dashboard directory
+- `npm run build` - Build frontend application for production
+- `npm run server` - Start PHP development server on port 8000
+- `npm test` - Run frontend tests
+- `npm run eject` - Eject from Create React App (not recommended)
 
-## Environment
+## Technology Stack
 
-- React 18.2.0
-- Tailwind CSS
-- Framer Motion
-- React Router DOM
-- PHP Backend API
+### Frontend
+- **React** 18.2.0 - Modern UI library
+- **Tailwind CSS** 3.4.1 - Utility-first CSS framework
+- **Framer Motion** 12.18.1 - Animation library
+- **React Router DOM** 6.21.0 - Client-side routing
+- **Lucide React** 0.539.0 - Icon library
+- **Axios** 1.6.0 - HTTP client
+- **React Helmet Async** 2.0.5 - SEO management
 
-A comprehensive web platform for development agencies featuring a modern frontend, powerful admin dashboard, and complete blog management system.
+### Backend
+- **PHP** 7.4+ - Server-side scripting
+- **MySQL** 5.7+ - Database management
+- **RESTful API** - Clean API architecture
+
+### Development Tools
+- **PostCSS** - CSS processing
+- **Autoprefixer** - CSS vendor prefixes
+- **React Scripts** 5.0.1 - Build tooling
+
+A comprehensive web platform for development agencies featuring a modern React frontend and robust PHP backend API with complete blog management system.
 
 ## 🚀 Features
 
 ### Frontend Website
-- **Modern Landing Page**: Professional homepage with services showcase
-- **Blog System**: Dynamic blog with categories, tags, and search functionality
-- **Responsive Design**: Mobile-first design with Tailwind CSS
-- **Contact Forms**: Integrated contact and newsletter subscription
-- **SEO Optimized**: Meta tags and structured content
+- **Modern Landing Page**: Professional homepage with services and products showcase
+- **Dynamic Blog System**: Full-featured blog with categories, tags, and content management
+- **Responsive Design**: Mobile-first design with Tailwind CSS and smooth animations
+- **Contact Forms**: Integrated contact forms with backend processing
+- **Newsletter System**: Email subscription management with confirmation
+- **SEO Optimized**: Meta tags, structured data, and performance optimization
+- **Support Agent**: Interactive support chat integration
 
-### Admin Dashboard
-- **User Management**: Approve/reject registrations, manage user roles
-- **Blog Management**: Create, edit, publish, and manage blog posts
-- **Dashboard Analytics**: User statistics and content metrics
-- **Content Management**: Dynamic page builder and content editor
-- **Role-based Access**: Secure admin-only features
+### Backend API Features
+- **Blog Management**: Complete CRUD operations for posts, categories, and tags
+- **Contact Processing**: Form submission handling with validation and logging
+- **Newsletter Management**: Subscription handling with email verification
+- **File Upload System**: Secure file management with metadata tracking
+- **User Management**: Comprehensive user system with roles and permissions
+- **Email System**: Automated email sending with tracking and logging
 
 ### Technical Features
-- **Dual Application Architecture**: Separate main website and admin dashboard
-- **RESTful API**: PHP backend with MySQL database
-- **Authentication System**: JWT-based session management
-- **CORS Support**: Proper cross-origin resource sharing
-- **Database Schema**: Comprehensive tables for users, posts, and pages
+- **RESTful API Architecture**: Clean, well-documented PHP backend
+- **Advanced Database Schema**: 10+ tables with proper relationships and indexing
+- **Rate Limiting**: API protection with configurable limits
+- **Security Features**: Input validation, SQL injection protection, and secure sessions
+- **Comprehensive Logging**: System logs, email logs, and authentication tracking
+- **CORS Support**: Proper cross-origin resource sharing for API access
 
 ## 📋 Prerequisites
 
@@ -107,16 +125,8 @@ cd devinquire
 
 ### 2. Install dependencies
 
-#### Main Website Dependencies
 ```bash
 npm install
-```
-
-#### Dashboard Dependencies
-```bash
-cd dashboard
-npm install
-cd ..
 ```
 
 ### 3. Install PHP (if not already installed)
@@ -156,19 +166,25 @@ USE devinquire;
 
 #### Import Database Schema
 
-1. **Users Table** (for authentication and user management):
+The project includes a comprehensive database schema with all required tables:
+
 ```bash
-mysql -u your_username -p devinquire < api/schema.sql
+mysql -u your_username -p devinquire < api/sql/schema.sql
 ```
 
-2. **Posts Table** (for blog functionality):
-```bash
-mysql -u your_username -p devinquire < api/posts_schema.sql
-```
+This creates the following tables:
+- **contact_submissions** - Contact form submissions
+- **blog_posts, blog_categories, blog_tags** - Complete blog system
+- **newsletter_subscriptions, blog_subscribers** - Email subscription management
+- **users** - User management with roles and permissions
+- **file_uploads** - File management system
+- **system_logs, email_logs, auth_logs** - Comprehensive logging
+- **sessions, api_keys** - Security and session management
+- **rate_limiting** - API protection
 
 #### Configure Database Connection
 
-Update the database credentials in `api/db.php`:
+Update the database credentials in `api/config/database.php`:
 
 ```php
 $host = 'localhost';
@@ -188,7 +204,7 @@ The application automatically detects the environment:
 
 ### Development Environment
 
-The application consists of three components that need to be running simultaneously:
+The application consists of two components that need to be running simultaneously:
 
 #### 1. Start the PHP API Server
 
@@ -199,30 +215,20 @@ php -S localhost:8000
 
 This starts the backend API on `http://localhost:8000`
 
-#### 2. Start the Main Website (Frontend)
+#### 2. Start the Frontend Application
 
 ```bash
 # In a new terminal, from project root
-PORT=3002 npm start
+npm start
 ```
 
-This starts the main website on `http://localhost:3002`
-
-#### 3. Start the Admin Dashboard
-
-```bash
-# In a new terminal
-cd dashboard
-PORT=3003 npm start
-```
-
-This starts the admin dashboard on `http://localhost:3003`
+This starts the React application on `http://localhost:3000`
 
 ### Access URLs
 
-- **Main Website**: http://localhost:3002
-- **Admin Dashboard**: http://localhost:3003
+- **Frontend Website**: http://localhost:3000
 - **API Backend**: http://localhost:8000
+- **API Documentation**: Available through the API endpoints
 
 ### Quick Start Script
 
@@ -240,112 +246,159 @@ dev-setup.bat
 
 ### Production
 
-#### Automatic Deployment (Hostinger)
+## 🚀 Deployment
 
-This project is configured for automatic deployment to Hostinger:
+### Automated Deployment (GitHub Actions)
+The project uses GitHub Actions for automated deployment to Hostinger:
 
-- **Auto-deploy**: Pushes to `main` branch automatically trigger deployment
-- **Webhook URL**: `https://webhooks.hostinger.com/deploy/6a336b05bd6b1e6e2060ee80c41c2c01`
-- **GitHub Actions**: Builds and deploys both main app and dashboard
+**Workflow Features:**
+- **Trigger**: Push to `main` branch or manual workflow dispatch
+- **Build Process**: 
+  - Install dependencies (`npm install`)
+  - Build React application (`npm run build`)
+  - Build dashboard if needed (`npm run build:dashboard`)
+- **Deploy**: Trigger Hostinger webhook for deployment
 - **Live URL**: `https://devinquire.com`
-- **Dashboard URL**: `https://devinquire.com/dashboard`
 
-📖 **For detailed deployment setup**: See [DEPLOYMENT.md](./DEPLOYMENT.md)
-
-#### Manual Deployment
-
-1. **Build the React applications**:
-
+### Manual Production Build
 ```bash
-# Build main application
+# Install dependencies
+npm install
+
+# Build React application
 npm run build
 
-# Build dashboard
-cd dashboard
-npm run build
-cd ..
+# Start PHP server (for local testing)
+npm run php-server
 ```
 
-2. **Deploy using the deployment script**:
+### Environment Configuration
 
-```bash
-./deploy.sh
+**Frontend Configuration (`src/config.js`)**
+```javascript
+const config = {
+  apiUrl: process.env.REACT_APP_API_URL || 'http://localhost:8000/api',
+  environment: process.env.REACT_APP_ENVIRONMENT || 'development'
+};
 ```
 
-3. **Manual file deployment**:
+**Backend Configuration (`api/config/database.php`)**
+- Update database credentials for production
+- Configure CORS settings for production domain
+- Set up SSL certificates
+- Configure web server (Apache/Nginx) for PHP support
 
-- Upload the `build` folder contents to your web server's `public_html`
-- Upload the `dashboard/build` contents to `public_html/dashboard`
-- Upload the `api` folder to `public_html/api`
-- Ensure the API base URL in `src/services/api.js` points to your production domain
+### Deployment Checklist
+- [ ] Update database credentials in `api/config/database.php`
+- [ ] Set production API URL in frontend configuration
+- [ ] Configure CORS for production domain
+- [ ] Set up SSL certificates
+- [ ] Import database schema (`api/sql/schema.sql`)
+- [ ] Configure web server for PHP and React routing
 
-## Default Admin Credentials
+## 👤 Admin Access
 
-For local development, the default admin credentials are:
+### Default Admin Setup
+To create an admin user, you can:
 
-- **Email**: admin@devinquire.com
-- **Password**: admin123
+1. **Register through the API** and manually update the user role in the database:
+   ```sql
+   UPDATE users SET role = 'admin', status = 'active' WHERE email = 'your-email@domain.com';
+   ```
+
+2. **Insert directly into the database**:
+   ```sql
+   INSERT INTO users (username, email, password_hash, role, status) 
+   VALUES ('admin', 'admin@devinquire.com', '$2y$10$hashed_password', 'admin', 'active');
+   ```
+
+### Admin Features
+- Blog post management (create, edit, delete)
+- Category and tag management
+- Contact form submissions review
+- Newsletter subscriber management
+- User management and role assignment
+- System logs and analytics
 
 ## 📡 API Endpoints
 
-### Authentication
-- `POST /api/login.php` - User login
-- `POST /api/signup.php` - User registration
-- `GET /api/session.php` - Get current session
-- `POST /api/logout.php` - User logout
+### Blog API (`/api/blog.php`)
+- `GET /api/blog.php` - Get all published blog posts
+- `GET /api/blog.php/{id}` - Get single blog post by ID
+- `GET /api/blog.php/category/{slug}` - Get posts by category
+- `GET /api/blog.php/tag/{slug}` - Get posts by tag
+- `GET /api/blog.php/search?q={query}` - Search blog posts
 
-### User Management (Admin)
-- `GET /api/get_users.php` - Get all users
-- `POST /api/delete_user.php` - Delete user
-- `GET /api/get_pending_users.php` - Get pending users
-- `POST /api/approve_user.php` - Approve user registration
-- `POST /api/reject_user.php` - Reject user registration
+### Blog Admin API (`/api/blog-admin.php`) 
+- `GET /api/blog-admin.php/posts` - Get all posts (including drafts)
+- `POST /api/blog-admin.php/posts` - Create new blog post
+- `PUT /api/blog-admin.php/posts/{id}` - Update blog post
+- `DELETE /api/blog-admin.php/posts/{id}` - Delete blog post
+- `GET /api/blog-admin.php/categories` - Manage categories
+- `GET /api/blog-admin.php/tags` - Manage tags
 
-### Profile Management
-- `GET /api/profile.php` - Get user profile
-- `POST /api/profile.php` - Update user profile
+### Contact API (`/api/contact.php`)
+- `POST /api/contact.php` - Submit contact form
+- `GET /api/contact.php` - Get contact submissions (admin)
 
-### Blog Management
-- `GET /api/get_posts.php` - Get all blog posts
-- `GET /api/get_post.php?id={id}` - Get single blog post
-- `POST /api/create_post.php` - Create new blog post (admin)
-- `POST /api/update_post.php` - Update blog post (admin)
-- `POST /api/delete_post.php` - Soft delete blog post (admin)
-- `POST /api/permanent_delete_post.php` - Permanently delete blog post (admin)
+### Newsletter API (`/api/newsletter.php`)
+- `POST /api/newsletter.php/subscribe` - Subscribe to newsletter
+- `POST /api/newsletter.php/unsubscribe` - Unsubscribe from newsletter
+- `GET /api/newsletter.php/verify/{token}` - Verify email subscription
+
+### Authentication API (`/api/auth.php`)
+- `POST /api/auth.php/login` - User authentication
+- `POST /api/auth.php/logout` - User logout
+- `GET /api/auth.php/session` - Get current session
+- `POST /api/auth.php/register` - User registration
 
 ## 📁 Project Structure
 
 ```
 devinquire/
-├── api/                    # PHP Backend API
-│   ├── db.php             # Database connection & CORS
-│   ├── schema.sql         # Users table schema
-│   ├── posts_schema.sql   # Posts table schema
-│   ├── login.php          # Authentication endpoints
-│   ├── signup.php
-│   ├── session.php
-│   ├── get_posts.php      # Blog API endpoints
-│   ├── get_post.php
-│   ├── create_post.php
-│   ├── update_post.php
-│   ├── delete_post.php
-│   └── ...
-├── dashboard/              # Admin Dashboard (React)
-│   ├── public/
-│   ├── src/
-│   │   ├── components/    # Dashboard components
-│   │   ├── pages/         # Dashboard pages
-│   │   └── services/      # API services
-│   └── package.json
-├── public/                 # Main website static files
-├── src/                    # Main website source (React)
-│   ├── components/        # Reusable components
+├── .github/
+│   └── workflows/
+│       └── deploy.yml     # GitHub Actions deployment
+├── api/                   # PHP Backend API
+│   ├── config/
+│   │   └── database.php   # Database configuration
+│   ├── sql/
+│   │   └── schema.sql     # Complete database schema
+│   ├── auth.php           # Authentication & security
+│   ├── blog.php           # Public blog API
+│   ├── blog-admin.php     # Admin blog management
+│   ├── contact.php        # Contact form processing
+│   └── newsletter.php     # Newsletter management
+├── public/                # Static files & build output
+│   ├── index.html         # Main HTML template
+│   ├── manifest.json      # PWA manifest
+│   ├── robots.txt         # SEO robots file
+│   └── sitemap.xml        # SEO sitemap
+├── src/                   # React Frontend Source
+│   ├── components/        # Reusable UI components
+│   │   ├── shared/        # Shared component library
+│   │   ├── Navbar.jsx     # Navigation component
+│   │   ├── Footer.jsx     # Footer component
+│   │   └── ...
 │   ├── pages/             # Page components
+│   │   ├── Home.jsx       # Homepage
+│   │   ├── Blog.jsx       # Blog listing
+│   │   ├── BlogPost.jsx   # Individual blog post
+│   │   ├── Services.jsx   # Services page
+│   │   ├── Products.jsx   # Products page
+│   │   ├── Contact.jsx    # Contact page
+│   │   └── ...
 │   ├── contexts/          # React contexts
-│   └── services/          # API services
-├── package.json           # Main website dependencies
-├── dev-setup.sh          # Development setup script
-└── README.md             # Documentation
+│   ├── hooks/             # Custom React hooks
+│   ├── services/          # API service functions
+│   ├── styles/            # CSS and styling
+│   ├── utils/             # Utility functions
+│   ├── images/            # Image assets
+│   └── config.js          # Frontend configuration
+├── package.json           # Dependencies & scripts
+├── tailwind.config.js     # Tailwind CSS configuration
+├── postcss.config.js      # PostCSS configuration
+└── README.md              # Project documentation
 ```
 
 ## Troubleshooting
@@ -411,40 +464,78 @@ CREATE TABLE IF NOT EXISTS users (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-### Posts Table
+## 🔒 Security Features
 
-For blog functionality:
+### Authentication & Authorization
+- JWT-based session management
+- Role-based access control (admin, user, guest)
+- Password hashing with PHP's `password_hash()`
+- Session timeout and automatic logout
 
-```sql
-CREATE TABLE IF NOT EXISTS posts (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    content TEXT NOT NULL,
-    excerpt TEXT,
-    category VARCHAR(100),
-    tags TEXT,
-    featured_image VARCHAR(255),
-    author_name VARCHAR(255) NOT NULL,
-    read_time INT DEFAULT 5,
-    status ENUM('draft', 'published', 'archived') DEFAULT 'draft',
-    views INT DEFAULT 0,
-    likes INT DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-```
+### API Security
+- Rate limiting to prevent abuse
+- CORS configuration for cross-origin requests
+- Input validation and sanitization
+- SQL injection prevention with prepared statements
+- XSS protection with output escaping
 
-### Migration Notes
+### Database Security
+- Prepared statements for all queries
+- User role and permission management
+- Audit logging for admin actions
+- Secure password storage
 
-- Import `api/schema.sql` for the users table
-- Import `api/posts_schema.sql` for the posts table with sample data
-- MySQL 8.0+ supports `IF NOT EXISTS` for columns
-- For older MySQL versions, check column existence before altering tables
+### Production Security
+- HTTPS enforcement (set `session.cookie_secure` to `1`)
+- Secure cookie configuration
+- Environment-based configuration
+- Error logging without exposing sensitive data
 
 ---
 
-## Session Cookie Security
+## 🤝 Contributing
 
-- In `api/db.php`, set `session.cookie_secure` to `1` for production (HTTPS), and to `0` for local development (HTTP).
+### Development Workflow
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Test thoroughly (frontend and API)
+5. Commit your changes (`git commit -m 'Add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
+
+### Code Standards
+- **Frontend**: Follow React best practices and ESLint rules
+- **Backend**: Follow PSR-12 PHP coding standards
+- **Database**: Use proper indexing and foreign key constraints
+- **Security**: Always validate and sanitize user inputs
+
+## 📞 Support
+
+### Getting Help
+- **Issues**: Report bugs or request features via GitHub Issues
+- **Documentation**: Check this README and inline code comments
+- **Contact**: Reach out via the contact form on the website
+
+### Common Issues
+- **CORS Errors**: Check `api/auth.php` CORS configuration
+- **Database Connection**: Verify credentials in `api/config/database.php`
+- **Build Errors**: Ensure all dependencies are installed (`npm install`)
+- **PHP Errors**: Check server error logs and PHP version compatibility
+
+---
+
+**Built with ❤️ by the DevInquire Team**
+
+## 📊 Database Schema
+
+The complete database schema is available in `api/sql/schema.sql` and includes:
+
+- **Blog System**: Posts, categories, tags, and relationships
+- **User Management**: Users, roles, sessions, and authentication
+- **Contact System**: Form submissions and processing
+- **Newsletter**: Subscriptions and email verification
+- **Logging**: System logs, email logs, and audit trails
+- **File Management**: Upload tracking and metadata
 
 ---

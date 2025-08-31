@@ -23,7 +23,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import CookiePolicy from "./pages/CookiePolicy";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import apiService from "./services/api";
+// API service removed - using PHP backend directly
 import SupportAgent from "./components/SupportAgent";
 // Dashboard components removed - handled by separate dashboard app
 
@@ -99,19 +99,9 @@ export default function App() {
   // Main website app - dashboard is separate
   const [initialTheme, setInitialTheme] = React.useState("system");
   React.useEffect(() => {
-    // Try to load theme from user preferences if logged in
-    async function loadThemePref() {
-      try {
-        const user = await apiService.getCurrentUser();
-        if (user) {
-          const prefs = await apiService.getUserPreferences(user.id);
-          if (prefs.success && prefs.preferences && prefs.preferences.theme) {
-            setInitialTheme(prefs.preferences.theme);
-          }
-        }
-      } catch (e) {}
-    }
-    loadThemePref();
+    // Theme preferences will use system default for now
+    // TODO: Implement theme preferences with your chosen backend
+    setInitialTheme("system");
   }, []);
   return (
     <HelmetProvider>

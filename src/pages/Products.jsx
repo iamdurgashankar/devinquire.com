@@ -51,7 +51,7 @@ const products = [
     features: ["Cross-platform", "Native Performance", "UI Components", "Push Notifications", "Offline Support", "App Store Ready"],
     category: "Mobile",
     status: "Beta",
-    technologies: ["React Native", "Flutter", "Firebase", "AWS"]
+    technologies: ["React Native", "Flutter", "MySQL", "AWS"]
   },
   {
     icon: Shield,
