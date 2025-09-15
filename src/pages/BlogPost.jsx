@@ -2,6 +2,7 @@ import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 // API service removed - using PHP backend directly
 import SEO from '../components/SEO';
+import blogApiService from '../services/blogApiService';
 
 export default function BlogPost() {
   const { id } = useParams();
@@ -18,12 +19,10 @@ export default function BlogPost() {
       setLoading(true);
       setError(null);
       
-      // Fetch post by slug or ID from PHP backend
-      const response = await fetch(`/api/blog.php?action=post&slug=${encodeURIComponent(id)}`);
-      const data = await response.json();
+      // Fetch post by slug or ID from external dashboard API
+      const postData = await blogApiService.getPost(id);
       
-      if (data.success && data.data) {
-        const postData = data.data;
+      if (postData) {
         setPost({
           id: postData.id,
           title: postData.title,
@@ -39,7 +38,7 @@ export default function BlogPost() {
           slug: postData.slug
         });
       } else {
-        setError(data.error || 'Post not found');
+        setError('Post not found');
       }
     } catch (error) {
       console.error('Error loading post:', error);

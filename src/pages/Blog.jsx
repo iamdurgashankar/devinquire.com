@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import PageLayout from '../components/PageLayout';
 import SEO from '../components/SEO';
 import { responsiveTypography, responsiveSpacing, responsiveContainers } from '../utils/responsive';
+import blogApiService from '../services/blogApiService';
 import '../components/NewsletterShadowComponent';
 
 // Categories will be loaded from API
@@ -33,16 +34,11 @@ export default function Blog() {
   
   const loadCategories = async () => {
     try {
-      const response = await fetch('/api/blog.php?action=categories');
-      const data = await response.json();
-      
-      if (data.success && data.data.length > 0) {
-        const categoryNames = data.data.map(cat => cat.name);
-        setCategories(['All', ...categoryNames]);
-      }
+      const categories = await blogApiService.getCategories();
+      const categoryNames = categories.map(cat => cat.name || cat.category_name);
+      setCategories(['All', ...categoryNames]);
     } catch (error) {
       console.error('Error loading categories:', error);
-      // Keep default categories on error
     }
   };
 
@@ -51,38 +47,31 @@ export default function Blog() {
       setLoading(true);
       setError(null);
       
-      // Build API URL with category filter if needed
-      let apiUrl = '/api/blog.php?action=posts&status=published&limit=20';
-      if (selectedCategory !== 'All') {
-        const categorySlug = selectedCategory.toLowerCase().replace(/\s+/g, '-');
-        apiUrl += `&category=${encodeURIComponent(categorySlug)}`;
-      }
+      const options = {
+        status: 'published',
+        limit: 20,
+        category: selectedCategory !== 'All' ? selectedCategory : undefined
+      };
       
-      const response = await fetch(apiUrl);
-      const data = await response.json();
+      const postsData = await blogApiService.getPosts(options);
       
-      if (data.success) {
-        const transformedPosts = (data.data || []).map(post => ({
-          id: post.id,
-          title: post.title,
-          excerpt: post.excerpt,
-          author: post.author_name || 'Admin User',
-          date: new Date(post.published_at || post.created_at).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          }),
-          category: post.category_name || 'Uncategorized',
-          readTime: post.read_time ? `${post.read_time} min read` : '5 min read',
-          image: post.featured_image || `https://images.unsplash.com/photo-1461749280684-dccba630e2f6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80`,
-          tags: Array.isArray(post.tags) ? post.tags : [],
-          slug: post.slug
-        }));
-        setBlogPosts(transformedPosts);
-      } else {
-        setError(data.error || 'Failed to load posts');
-        setBlogPosts([]);
-      }
+      const transformedPosts = postsData.map(post => ({
+        id: post.id,
+        title: post.title,
+        excerpt: post.excerpt,
+        author: post.author_name || 'Admin User',
+        date: new Date(post.published_at || post.created_at).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        }),
+        category: post.category_name || 'Uncategorized',
+        readTime: post.read_time ? `${post.read_time} min read` : '5 min read',
+        image: post.featured_image || `https://images.unsplash.com/photo-1461749280684-dccba630e2f6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80`,
+        tags: Array.isArray(post.tags) ? post.tags : [],
+        slug: post.slug
+      }));
+      setBlogPosts(transformedPosts);
     } catch (error) {
       console.error('Error loading posts:', error);
       setError(error.message || 'Failed to load posts. Please try again later.');
@@ -147,26 +136,28 @@ export default function Blog() {
                 {selectedCategory === category && (
                   <div className="absolute -inset-1 bg-[#0077b6] rounded-full blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
                 )}
-          
-          {/* Error State */}
-          {error && (
-            <div className="text-center py-12">
-              <div className="text-6xl mb-4">⚠️</div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Posts</h3>
-              <p className="text-gray-600 mb-4">{error}</p>
-              <button
-                onClick={() => loadPosts()}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-300"
-              >
-                Try Again
-              </button>
-            </div>
-          )}
               </button>
             ))}
           </div>
         </div>
       </section>
+
+      {/* Error State */}
+      {error && (
+        <section className="py-16 bg-white relative overflow-hidden">
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div className="text-6xl mb-4">⚠️</div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Posts</h3>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <button
+              onClick={() => loadPosts()}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-300"
+            >
+              Try Again
+            </button>
+          </div>
+        </section>
+      )}
 
       {/* Loading State */}
       {loading && (
@@ -179,7 +170,7 @@ export default function Blog() {
       )}
 
       {/* Featured Post */}
-      {!loading && featuredPost && (
+      {!loading && !error && featuredPost && (
         <section className="py-16 bg-white relative overflow-hidden">
           {/* Background decoration */}
           <div className="absolute inset-0">
@@ -247,6 +238,7 @@ export default function Blog() {
       )}
 
       {/* Blog Posts Grid */}
+      {!loading && !error && (
       <section className={`${responsiveSpacing.sectionPadding} relative`}>
         {/* Background decoration */}
         <div className="absolute inset-0">
@@ -326,6 +318,7 @@ export default function Blog() {
           )}
         </div>
       </section>
+      )}
 
         {/* Newsletter Signup - Shadow DOM Component */}
         <section className={`${responsiveSpacing.sectionPadding}`}>

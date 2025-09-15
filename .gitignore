@@ -123,3 +123,15 @@ backend/uploads/*
 
 # Ignore local environment config
 api/.env
+
+# PHP Composer
+api/vendor/
+api/composer.phar
+
+# PHP temporary and cache files
+api/*.tmp
+api/cache/
+
+# Debug and test files (exclude from production)
+api/debug-*.php
+api/test-*.php

@@ -28,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 require_once 'config/database.php';
+require_once 'utils/EmailSender.php';
 
 class NewsletterHandler {
     private $db;
@@ -96,8 +97,8 @@ class NewsletterHandler {
             $subscriptionId = $this->saveSubscription($email, $categories, $confirmationToken, $unsubscribeToken);
             
             if ($subscriptionId) {
-                // Send confirmation email (optional)
-                // $this->sendConfirmationEmail($email, $confirmationToken);
+                // Send confirmation email
+                $this->sendConfirmationEmail($email, $confirmationToken);
                 
                 return [
                     'success' => true,
@@ -272,6 +273,24 @@ class NewsletterHandler {
      */
     private function generateToken() {
         return bin2hex(random_bytes(32));
+    }
+    
+    /**
+     * Send confirmation email
+     */
+    private function sendConfirmationEmail($email, $confirmationToken) {
+        try {
+            $emailSender = new EmailSender();
+            $result = $emailSender->sendNewsletterConfirmation($email, $confirmationToken);
+            
+            if ($result['success']) {
+                error_log('Newsletter confirmation email sent successfully to: ' . $email);
+            } else {
+                error_log('Failed to send newsletter confirmation: ' . $result['error']);
+            }
+        } catch (Exception $e) {
+            error_log('Newsletter confirmation email error: ' . $e->getMessage());
+        }
     }
     
     /**
