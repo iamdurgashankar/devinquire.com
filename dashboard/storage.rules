@@ -1,0 +1,267 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper functions for role-based access control
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function getUserData() {
+      return firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    function hasRole(role) {
+      return isAuthenticated() && getUserData().role == role;
+    }
+    
+    function hasAnyRole(roles) {
+      return isAuthenticated() && getUserData().role in roles;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isActiveUser() {
+      return isAuthenticated() && 
+             getUserData().status == 'active' && 
+             getUserData().approvalStatus.status == 'approved';
+    }
+    
+    function isSuperAdmin() {
+      return hasRole('SUPER_ADMIN');
+    }
+    
+    function isAdmin() {
+      return hasAnyRole(['SUPER_ADMIN', 'ADMIN']);
+    }
+    
+    function isModerator() {
+      return hasAnyRole(['SUPER_ADMIN', 'ADMIN', 'MODERATOR']);
+    }
+    
+    function isAuthor() {
+      return hasAnyRole(['SUPER_ADMIN', 'ADMIN', 'MODERATOR', 'AUTHOR']);
+    }
+    
+    function canCreateContent() {
+      return isAuthor() && isActiveUser();
+    }
+    
+    function canModerateContent() {
+      return isModerator();
+    }
+    
+    // File size limits (in bytes)
+    function isValidImageSize() {
+      return request.resource.size <= 10 * 1024 * 1024; // 10MB for images
+    }
+    
+    function isValidDocumentSize() {
+      return request.resource.size <= 50 * 1024 * 1024; // 50MB for documents
+    }
+    
+    function isValidVideoSize() {
+      return request.resource.size <= 500 * 1024 * 1024; // 500MB for videos
+    }
+    
+    // Content type validation
+    function isValidImageType() {
+      return request.resource.contentType.matches('image/.*') &&
+             request.resource.contentType in ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+    }
+    
+    function isValidDocumentType() {
+      return request.resource.contentType in [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'text/plain',
+        'text/csv'
+      ];
+    }
+    
+    function isValidVideoType() {
+      return request.resource.contentType.matches('video/.*') &&
+             request.resource.contentType in ['video/mp4', 'video/webm', 'video/ogg'];
+    }
+    
+    function isValidAudioType() {
+      return request.resource.contentType.matches('audio/.*') &&
+             request.resource.contentType in ['audio/mp3', 'audio/wav', 'audio/ogg', 'audio/m4a'];
+    }
+    
+    // User profile images
+    match /users/{userId}/profile/{imageId} {
+      // Read: Public read for profile images
+      allow read: if true;
+      
+      // Write: Users can upload their own profile images
+      allow write: if isOwner(userId) && 
+                      isActiveUser() &&
+                      isValidImageType() && 
+                      isValidImageSize();
+      
+      // Delete: Users can delete their own profile images, admins can delete any
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+    
+    // Blog post images and media
+    match /posts/{postId}/media/{mediaId} {
+      // Read: Public read for published post media
+      allow read: if true; // Media access controlled by post visibility in Firestore
+      
+      // Write: Authors can upload media for their posts
+      allow write: if canCreateContent() &&
+                      (isValidImageType() && isValidImageSize()) ||
+                      (isValidVideoType() && isValidVideoSize()) ||
+                      (isValidAudioType() && isValidImageSize()); // Use image size limit for audio
+      
+      // Delete: Post authors and moderators can delete media
+      allow delete: if canCreateContent() || canModerateContent();
+    }
+    
+    // General media uploads (for rich text editor, etc.)
+    match /media/{userId}/{mediaId} {
+      // Read: Public read for media files
+      allow read: if true;
+      
+      // Write: Authors can upload media files
+      allow write: if isOwner(userId) &&
+                      canCreateContent() &&
+                      ((isValidImageType() && isValidImageSize()) ||
+                       (isValidVideoType() && isValidVideoSize()) ||
+                       (isValidAudioType() && isValidImageSize()) ||
+                       (isValidDocumentType() && isValidDocumentSize()));
+      
+      // Delete: Users can delete their own media, moderators can delete any
+      allow delete: if isOwner(userId) || canModerateContent();
+    }
+    
+    // Site assets (logos, banners, etc.)
+    match /site/{assetType}/{assetId} {
+      // Read: Public read for site assets
+      allow read: if true;
+      
+      // Write: Only admins can upload site assets
+      allow write: if isAdmin() &&
+                      isValidImageType() &&
+                      isValidImageSize();
+      
+      // Delete: Only admins can delete site assets
+      allow delete: if isAdmin();
+    }
+    
+    // User documents (private files)
+    match /users/{userId}/documents/{documentId} {
+      // Read: Users can read their own documents, admins can read any
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // Write: Users can upload their own documents
+      allow write: if isOwner(userId) &&
+                      isActiveUser() &&
+                      isValidDocumentType() &&
+                      isValidDocumentSize();
+      
+      // Delete: Users can delete their own documents, admins can delete any
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+    
+    // Temporary uploads (for processing)
+    match /temp/{userId}/{tempId} {
+      // Read: Users can read their own temp files
+      allow read: if isOwner(userId);
+      
+      // Write: Users can upload temp files (with stricter size limits)
+      allow write: if isOwner(userId) &&
+                      isActiveUser() &&
+                      request.resource.size <= 20 * 1024 * 1024; // 20MB limit for temp files
+      
+      // Delete: Users can delete their own temp files, system cleanup
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+    
+    // Email attachments
+    match /email-attachments/{attachmentId} {
+      // Read: Only admins can read email attachments
+      allow read: if isAdmin();
+      
+      // Write: Only system can write email attachments (Cloud Functions)
+      allow write: if false; // Handled by Cloud Functions
+      
+      // Delete: Only admins can delete email attachments
+      allow delete: if isAdmin();
+    }
+    
+    // Backup files
+    match /backups/{backupId} {
+      // Read: Only super admins can read backups
+      allow read: if isSuperAdmin();
+      
+      // Write: Only system can write backups (Cloud Functions)
+      allow write: if false; // Handled by Cloud Functions
+      
+      // Delete: Only super admins can delete backups
+      allow delete: if isSuperAdmin();
+    }
+    
+    // System logs and exports
+    match /exports/{exportId} {
+      // Read: Only admins can read exports
+      allow read: if isAdmin();
+      
+      // Write: Only system can write exports (Cloud Functions)
+      allow write: if false; // Handled by Cloud Functions
+      
+      // Delete: Only admins can delete exports
+      allow delete: if isAdmin();
+    }
+    
+    // Analytics data files
+    match /analytics/{analyticsFile} {
+      // Read: Only admins can read analytics files
+      allow read: if isAdmin();
+      
+      // Write: Only system can write analytics files (Cloud Functions)
+      allow write: if false; // Handled by Cloud Functions
+      
+      // Delete: Only super admins can delete analytics files
+      allow delete: if isSuperAdmin();
+    }
+    
+    // Theme and customization files
+    match /themes/{themeId}/{assetId} {
+      // Read: Public read for theme assets
+      allow read: if true;
+      
+      // Write: Only admins can upload theme files
+      allow write: if isAdmin() &&
+                      ((isValidImageType() && isValidImageSize()) ||
+                       (request.resource.contentType == 'text/css' && request.resource.size <= 1024 * 1024) ||
+                       (request.resource.contentType == 'application/javascript' && request.resource.size <= 1024 * 1024));
+      
+      // Delete: Only admins can delete theme files
+      allow delete: if isAdmin();
+    }
+    
+    // Plugin files
+    match /plugins/{pluginId}/{assetId} {
+      // Read: Admins can read plugin files
+      allow read: if isAdmin();
+      
+      // Write: Only super admins can upload plugin files
+      allow write: if isSuperAdmin();
+      
+      // Delete: Only super admins can delete plugin files
+      allow delete: if isSuperAdmin();
+    }
+    
+    // Default deny rule for any other paths
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

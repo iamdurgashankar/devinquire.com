@@ -1,30 +1,26 @@
-// Page management API functions
-const API_BASE_URL =
-  process.env.NODE_ENV === "development" ? "http://localhost:8001" : "";
+// Page management API functions with Firebase integration
+import pageManagementService from "./pageManagementService";
+import { isFirebaseConfigured } from "../config/firebase";
+
+// Check Firebase configuration but don't throw immediately
+const checkFirebaseConfig = () => {
+  const configured = isFirebaseConfigured();
+  if (!configured) {
+    console.error("Firebase is not configured. Please check your Firebase configuration.");
+    console.error("This may cause some features to not work properly.");
+  }
+  return configured;
+};
+
+// Initialize check
+const firebaseConfigured = checkFirebaseConfig();
 
 export async function createPage(pageData) {
   try {
-    const res = await fetch(`${API_BASE_URL}/create_page.php`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(pageData),
-      credentials: "include",
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.message || "Failed to create page");
+    if (!firebaseConfigured) {
+      throw new Error("Firebase is not configured. Please check your Firebase configuration.");
     }
-
-    if (!data.success) {
-      throw new Error(data.message || "Failed to create page");
-    }
-
-    return data;
+    return await pageManagementService.createPage(pageData);
   } catch (err) {
     console.error("Create page error:", err);
     throw new Error(err.message || "Failed to create page. Please try again.");
@@ -32,78 +28,108 @@ export async function createPage(pageData) {
 }
 
 export async function getPage(id = null, includeDeleted = false) {
-  const url = new URL(`${API_BASE_URL}/get_page.php`);
-  if (id) url.searchParams.append("id", id);
-  if (includeDeleted) url.searchParams.append("deleted", "1");
+  try {
+    if (id) {
+      return await pageManagementService.getPage(id);
+    }
 
-  const res = await fetch(url, {
-    credentials: "include",
-  });
-  if (!res.ok) throw new Error("Failed to get page");
-  return res.json();
+    const result = await pageManagementService.getPages({ limit: 100 });
+    return {
+      success: result.success,
+      pages: result.success ? result.pages : [],
+    };
+  } catch (error) {
+    console.error("Get page error:", error);
+    return { success: false, error: error.message };
+  }
 }
 
 export async function savePage(id, content) {
-  const res = await fetch(`${API_BASE_URL}/save_page.php`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ id, content }),
-    credentials: "include",
-  });
-  if (!res.ok) throw new Error("Failed to save page");
-  return res.json();
+  try {
+    return await pageManagementService.updatePage(id, {
+      content: content,
+      htmlContent: content, // Assuming content includes HTML
+    });
+  } catch (error) {
+    console.error("Save page error:", error);
+    return { success: false, error: error.message };
+  }
 }
 
 export async function deletePage(id) {
-  const res = await fetch(`${API_BASE_URL}/delete_page.php`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ id }),
-    credentials: "include",
-  });
-  if (!res.ok) throw new Error("Failed to delete page");
-  return res.json();
+  try {
+    return await pageManagementService.deletePage(id);
+  } catch (error) {
+    console.error("Delete page error:", error);
+    return { success: false, error: error.message };
+  }
 }
 
 export async function renamePage(id, newId, title) {
-  const res = await fetch(`${API_BASE_URL}/rename_page.php`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ id, newId, title }),
-    credentials: "include",
-  });
-  if (!res.ok) throw new Error("Failed to rename page");
-  return res.json();
+  try {
+    return await pageManagementService.updatePage(id, {
+      title: title,
+      slug: newId,
+    });
+  } catch (error) {
+    console.error("Rename page error:", error);
+    return { success: false, error: error.message };
+  }
 }
 
 export async function duplicatePage(id, newId) {
-  const res = await fetch(`${API_BASE_URL}/duplicate_page.php`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ id, newId }),
-    credentials: "include",
-  });
-  if (!res.ok) throw new Error("Failed to duplicate page");
-  return res.json();
+  try {
+    // First get the original page
+    const originalPage = await pageManagementService.getPage(id);
+    if (!originalPage.success) {
+      throw new Error("Original page not found");
+    }
+
+    return await pageManagementService.duplicatePage(
+      id,
+      originalPage.page.title + " (Copy)",
+      newId
+    );
+  } catch (error) {
+    console.error("Duplicate page error:", error);
+    return { success: false, error: error.message };
+  }
 }
 
 export async function restorePage(id) {
-  const res = await fetch(`${API_BASE_URL}/restore_page.php`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ id }),
-    credentials: "include",
-  });
-  if (!res.ok) throw new Error("Failed to restore page");
-  return res.json();
+  try {
+    // Firebase doesn't have soft delete, so we update status
+    return await pageManagementService.updatePage(id, {
+      status: "draft",
+    });
+  } catch (error) {
+    console.error("Restore page error:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+// Firebase-specific functions
+export async function getPageTemplates() {
+  return await pageManagementService.getTemplates({ isPublic: true });
+}
+
+export async function createPageTemplate(templateData) {
+  return await pageManagementService.createTemplate(templateData);
+}
+
+export async function getPageVersions(pageId) {
+  return await pageManagementService.getPageVersions(pageId);
+}
+
+export async function subscribeToPageUpdates(pageId, callback) {
+  return pageManagementService.subscribeToPage(pageId, callback);
+}
+
+export async function unsubscribeFromPageUpdates(subscriptionId) {
+  return pageManagementService.unsubscribe(subscriptionId);
+}
+
+// Check if Firebase is available
+export function isFirebaseAvailable() {
+  return true; // Always true since we only use Firebase
 }

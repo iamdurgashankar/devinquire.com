@@ -1,0 +1,195 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // ===========================
+    // UTILITY FUNCTIONS
+    // ===========================
+    
+    // Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Check if user is admin
+    function isAdmin() {
+      return isAuthenticated() && 
+             request.auth.token.role == 'admin';
+    }
+    
+    // Check if user is owner of the file
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Check if file size is within limits
+    function isValidSize(maxSizeInMB) {
+      return request.resource.size <= maxSizeInMB * 1024 * 1024;
+    }
+    
+    // Check if file type is allowed
+    function isValidImageType() {
+      return request.resource.contentType.matches('image/.*');
+    }
+    
+    function isValidDocumentType() {
+      return request.resource.contentType.matches('application/pdf') ||
+             request.resource.contentType.matches('application/msword') ||
+             request.resource.contentType.matches('application/vnd.openxmlformats-officedocument.*') ||
+             request.resource.contentType.matches('text/plain');
+    }
+    
+    function isValidVideoType() {
+      return request.resource.contentType.matches('video/.*');
+    }
+    
+    function isValidAudioType() {
+      return request.resource.contentType.matches('audio/.*');
+    }
+
+    // ===========================
+    // USER AVATARS
+    // ===========================
+    match /avatars/{userId}/{allPaths=**} {
+      // Users can read any avatar (public)
+      allow read: if true;
+      
+      // Users can upload/update their own avatar
+      allow write: if isOwner(userId) && 
+                      isValidImageType() && 
+                      isValidSize(5); // 5MB limit for avatars
+      
+      // Users can delete their own avatar
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+
+    // ===========================
+    // POST IMAGES
+    // ===========================
+    match /posts/images/{userId}/{allPaths=**} {
+      // Anyone can read post images (public content)
+      allow read: if true;
+      
+      // Authenticated users can upload images for their posts
+      allow write: if isOwner(userId) && 
+                      isValidImageType() && 
+                      isValidSize(10); // 10MB limit for post images
+      
+      // Post authors can delete their images
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+
+    // ===========================
+    // PAGE ASSETS
+    // ===========================
+    match /pages/assets/{userId}/{allPaths=**} {
+      // Public page assets can be read by anyone
+      allow read: if true;
+      
+      // Page authors can upload assets
+      allow write: if isOwner(userId) && 
+                      (isValidImageType() || isValidDocumentType()) && 
+                      isValidSize(20); // 20MB limit for page assets
+      
+      // Page authors can delete their assets
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+
+    // ===========================
+    // USER DOCUMENTS
+    // ===========================
+    match /documents/{userId}/{allPaths=**} {
+      // Only the owner can read their documents
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // Users can upload their own documents
+      allow write: if isOwner(userId) && 
+                      (isValidDocumentType() || isValidImageType()) && 
+                      isValidSize(50); // 50MB limit for documents
+      
+      // Users can delete their own documents
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+
+    // ===========================
+    // MEDIA FILES
+    // ===========================
+    match /media/{userId}/{mediaType}/{allPaths=**} {
+      // Media visibility depends on user settings
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // Users can upload different types of media
+      allow write: if isOwner(userId) && 
+                      (
+                        (mediaType == 'images' && isValidImageType() && isValidSize(25)) ||
+                        (mediaType == 'videos' && isValidVideoType() && isValidSize(100)) ||
+                        (mediaType == 'audio' && isValidAudioType() && isValidSize(50))
+                      );
+      
+      // Users can delete their own media
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+
+    // ===========================
+    // TEMPORARY UPLOADS
+    // ===========================
+    match /temp/{userId}/{allPaths=**} {
+      // Only the uploader can access temp files
+      allow read, write: if isOwner(userId);
+      
+      // Temp files have smaller size limits and shorter lifespan
+      allow write: if isOwner(userId) && 
+                      isValidSize(10); // 10MB limit for temp files
+      
+      // Users can delete their temp files
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+
+    // ===========================
+    // PUBLIC ASSETS
+    // ===========================
+    match /public/{allPaths=**} {
+      // Anyone can read public assets
+      allow read: if true;
+      
+      // Only admins can upload public assets
+      allow write: if isAdmin() && isValidSize(100); // 100MB limit for public assets
+      
+      // Only admins can delete public assets
+      allow delete: if isAdmin();
+    }
+
+    // ===========================
+    // ADMIN UPLOADS
+    // ===========================
+    match /admin/{allPaths=**} {
+      // Only admins can access admin files
+      allow read, write, delete: if isAdmin();
+    }
+
+    // ===========================
+    // BACKUPS
+    // ===========================
+    match /backups/{allPaths=**} {
+      // Only admins can access backup files
+      allow read, write, delete: if isAdmin();
+    }
+
+    // ===========================
+    // SYSTEM FILES
+    // ===========================
+    match /system/{allPaths=**} {
+      // Only admins can access system files
+      allow read, write, delete: if isAdmin();
+    }
+
+    // ===========================
+    // DEFAULT DENY RULE
+    // ===========================
+    
+    // Deny access to any path not explicitly allowed
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

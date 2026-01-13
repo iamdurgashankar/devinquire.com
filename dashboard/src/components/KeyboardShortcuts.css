@@ -1,0 +1,538 @@
+/* Keyboard Shortcuts Styles */
+
+/* Help Modal */
+.cms-shortcuts-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 10007;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: cms-shortcuts-fadeIn 0.3s ease-out;
+}
+
+.cms-shortcuts-content {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 800px;
+  max-height: 80vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: cms-shortcuts-slideIn 0.3s ease-out;
+}
+
+.cms-shortcuts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.cms-shortcuts-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.cms-shortcuts-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: #6b7280;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+.cms-shortcuts-close:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.cms-shortcuts-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.cms-shortcuts-category {
+  margin-bottom: 32px;
+}
+
+.cms-shortcuts-category:last-child {
+  margin-bottom: 0;
+}
+
+.cms-shortcuts-category h3 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 8px;
+}
+
+.cms-shortcuts-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 12px;
+}
+
+.cms-shortcut-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+}
+
+.cms-shortcut-item:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.cms-shortcut-keys {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cms-shortcut-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: #374151;
+  text-transform: capitalize;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.cms-shortcut-plus {
+  color: #9ca3af;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.cms-shortcut-desc {
+  color: #6b7280;
+  font-size: 14px;
+  text-align: right;
+  flex: 1;
+  margin-left: 16px;
+}
+
+.cms-shortcuts-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+  text-align: center;
+}
+
+.cms-shortcuts-footer p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.cms-shortcuts-footer kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 4px;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 3px;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  color: #374151;
+  margin: 0 2px;
+}
+
+/* Active Shortcuts Indicator */
+.cms-active-shortcuts {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10008;
+  display: flex;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.cms-active-shortcut {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  background: rgba(17, 24, 39, 0.95);
+  color: white;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  animation: cms-shortcut-pulse 0.2s ease-out;
+}
+
+.cms-active-shortcut kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: white;
+  text-transform: capitalize;
+}
+
+.cms-active-shortcut span {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+}
+
+/* Keyboard Notification */
+.cms-keyboard-notification {
+  position: fixed;
+  top: 50px;
+  right: 20px;
+  z-index: 10005;
+  padding: 12px 16px;
+  background: rgba(34, 197, 94, 0.95);
+  color: white;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  animation: cms-notification-slideIn 0.3s ease-out, cms-notification-slideOut 0.3s ease-in 1.7s forwards;
+}
+
+/* Animations */
+@keyframes cms-shortcuts-fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes cms-shortcuts-slideIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes cms-shortcut-pulse {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes cms-notification-slideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes cms-notification-slideOut {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .cms-shortcuts-modal {
+    padding: 10px;
+  }
+  
+  .cms-shortcuts-content {
+    max-height: 90vh;
+  }
+  
+  .cms-shortcuts-header {
+    padding: 16px 20px;
+  }
+  
+  .cms-shortcuts-header h2 {
+    font-size: 18px;
+  }
+  
+  .cms-shortcuts-body {
+    padding: 20px;
+  }
+  
+  .cms-shortcuts-list {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .cms-shortcut-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .cms-shortcut-desc {
+    text-align: left;
+    margin-left: 0;
+  }
+  
+  .cms-active-shortcuts {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .cms-keyboard-notification {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .cms-shortcuts-category h3 {
+    font-size: 14px;
+  }
+  
+  .cms-shortcut-key {
+    min-width: 20px;
+    height: 20px;
+    font-size: 10px;
+  }
+  
+  .cms-shortcut-desc {
+    font-size: 13px;
+  }
+  
+  .cms-active-shortcut {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  
+  .cms-active-shortcut kbd {
+    min-width: 20px;
+    height: 20px;
+    font-size: 10px;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .cms-shortcuts-content {
+    background: #1f2937;
+    color: white;
+  }
+  
+  .cms-shortcuts-header {
+    background: #111827;
+    border-color: #374151;
+  }
+  
+  .cms-shortcuts-header h2 {
+    color: white;
+  }
+  
+  .cms-shortcuts-close {
+    color: #9ca3af;
+  }
+  
+  .cms-shortcuts-close:hover {
+    background: #374151;
+    color: #d1d5db;
+  }
+  
+  .cms-shortcuts-category h3 {
+    color: #d1d5db;
+    border-color: #374151;
+  }
+  
+  .cms-shortcut-item {
+    background: #111827;
+    border-color: #374151;
+  }
+  
+  .cms-shortcut-item:hover {
+    background: #0f172a;
+    border-color: #4b5563;
+  }
+  
+  .cms-shortcut-key {
+    background: #374151;
+    border-color: #4b5563;
+    color: #d1d5db;
+  }
+  
+  .cms-shortcut-desc {
+    color: #9ca3af;
+  }
+  
+  .cms-shortcuts-footer {
+    background: #111827;
+    border-color: #374151;
+  }
+  
+  .cms-shortcuts-footer p {
+    color: #9ca3af;
+  }
+  
+  .cms-shortcuts-footer kbd {
+    background: #374151;
+    border-color: #4b5563;
+    color: #d1d5db;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .cms-shortcut-key,
+  .cms-active-shortcut kbd,
+  .cms-shortcuts-footer kbd {
+    border-width: 2px;
+    font-weight: 600;
+  }
+  
+  .cms-shortcut-item {
+    border-width: 2px;
+  }
+  
+  .cms-shortcuts-header,
+  .cms-shortcuts-footer {
+    border-width: 2px;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .cms-shortcuts-modal,
+  .cms-shortcuts-content,
+  .cms-active-shortcut,
+  .cms-keyboard-notification {
+    animation: none;
+  }
+  
+  .cms-shortcut-item:hover,
+  .cms-shortcuts-close:hover {
+    transition: none;
+  }
+}
+
+/* Focus Management */
+.cms-shortcuts-close:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Screen Reader Only */
+.cms-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Print Styles */
+@media print {
+  .cms-shortcuts-modal,
+  .cms-active-shortcuts,
+  .cms-keyboard-notification {
+    display: none;
+  }
+}
+
+/* Custom Scrollbar for Modal */
+.cms-shortcuts-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.cms-shortcuts-body::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.cms-shortcuts-body::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.cms-shortcuts-body::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+@media (prefers-color-scheme: dark) {
+  .cms-shortcuts-body::-webkit-scrollbar-track {
+    background: #374151;
+  }
+  
+  .cms-shortcuts-body::-webkit-scrollbar-thumb {
+    background: #6b7280;
+  }
+  
+  .cms-shortcuts-body::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+  }
+}

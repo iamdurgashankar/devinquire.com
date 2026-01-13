@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/EnhancedAuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { motion } from 'framer-motion';
 import { 
@@ -58,107 +58,241 @@ export default function UserProfile() {
     return {
       displayName: currentUser?.displayName || '',
       email: currentUser?.email || '',
-      bio: 'Passionate developer and content creator',
-      website: 'https://devinquire.com',
-      location: 'San Francisco, CA',
-      twitter: '@devinquire',
-      github: 'github.com/devinquire'
+      bio: '',
+      website: '',
+      location: '',
+      twitter: '',
+      github: ''
     };
   });
 
   const [profileStatus, setProfileStatus] = useState(currentUser?.status || 'approved');
   const [statusTooltip, setStatusTooltip] = useState(false);
   const [memberSince, setMemberSince] = useState('');
+  const [profileLoading, setProfileLoading] = useState(true);
 
-  // Update profile data when currentUser changes
+  // Load full profile data from Firestore when component mounts or user changes
   useEffect(() => {
-    if (currentUser) {
-      setProfileData(prev => ({
-        ...prev,
-        displayName: currentUser.displayName || prev.displayName,
-        email: currentUser.email || prev.email
-      }));
-    }
-  }, [currentUser]);
+    const loadProfileData = async () => {
+      if (!currentUser?.id && !currentUser?.uid) {
+        setProfileLoading(false);
+        return;
+      }
 
-  // Real-time polling for account status and member since
+      try {
+        setProfileLoading(true);
+        const apiService = (await import('../services/api')).default;
+        const userId = currentUser.id || currentUser.uid;
+        
+        // Get full user profile from Firestore
+        const userResult = await apiService.getCurrentUser();
+        
+        if (userResult && userResult.success && userResult.data) {
+          const userData = userResult.data;
+          
+          // Update profile data with loaded values
+          setProfileData(prev => ({
+            displayName: userData.displayName || userData.name || currentUser?.displayName || prev.displayName,
+            email: userData.email || currentUser?.email || prev.email,
+            bio: userData.bio || prev.bio || '',
+            website: userData.website || prev.website || '',
+            location: userData.location || prev.location || '',
+            twitter: userData.twitter || prev.twitter || '',
+            github: userData.github || prev.github || ''
+          }));
+          
+          // Update status
+          setProfileStatus(userData.status || 'approved');
+          
+          // Set member since date
+          const createdAt = userData.metadata?.createdAt || 
+                           userData.createdAt || 
+                           userData.created_at ||
+                           userData.metadata?.created_at;
+          if (createdAt) {
+            const date = createdAt.toDate ? createdAt.toDate() : new Date(createdAt);
+            setMemberSince(date.toLocaleDateString());
+          } else {
+            setMemberSince('N/A');
+          }
+        } else if (userResult && userResult.user) {
+          // Fallback for different response format
+          const userData = userResult.user;
+          setProfileData(prev => ({
+            displayName: userData.displayName || userData.name || prev.displayName,
+            email: userData.email || prev.email,
+            bio: userData.bio || prev.bio || '',
+            website: userData.website || prev.website || '',
+            location: userData.location || prev.location || '',
+            twitter: userData.twitter || prev.twitter || '',
+            github: userData.github || prev.github || ''
+          }));
+          setProfileStatus(userData.status || 'approved');
+          const date = userData.metadata?.createdAt || userData.created_at;
+          setMemberSince(date ? new Date(date).toLocaleDateString() : 'N/A');
+        }
+      } catch (error) {
+        console.error('Error loading profile data:', error);
+        // Keep default values on error
+      } finally {
+        setProfileLoading(false);
+      }
+    };
+
+    loadProfileData();
+  }, [currentUser?.id, currentUser?.uid]);
+
+  // Real-time polling for account status and member since (backup)
   useEffect(() => {
     let interval;
     const fetchStatus = async () => {
       try {
-        const res = await window.apiService.getCurrentUser();
-        if (res && res.status) {
-          setProfileStatus(res.status);
+        const apiService = (await import('../services/api')).default;
+        const res = await apiService.getCurrentUser();
+        if (res && (res.user || res.data)) {
+          const userData = res.user || res.data;
+          setProfileStatus(userData.status || 'approved');
+          const date = userData.metadata?.createdAt || userData.created_at;
+          if (date) {
+            const dateObj = date.toDate ? date.toDate() : new Date(date);
+            setMemberSince(dateObj.toLocaleDateString());
+          }
         }
-        // Fetch full profile for member since
-        const profileRes = await window.apiService.getProfile(res.id);
-        if (profileRes && profileRes.success && profileRes.user) {
-          // If approved, use updated_at as approval date, else use created_at
-          const date = (profileRes.user.status === 'approved' && profileRes.user.updated_at)
-            ? profileRes.user.updated_at
-            : profileRes.user.created_at;
-          setMemberSince(date ? new Date(date).toLocaleDateString() : 'N/A');
-        }
-      } catch (e) {}
+      } catch (e) {
+        // Silently fail - profile data already loaded
+      }
     };
-    fetchStatus();
-    interval = setInterval(fetchStatus, 10000);
-    return () => clearInterval(interval);
-  }, []);
+    // Only poll if we haven't loaded profile yet
+    if (!profileLoading) {
+      fetchStatus();
+      interval = setInterval(fetchStatus, 30000); // Poll every 30 seconds
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [profileLoading]);
 
   const handleSave = async () => {
     setLoading(true);
     setMessage('');
+    
+    // Validate required fields
+    if (!profileData.displayName?.trim()) {
+      setMessage('Display name is required.');
+      setLoading(false);
+      return;
+    }
+    
+    // Validate URL formats if provided
+    const urlFields = ['website', 'github'];
+    for (const field of urlFields) {
+      if (profileData[field] && profileData[field].trim()) {
+        try {
+          new URL(profileData[field].startsWith('http') ? profileData[field] : `https://${profileData[field]}`);
+        } catch {
+          setMessage(`Please enter a valid ${field} URL.`);
+          setLoading(false);
+          return;
+        }
+      }
+    }
+    
     try {
-      // Make API call to update profile
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8001'}/profile.php`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          name: profileData.displayName,
-          bio: profileData.bio,
-          website: profileData.website,
-          location: profileData.location,
-          twitter: profileData.twitter,
-          github: profileData.github
-        })
+      // Use the proper API service instead of direct fetch
+      const apiService = (await import('../services/api')).default;
+      const result = await apiService.updateProfile({
+        displayName: profileData.displayName.trim(),
+        bio: profileData.bio?.trim() || '',
+        website: profileData.website?.trim() || '',
+        location: profileData.location?.trim() || '',
+        twitter: profileData.twitter?.trim() || '',
+        github: profileData.github?.trim() || ''
       });
-
-      const result = await response.json();
       
       if (result.success) {
         // Update the current user in AuthContext
         updateCurrentUser({
-          displayName: profileData.displayName
+          displayName: profileData.displayName.trim()
         });
         
-        setMessage('Profile updated successfully!');
+        setMessage('✅ Profile updated successfully!');
         setIsEditing(false);
-        setTimeout(() => setMessage(''), 3000);
+        setTimeout(() => setMessage(''), 5000);
       } else {
-        setMessage(result.message || 'Error updating profile. Please try again.');
+        const errorMsg = result.error || result.message || 'Failed to update profile';
+        setMessage(`❌ ${errorMsg}. Please try again or contact support if the issue persists.`);
       }
     } catch (error) {
-      setMessage('Error updating profile. Please try again.');
+      console.error('Profile update error:', error);
+      let errorMessage = '❌ Error updating profile. ';
+      
+      if (error.message?.includes('network') || error.message?.includes('fetch')) {
+        errorMessage += 'Please check your internet connection and try again.';
+      } else if (error.message?.includes('permission') || error.message?.includes('auth')) {
+        errorMessage += 'You may need to sign in again. Please refresh the page and try again.';
+      } else {
+        errorMessage += 'Please try again in a few moments or contact support if the issue persists.';
+      }
+      
+      setMessage(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCancel = () => {
-    // Restore original data from currentUser
-    setProfileData({
-      displayName: currentUser?.displayName || '',
-      email: currentUser?.email || '',
-      bio: 'Passionate developer and content creator',
-      website: 'https://devinquire.com',
-      location: 'San Francisco, CA',
-      twitter: '@devinquire',
-      github: 'github.com/devinquire'
-    });
+  const handleCancel = async () => {
+    // Reload original data from Firestore
+    try {
+      const apiService = (await import('../services/api')).default;
+      const userResult = await apiService.getCurrentUser();
+      
+      if (userResult && userResult.success && userResult.data) {
+        const userData = userResult.data;
+        setProfileData({
+          displayName: userData.displayName || userData.name || currentUser?.displayName || '',
+          email: userData.email || currentUser?.email || '',
+          bio: userData.bio || '',
+          website: userData.website || '',
+          location: userData.location || '',
+          twitter: userData.twitter || '',
+          github: userData.github || ''
+        });
+      } else if (userResult && userResult.user) {
+        const userData = userResult.user;
+        setProfileData({
+          displayName: userData.displayName || userData.name || currentUser?.displayName || '',
+          email: userData.email || currentUser?.email || '',
+          bio: userData.bio || '',
+          website: userData.website || '',
+          location: userData.location || '',
+          twitter: userData.twitter || '',
+          github: userData.github || ''
+        });
+      } else {
+        // Fallback to currentUser data
+        setProfileData({
+          displayName: currentUser?.displayName || '',
+          email: currentUser?.email || '',
+          bio: '',
+          website: '',
+          location: '',
+          twitter: '',
+          github: ''
+        });
+      }
+    } catch (error) {
+      console.error('Error reloading profile:', error);
+      // Fallback to currentUser data
+      setProfileData({
+        displayName: currentUser?.displayName || '',
+        email: currentUser?.email || '',
+        bio: '',
+        website: '',
+        location: '',
+        twitter: '',
+        github: ''
+      });
+    }
     setIsEditing(false);
     setMessage('');
   };
@@ -212,11 +346,19 @@ export default function UserProfile() {
     setActivityLoading(true);
     setActivityLog([]);
     try {
-      const res = await window.apiService.getUserActivityLog(currentUser.id);
-      if (res.success && res.activity_log) {
-        setActivityLog(res.activity_log);
+      const apiService = (await import('../services/api')).default;
+      const userId = currentUser.id || currentUser.uid;
+      const res = await apiService.getUserActivityLog(userId);
+      
+      // Handle different response formats
+      if (res.success) {
+        const activities = res.activity_log || res.activity || res.data || [];
+        setActivityLog(Array.isArray(activities) ? activities : []);
+      } else {
+        setActivityLog([]);
       }
     } catch (e) {
+      console.error('Error loading activity log:', e);
       setActivityLog([]);
     } finally {
       setActivityLoading(false);
@@ -228,12 +370,24 @@ export default function UserProfile() {
     setPreferencesLoading(true);
     setPreferencesMessage('');
     try {
-      const res = await window.apiService.getUserPreferences(currentUser.id);
+      const apiService = (await import('../services/api')).default;
+      const userId = currentUser.id || currentUser.uid;
+      const res = await apiService.getUserPreferences(userId);
+      
       if (res.success && res.preferences) {
-        setPreferences(res.preferences);
+        setPreferences({
+          theme: res.preferences.theme || 'system',
+          notifications: res.preferences.notifications !== undefined ? res.preferences.notifications : true
+        });
+      } else {
+        // Use default preferences if not found
+        setPreferences({ theme: 'system', notifications: true });
       }
     } catch (e) {
+      console.error('Error loading preferences:', e);
       setPreferencesMessage('Error loading preferences');
+      // Use default preferences on error
+      setPreferences({ theme: 'system', notifications: true });
     } finally {
       setPreferencesLoading(false);
     }
@@ -243,17 +397,34 @@ export default function UserProfile() {
   const handleSavePreferences = async () => {
     setPreferencesLoading(true);
     setPreferencesMessage('');
+    
     try {
-      const res = await window.apiService.updateUserPreferences(currentUser.id, preferences);
-      if (res.success) {
-        setPreferencesMessage('Preferences updated!');
+      // Use the proper API service for preferences
+      const apiService = (await import('../services/api')).default;
+      const userId = currentUser.id || currentUser.uid;
+      const result = await apiService.updateUserPreferences(userId, preferences);
+      
+      if (result.success) {
+        setPreferencesMessage('✅ Preferences updated successfully!');
         setTheme(preferences.theme); // Apply theme immediately
-        setTimeout(() => setPreferencesMessage(''), 2000);
+        setTimeout(() => setPreferencesMessage(''), 5000);
       } else {
-        setPreferencesMessage(res.message || 'Error updating preferences');
+        const errorMsg = result.error || result.message || 'Failed to update preferences';
+        setPreferencesMessage(`❌ ${errorMsg}. Please try again or contact support if the issue persists.`);
       }
-    } catch (e) {
-      setPreferencesMessage('Error updating preferences');
+    } catch (error) {
+      console.error('Preferences update error:', error);
+      let errorMessage = '❌ Error updating preferences. ';
+      
+      if (error.message?.includes('network') || error.message?.includes('fetch')) {
+        errorMessage += 'Please check your internet connection and try again.';
+      } else if (error.message?.includes('permission') || error.message?.includes('auth')) {
+        errorMessage += 'You may need to sign in again. Please refresh the page and try again.';
+      } else {
+        errorMessage += 'Please try again in a few moments or contact support if the issue persists.';
+      }
+      
+      setPreferencesMessage(errorMessage);
     } finally {
       setPreferencesLoading(false);
     }
@@ -380,9 +551,21 @@ export default function UserProfile() {
                         </svg>
                       </div>
                       <div>
-                        <div className="font-medium text-gray-900">{log.action.replace(/_/g, ' ')}</div>
-                        <div className="text-xs text-gray-500">{log.details && typeof log.details === 'string' ? log.details.slice(0, 100) : ''}</div>
-                        <div className="text-xs text-gray-400 mt-1">{new Date(log.created_at).toLocaleString()}</div>
+                        <div className="font-medium text-gray-900">
+                          {log.action ? log.action.replace(/_/g, ' ') : log.type || 'Activity'}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {log.details && typeof log.details === 'string' 
+                            ? log.details.slice(0, 100) 
+                            : log.description || log.message || ''}
+                        </div>
+                        <div className="text-xs text-gray-400 mt-1">
+                          {log.created_at 
+                            ? new Date(log.created_at.toDate ? log.created_at.toDate() : log.created_at).toLocaleString()
+                            : log.timestamp 
+                            ? new Date(log.timestamp.toDate ? log.timestamp.toDate() : log.timestamp).toLocaleString()
+                            : 'Unknown date'}
+                        </div>
                       </div>
                     </div>
                   ))
@@ -456,7 +639,7 @@ export default function UserProfile() {
         <div className="flex items-center space-x-6">
           <div className="relative">
             <img
-              src={currentUser?.photoURL || `https://ui-avatars.com/api/?name=${currentUser?.displayName || 'Admin'}&background=6366f1&color=fff&size=120`}
+              src={currentUser?.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(profileData.displayName || currentUser?.displayName || 'Admin')}&background=6366f1&color=fff&size=120`}
               alt="Profile"
               className="w-24 h-24 rounded-full border-4 border-white shadow-lg"
             />
@@ -467,16 +650,19 @@ export default function UserProfile() {
             </div>
           </div>
           <div className="flex-1">
-            <h1 className="text-3xl font-bold mb-2 drop-shadow">{profileData.displayName || 'Admin User'}</h1>
-            <p className="text-blue-100 mb-2">{profileData.email}</p>
-            <p className="text-blue-100">Administrator • DevInquire</p>
+            <h1 className="text-3xl font-bold mb-2 drop-shadow">{profileData.displayName || currentUser?.displayName || 'Admin User'}</h1>
+            <p className="text-blue-100 mb-2">{profileData.email || currentUser?.email}</p>
+            <p className="text-blue-100">
+              {currentUser?.role ? currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1) : 'Administrator'} • DevInquire
+            </p>
           </div>
           <div className="hidden md:block">
             <button
               onClick={() => setIsEditing(!isEditing)}
-              className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 shadow-md"
+              disabled={profileLoading}
+              className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isEditing ? 'Cancel' : 'Edit Profile'}
+              {profileLoading ? 'Loading...' : isEditing ? 'Cancel' : 'Edit Profile'}
             </button>
           </div>
         </div>
@@ -496,7 +682,13 @@ export default function UserProfile() {
               </button>
             </div>
 
-            <div className="space-y-6">
+            {profileLoading ? (
+              <div className="flex justify-center items-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <p className="ml-3 text-gray-600">Loading profile...</p>
+              </div>
+            ) : (
+              <div className="space-y-6">
               {/* Display Name */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -510,7 +702,7 @@ export default function UserProfile() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 ) : (
-                  <p className="text-gray-900 font-medium">{profileData.displayName}</p>
+                  <p className="text-gray-900 font-medium">{profileData.displayName || 'Not set'}</p>
                 )}
               </div>
 
@@ -536,7 +728,7 @@ export default function UserProfile() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 ) : (
-                  <p className="text-gray-900">{profileData.bio}</p>
+                  <p className="text-gray-900">{profileData.bio || 'No bio added yet'}</p>
                 )}
               </div>
 
@@ -551,11 +743,19 @@ export default function UserProfile() {
                     value={profileData.website}
                     onChange={(e) => setProfileData({...profileData, website: e.target.value})}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="https://example.com"
                   />
                 ) : (
-                  <a href={profileData.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700">
-                    {profileData.website}
-                  </a>
+                  profileData.website ? (
+                    <a href={profileData.website.startsWith('http') ? profileData.website : `https://${profileData.website}`} 
+                       target="_blank" 
+                       rel="noopener noreferrer" 
+                       className="text-blue-600 hover:text-blue-700">
+                      {profileData.website}
+                    </a>
+                  ) : (
+                    <p className="text-gray-500 italic">No website added</p>
+                  )
                 )}
               </div>
 
@@ -572,7 +772,7 @@ export default function UserProfile() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 ) : (
-                  <p className="text-gray-900">{profileData.location}</p>
+                  <p className="text-gray-900">{profileData.location || 'No location set'}</p>
                 )}
               </div>
 
@@ -588,9 +788,10 @@ export default function UserProfile() {
                       value={profileData.twitter}
                       onChange={(e) => setProfileData({...profileData, twitter: e.target.value})}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="@username"
                     />
                   ) : (
-                    <p className="text-gray-900">{profileData.twitter}</p>
+                    <p className="text-gray-900">{profileData.twitter || 'Not set'}</p>
                   )}
                 </div>
                 <div>
@@ -603,9 +804,21 @@ export default function UserProfile() {
                       value={profileData.github}
                       onChange={(e) => setProfileData({...profileData, github: e.target.value})}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="github.com/username"
                     />
                   ) : (
-                    <p className="text-gray-900">{profileData.github}</p>
+                    profileData.github ? (
+                      <a 
+                        href={profileData.github.startsWith('http') ? profileData.github : `https://${profileData.github}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-700"
+                      >
+                        {profileData.github}
+                      </a>
+                    ) : (
+                      <p className="text-gray-500 italic">Not set</p>
+                    )
                   )}
                 </div>
               </div>
@@ -623,13 +836,15 @@ export default function UserProfile() {
                       setLoading(true);
                       setMessage('');
                       try {
-                        const response = await window.apiService.updateUserRole(currentUser.id, newRole);
+                        const apiService = (await import('../services/api')).default;
+                        const userId = currentUser.id || currentUser.uid;
+                        const response = await apiService.updateUserRole(userId, newRole);
                         if (response.success) {
                           setProfileData((prev) => ({ ...prev, role: newRole }));
                           setMessage('Account type updated successfully!');
                           setTimeout(() => setMessage(''), 3000);
                         } else {
-                          setMessage(response.message);
+                          setMessage(response.message || response.error || 'Failed to update account type');
                         }
                       } catch (error) {
                         setMessage('Error updating account type: ' + error.message);
@@ -670,6 +885,7 @@ export default function UserProfile() {
                 </div>
               )}
             </div>
+            )}
           </div>
         </div>
 

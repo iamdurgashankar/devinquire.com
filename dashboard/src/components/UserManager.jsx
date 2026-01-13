@@ -1,8 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import apiService from '../services/api';
-import { useAuth } from '../contexts/AuthContext';
-import { motion } from 'framer-motion';
-import { Users } from 'lucide-react';
+import userService from '../services/userService';
+import { useAuth } from '../contexts/EnhancedAuthContext';
+import authAuditService from '../services/authAuditService';
+import rbacService from '../services/rbacService';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Users,
+  Search,
+  Filter,
+  ChevronLeft,
+  ChevronRight,
+  UserCheck,
+  UserX,
+  Settings,
+  Eye,
+  Trash2,
+  RefreshCw,
+  Download,
+  Upload,
+  Shield,
+  Clock,
+  Mail,
+  MoreHorizontal,
+  AlertCircle,
+  Plus,
+  User
+} from 'lucide-react';
 
 export default function UserManager() {
   const { currentUser } = useAuth();
@@ -14,402 +38,327 @@ export default function UserManager() {
     );
   }
 
-  const [activeTab, setActiveTab] = useState('pending');
-  const [pendingUsers, setPendingUsers] = useState([]);
-  const [allUsers, setAllUsers] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [filter, setFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(12);
+  const [actionLoading, setActionLoading] = useState(null);
 
   useEffect(() => {
-    loadUsers();
+    const loadUsers = async () => {
+      setLoading(true);
+      try {
+        const unsubscribe = userService.listenToUsers((result) => {
+          if (result.success) {
+            setUsers(result.data);
+            setLoading(false);
+          }
+        });
+        return unsubscribe;
+      } catch (error) {
+        console.error('Failed to load users:', error);
+        setLoading(false);
+      }
+    };
+
+    let cleanup;
+    loadUsers().then(unsub => cleanup = unsub);
+    return () => cleanup && cleanup();
   }, []);
 
-  const loadUsers = async () => {
-    setLoading(true);
+  const filteredUsers = useMemo(() => {
+    return users.filter(user => {
+      const matchesFilter = filter === 'all' || user.status === filter;
+      const matchesSearch = !searchTerm ||
+        user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email?.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesFilter && matchesSearch;
+    });
+  }, [users, filter, searchTerm]);
+
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const paginatedUsers = filteredUsers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handleApprove = async (userId) => {
+    setActionLoading(userId);
     try {
-      const usersResponse = await apiService.getAllUsers();
-      if (usersResponse.success) {
-        setPendingUsers(usersResponse.pendingUsers || []);
-        setAllUsers(usersResponse.allUsers || []);
-      } else {
-        setPendingUsers([]);
-        setAllUsers([]);
-      }
-    } catch (error) {
-      setMessage('Error loading users: ' + error.message);
-      setPendingUsers([]);
-      setAllUsers([]);
+      await apiService.approveUser(userId);
     } finally {
-      setLoading(false);
+      setActionLoading(null);
     }
   };
 
-  const handleApproveUser = async (userId) => {
-    setLoading(true);
-    setMessage('');
-    
+  const handleReject = async (userId) => {
+    if (!window.confirm('Reject this user?')) return;
+    setActionLoading(userId);
     try {
-      const response = await apiService.approveUser(userId);
-      if (response.success) {
-        setMessage(response.message);
-        loadUsers(); // Reload users
-        setTimeout(() => setMessage(''), 3000);
-      } else {
-        setMessage(response.message);
-      }
-    } catch (error) {
-      setMessage('Error approving user: ' + error.message);
+      await apiService.rejectUser(userId);
     } finally {
-      setLoading(false);
+      setActionLoading(null);
     }
   };
 
-  const handleRejectUser = async (userId) => {
-    if (!window.confirm('Are you sure you want to reject this user?')) {
-      return;
-    }
-
-    setLoading(true);
-    setMessage('');
-    
+  const handleRemove = async (userId) => {
+    if (!window.confirm('Permanently remove this user?')) return;
+    setActionLoading(userId);
     try {
-      const response = await apiService.rejectUser(userId);
-      if (response.success) {
-        setMessage(response.message);
-        loadUsers(); // Reload users
-        setTimeout(() => setMessage(''), 3000);
-      } else {
-        setMessage(response.message);
-      }
-    } catch (error) {
-      setMessage('Error rejecting user: ' + error.message);
+      await apiService.deleteUser(userId);
     } finally {
-      setLoading(false);
+      setActionLoading(null);
     }
   };
 
-  const handleRemoveUser = async (userId) => {
-    if (!window.confirm('Are you sure you want to remove this user?')) {
-      return;
-    }
-    setLoading(true);
-    setMessage('');
+  const handleRoleChange = async (userId, newRole) => {
+    setActionLoading(userId);
     try {
-      const response = await apiService.deleteUser(userId);
-      if (response.success) {
-        setMessage(response.message);
-        loadUsers();
-        setTimeout(() => setMessage(''), 3000);
-      } else {
-        setMessage(response.message);
-      }
-    } catch (error) {
-      setMessage('Error removing user: ' + error.message);
+      await apiService.updateUserRole(userId, newRole);
     } finally {
-      setLoading(false);
+      setActionLoading(null);
     }
-  };
-
-  const getStatusBadge = (status) => {
-    const statusConfig = {
-      approved: { color: 'bg-green-100 text-green-800', text: 'Approved' },
-      pending: { color: 'bg-yellow-100 text-yellow-800', text: 'Pending' },
-      rejected: { color: 'bg-red-100 text-red-800', text: 'Rejected' },
-    };
-
-    const config = statusConfig[status] || statusConfig.pending;
-    return (
-      <span className={`px-2 py-1 text-xs rounded-full ${config.color}`}>
-        {config.text}
-      </span>
-    );
-  };
-
-  const getRoleBadge = (role) => {
-    const roleConfig = {
-      admin: { color: 'bg-purple-100 text-purple-800', text: 'Admin' },
-      user: { color: 'bg-blue-100 text-blue-800', text: 'User' },
-      author: { color: 'bg-orange-100 text-orange-800', text: 'Author' },
-    };
-
-    const config = roleConfig[role] || roleConfig.user;
-    return (
-      <span className={`px-2 py-1 text-xs rounded-full ${config.color}`}>
-        {config.text}
-      </span>
-    );
   };
 
   return (
-    <div className="p-6">
-      {/* Message */}
-      {message && (
-        <div className={`mb-4 p-4 rounded-lg ${
-          message.includes('Error') 
-            ? 'bg-red-100 text-red-700 border border-red-200' 
-            : 'bg-green-100 text-green-700 border border-green-200'
-        }`}>
-          {message}
+    <div className="p-6 max-w-[1600px] mx-auto space-y-8">
+      {/* Professional Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-neutral-200 dark:border-white/5 pb-8">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-white mb-1">
+            User Directory
+          </h1>
+          <div className="flex items-center gap-4">
+            <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider">
+              Identity & Access Management
+            </p>
+            <div className="w-1 h-1 rounded-full bg-neutral-300 dark:bg-neutral-700" />
+            <div className="flex items-center gap-2">
+              <span className="status-indicator status-online" />
+              <span className="text-[11px] text-neutral-400 font-medium">Directory Live</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="flex p-1 bg-neutral-100 dark:bg-white/5 rounded-lg border border-neutral-200 dark:border-white/5">
+            {['all', 'approved', 'pending', 'rejected'].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setFilter(tab)}
+                className={`px-4 py-1.5 rounded-md transition-all text-xs font-semibold capitalize ${filter === tab
+                  ? 'bg-white dark:bg-neutral-800 shadow-sm text-brand-600 dark:text-brand-400'
+                  : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'
+                  }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+
+          <button className="flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-lg font-semibold text-sm transition-all shadow-sm active:scale-95">
+            <Plus size={18} />
+            <span>Invite Member</span>
+          </button>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center py-24">
+          <div className="flex flex-col items-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600 mb-4"></div>
+            <p className="text-sm text-neutral-500 font-medium">Synchronizing directory...</p>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <AnimatePresence mode="popLayout">
+            {paginatedUsers.length === 0 ? (
+              <div className="col-span-full pro-card py-24 text-center">
+                <div className="w-16 h-16 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <User size={32} className="text-neutral-400" />
+                </div>
+                <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-1">No users found</h3>
+                <p className="text-sm text-neutral-500">Your search criteria didn't match any members.</p>
+              </div>
+            ) : (
+              paginatedUsers.map((user) => (
+                <UserCard
+                  key={user.id}
+                  user={user}
+                  currentUser={currentUser}
+                  onApprove={() => handleApprove(user.id)}
+                  onReject={() => handleReject(user.id)}
+                  onRemove={() => handleRemove(user.id)}
+                  onRoleChange={(newRole) => handleRoleChange(user.id, newRole)}
+                  loading={actionLoading === user.id}
+                />
+              ))
+            )}
+          </AnimatePresence>
         </div>
       )}
 
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">User Management</h1>
-        <p className="text-gray-600">Manage user registrations and approvals</p>
-      </div>
-
-      {/* Tabs */}
-      <div className="border-b border-gray-200 mb-6">
-        <nav className="-mb-px flex space-x-8">
-          <button
-            onClick={() => setActiveTab('pending')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'pending'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            Pending Users ({pendingUsers.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('all')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'all'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            All Users ({allUsers.length})
-          </button>
-        </nav>
-      </div>
-
-      {/* Content */}
-      {loading ? (
-        <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        </div>
-      ) : (
-        <div className="bg-white/40 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/30 transition-all duration-300">
-          {activeTab === 'pending' ? (
-            <div>
-              <div className="px-6 py-4 border-b border-white/30 bg-gradient-to-r from-blue-200/40 to-purple-200/40 rounded-t-2xl">
-                <h2 className="text-lg font-semibold text-blue-900">Pending Approvals</h2>
-                <p className="text-sm text-blue-700/80 mt-1">
-                  Review and approve new user registrations
-                </p>
-              </div>
-
-              {pendingUsers.length === 0 ? (
-                <div className="px-6 py-12 text-center">
-                  <motion.div
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    transition={{ duration: 0.2 }}
-                    className="mx-auto"
-                  >
-                    <Users className="h-12 w-12 text-gray-400" />
-                  </motion.div>
-                  <h3 className="mt-2 text-sm font-medium text-gray-900">No pending users</h3>
-                  <p className="mt-1 text-sm text-gray-500">
-                    All user registrations have been processed.
-                  </p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          User
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Email
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Role
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Registered
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {pendingUsers.map((user) => (
-                        <tr key={user.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <div className="flex-shrink-0 h-10 w-10">
-                                <img
-                                  className="h-10 w-10 rounded-full"
-                                  src={`https://ui-avatars.com/api/?name=${user.name}&background=6366f1&color=fff`}
-                                  alt=""
-                                />
-                              </div>
-                              <div className="ml-4">
-                                <div className="text-sm font-medium text-gray-900">
-                                  {user.name}
-                                </div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">{user.email}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            {getRoleBadge(user.role)}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {new Date(user.created_at).toLocaleDateString()}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div className="flex space-x-2">
-                              <button
-                                onClick={() => handleApproveUser(user.id)}
-                                className="text-green-600 hover:text-green-900 bg-green-50 hover:bg-green-100 px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200"
-                              >
-                                Approve
-                              </button>
-                              <button
-                                onClick={() => handleRejectUser(user.id)}
-                                className="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200"
-                              >
-                                Reject
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between border-t border-neutral-200 dark:border-white/5 pt-8">
+          <p className="text-sm text-neutral-500">
+            Showing <span className="font-semibold text-neutral-900 dark:text-white">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-semibold text-neutral-900 dark:text-white">{Math.min(currentPage * itemsPerPage, filteredUsers.length)}</span> of <span className="font-semibold text-neutral-900 dark:text-white">{filteredUsers.length}</span> members
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="p-2 border border-neutral-200 dark:border-white/10 rounded-lg disabled:opacity-50 hover:bg-neutral-50 dark:hover:bg-white/5 transition-all"
+            >
+              <ChevronLeft size={18} />
+            </button>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  key={i + 1}
+                  onClick={() => setCurrentPage(i + 1)}
+                  className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${currentPage === i + 1
+                    ? 'bg-brand-600 text-white'
+                    : 'hover:bg-neutral-100 dark:hover:bg-white/5 text-neutral-600 dark:text-neutral-400'
+                    }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
             </div>
-          ) : (
-            <div>
-              <div className="px-6 py-4 border-b border-white/30 bg-gradient-to-r from-blue-200/40 to-purple-200/40 rounded-t-2xl">
-                <h2 className="text-lg font-semibold text-blue-900">All Users</h2>
-                <p className="text-sm text-blue-700/80 mt-1">
-                  View all registered users in the system
-                </p>
-              </div>
-
-              <div className="overflow-x-auto">
-                {allUsers.length === 0 ? (
-                  <div className="text-center py-8">
-                    <div className="text-6xl mb-4">📝</div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">No users found</h3>
-                    <p className="text-gray-600">No users are registered in the system.</p>
-                  </div>
-                ) : (
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          User
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Email
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Role
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Status
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Joined
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {allUsers.map((user) => (
-                        <tr key={user.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <div className="flex-shrink-0 h-10 w-10">
-                                <img
-                                  className="h-10 w-10 rounded-full"
-                                  src={`https://ui-avatars.com/api/?name=${user.name}&background=6366f1&color=fff`}
-                                  alt=""
-                                />
-                              </div>
-                              <div className="ml-4">
-                                <div className="text-sm font-medium text-gray-900">
-                                  {user.name}
-                                </div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">{user.email}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            {user.id === currentUser.id ? (
-                              getRoleBadge(user.role)
-                            ) : (
-                              <select
-                                value={user.role}
-                                onChange={async (e) => {
-                                  const newRole = e.target.value;
-                                  setLoading(true);
-                                  setMessage("");
-                                  try {
-                                    const response = await apiService.updateUserRole(user.id, newRole);
-                                    if (response.success) {
-                                      setMessage(response.message);
-                                      loadUsers();
-                                      setTimeout(() => setMessage(''), 3000);
-                                    } else {
-                                      setMessage(response.message);
-                                    }
-                                  } catch (error) {
-                                    setMessage('Error updating role: ' + error.message);
-                                  } finally {
-                                    setLoading(false);
-                                  }
-                                }}
-                                className="px-2 py-1 rounded border border-gray-300 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                disabled={loading}
-                              >
-                                <option value="user">User</option>
-                                <option value="author">Author</option>
-                                <option value="admin">Admin</option>
-                              </select>
-                            )}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            {getStatusBadge(user.status)}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {new Date(user.created_at).toLocaleDateString()}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            {user.id !== currentUser.id && (
-                              <button
-                                onClick={() => handleRemoveUser(user.id)}
-                                className="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200"
-                              >
-                                Remove
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-            </div>
-          )}
+            <button
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              className="p-2 border border-neutral-200 dark:border-white/10 rounded-lg disabled:opacity-50 hover:bg-neutral-50 dark:hover:bg-white/5 transition-all"
+            >
+              <ChevronRight size={18} />
+            </button>
+          </div>
         </div>
       )}
     </div>
   );
 }
+
+// Professional UserCard
+const UserCard = React.memo(function UserCard({
+  user,
+  currentUser,
+  onApprove,
+  onReject,
+  onRemove,
+  onRoleChange,
+  loading
+}) {
+  const isSelf = user.id === currentUser?.id;
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.98 }}
+      className="pro-card p-5 group flex flex-col justify-between min-h-[220px]"
+    >
+      <div className="flex items-start justify-between">
+        <div className="relative">
+          <div className="w-12 h-12 rounded-full overflow-hidden bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-white/10">
+            <img
+              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}&backgroundColor=b6e3f4,c0aede,d1d4f9`}
+              alt={user.name}
+              className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
+            />
+          </div>
+          {user.status === 'approved' && (
+            <div className="absolute -bottom-0.5 -right-0.5">
+              <span className="status-indicator status-online scale-75" />
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${user.status === 'approved'
+            ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10'
+            : user.status === 'pending'
+              ? 'bg-amber-50 text-amber-600 dark:bg-amber-500/10'
+              : 'bg-red-50 text-red-600 dark:bg-red-900/20'
+            }`}>
+            {user.status}
+          </span>
+          {isSelf && (
+            <span className="text-[10px] font-bold text-brand-600 bg-brand-50 dark:bg-brand-500/10 px-2 py-0.5 rounded">
+              You
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-4">
+        <h3 className="text-base font-bold text-neutral-900 dark:text-white truncate">
+          {user.name}
+        </h3>
+        <p className="text-xs text-neutral-500 dark:text-neutral-400 font-medium truncate flex items-center gap-1.5 mt-1">
+          <Mail size={12} className="opacity-60" />
+          {user.email}
+        </p>
+      </div>
+
+      <div className="mt-6 pt-4 border-t border-neutral-100 dark:border-white/5 flex items-center justify-between">
+        <div className="flex flex-col">
+          <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-widest mb-1">Access Level</span>
+          {isSelf ? (
+            <div className="flex items-center gap-1 text-neutral-900 dark:text-white text-xs font-bold capitalize">
+              <Shield size={12} className="text-brand-600" />
+              {user.role}
+            </div>
+          ) : (
+            <select
+              value={user.role}
+              onChange={(e) => onRoleChange(e.target.value)}
+              disabled={loading}
+              className="bg-transparent text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-tight focus:outline-none cursor-pointer"
+            >
+              <option value="user">User</option>
+              <option value="author">Author</option>
+              <option value="admin">Admin</option>
+            </select>
+          )}
+        </div>
+
+        <div className="flex items-center gap-1">
+          {user.status === 'pending' ? (
+            <>
+              <button
+                onClick={onApprove}
+                className="p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-lg transition-all"
+                title="Approve"
+              >
+                <UserCheck size={16} />
+              </button>
+              <button
+                onClick={onReject}
+                className="p-1.5 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-500/10 rounded-lg transition-all"
+                title="Reject"
+              >
+                <UserX size={16} />
+              </button>
+            </>
+          ) : (
+            !isSelf && (
+              <button
+                onClick={onRemove}
+                className="p-1.5 text-neutral-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-all"
+                title="Remove"
+              >
+                <Trash2 size={16} />
+              </button>
+            )
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
+});

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/EnhancedAuthContext';
 import { useNavigate } from 'react-router-dom';
 import AdminDashboard from '../components/AdminDashboard';
 
@@ -33,12 +33,16 @@ export default function Admin() {
     setMessage('');
 
     try {
-      const response = await signInWithEmail(email, password);
-      if (response.success) {
-        setCurrentUser(response.user);
+      // signInWithEmail returns the user directly or throws an error
+      const user = await signInWithEmail(email, password);
+      if (user) {
+        // User is automatically set via auth context, but ensure it's set
+        setCurrentUser(user);
+        console.log('✅ Login successful, user set:', user.email);
       }
     } catch (error) {
-      setError(error.message);
+      console.error('❌ Login error:', error);
+      setError(error.message || 'Login failed. Please check your credentials.');
       setShowResetOption(true); // Show reset option when login fails
     } finally {
       setLoading(false);
