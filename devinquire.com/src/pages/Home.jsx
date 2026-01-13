@@ -62,7 +62,7 @@ export default function Home() {
       />
       {/* Custom Cursor */}
       <motion.div
-        className="fixed w-6 h-6 bg-blue-500/30 rounded-full pointer-events-none z-50 mix-blend-difference hidden lg:block"
+        className="fixed w-6 h-6 bg-indigo-500/30 rounded-full pointer-events-none z-50 mix-blend-difference hidden lg:block"
         style={{
           left: mousePosition.x - 12,
           top: mousePosition.y - 12,
@@ -88,7 +88,7 @@ export default function Home() {
           >
             <button
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="group w-14 h-14 bg-[#0077b6] rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-white hover:scale-110 border border-white/20 backdrop-blur-sm"
+              className="group w-14 h-14 bg-indigo-600 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-white hover:scale-110 border border-white/20 backdrop-blur-sm"
               aria-label="Back to top"
             >
               <motion.div
@@ -104,7 +104,7 @@ export default function Home() {
       {/* Hero Section */}
       <motion.section
         ref={heroRef}
-        className="relative bg-slate-900 text-white overflow-hidden min-h-screen flex items-center hero-section-overlay"
+        className="relative bg-[#0a0a0c] text-white overflow-hidden min-h-screen flex items-center"
         style={{ y, opacity }}
       >
         {/* Enhanced Light Glass Effect Background */}
@@ -136,7 +136,7 @@ export default function Home() {
                   cx={node.x}
                   cy={node.y}
                   r={node.size}
-                  fill="var(--accent)"
+                  fill="#6366f1"
                   opacity={0.6}
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{
@@ -338,7 +338,7 @@ export default function Home() {
             >
               <Link
                 to="/services"
-                className="group relative bg-[#0077b6] hover:bg-[#005a8a] text-white px-6 sm:px-8 lg:px-10 py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 transform hover:scale-105 shadow-2xl overflow-hidden border border-[#0077b6]/30 w-full sm:w-auto min-w-0 flex-shrink-0"
+                className="group relative bg-indigo-600 hover:bg-indigo-500 text-white px-6 sm:px-8 lg:px-10 py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 transform hover:scale-105 shadow-[0_0_30px_rgba(99,102,241,0.4)] overflow-hidden border border-indigo-500/30 w-full sm:w-auto min-w-0 flex-shrink-0"
               >
                 <span className="relative z-10 flex items-center justify-center">
                   <span className="truncate">View Our Services</span>
@@ -346,7 +346,7 @@ export default function Home() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
                 </span>
-                <div className="absolute inset-0 bg-[#005a8a] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </Link>
 
               <Link
@@ -382,12 +382,12 @@ export default function Home() {
                   whileHover={{ scale: 1.05 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <div className="bg-slate-800/60 backdrop-blur-md rounded-2xl p-6 hover:bg-slate-700/80 transition-all duration-300 border border-slate-600/50 shadow-lg">
+                  <div className="premium-card backdrop-blur-xl bg-white/5 p-6 hover:bg-white/10 transition-all duration-300 border border-white/10 shadow-lg">
                     <div className="text-4xl mb-3 group-hover:scale-110 transition-transform duration-300">
-                      <stat.icon className="w-10 h-10 mx-auto text-[#0077b6] group-hover:text-blue-400 transition-colors duration-300" />
+                      <stat.icon className="w-10 h-10 mx-auto text-indigo-500 group-hover:text-indigo-400 transition-colors duration-300" />
                     </div>
-                    <div className="text-3xl font-bold text-white group-hover:text-[#0077b6] transition-colors duration-300">{stat.number}</div>
-                    <div className="text-slate-300 text-sm font-medium">{stat.label}</div>
+                    <div className="text-3xl font-bold text-white group-hover:text-indigo-400 transition-colors duration-300">{stat.number}</div>
+                    <div className="text-slate-400 text-sm font-medium">{stat.label}</div>
                   </div>
                 </motion.div>
               ))}
@@ -478,33 +478,33 @@ export default function Home() {
       </motion.section>
 
       {/* Services Preview - Enhanced */}
-      <section className="py-20 bg-gray-50 relative overflow-hidden" aria-labelledby="services-heading">
+      <section className="py-24 bg-[#0a0a0c] relative overflow-hidden" aria-labelledby="services-heading">
         {/* Background decoration */}
         <div className="absolute inset-0" aria-hidden="true">
-          <div className="absolute top-20 right-20 w-24 h-24 bg-blue-100/50 rounded-full blur-2xl"></div>
-          <div className="absolute bottom-20 left-20 w-32 h-32 bg-purple-100/50 rounded-full blur-2xl"></div>
+          <div className="absolute top-20 right-20 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 left-20 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl"></div>
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <header className="text-center mb-16">
             <motion.h2
               id="services-heading"
-              className="text-4xl font-bold text-gray-900 mb-4"
+              className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              Our Services
+              Our Expertise
             </motion.h2>
             <motion.p
-              className="text-xl text-gray-600"
+              className="text-xl text-slate-400 max-w-2xl mx-auto"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
               viewport={{ once: true }}
             >
-              Comprehensive solutions for your digital needs
+              Building next-generation digital products with precision and passion.
             </motion.p>
           </header>
 
@@ -561,7 +561,7 @@ export default function Home() {
             ].map((service, index) => (
               <motion.article
                 key={index}
-                className="bg-white rounded-2xl shadow-lg border border-gray-100 relative overflow-hidden backdrop-blur-sm group hover:shadow-2xl transition-all duration-500"
+                className="premium-card relative overflow-hidden group transition-all duration-500"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -574,17 +574,17 @@ export default function Home() {
                   <motion.img
                     src={service.image}
                     alt={service.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-80"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent opacity-60"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0c] via-transparent to-transparent opacity-60"></div>
                 </div>
 
                 <div className="p-8 relative z-10 -mt-6">
-                  <h3 id={`service-${index}-title`} className="text-xl font-bold text-gray-900 mb-3 group-hover:text-[#0077b6] transition-colors duration-300">
+                  <h3 id={`service-${index}-title`} className="text-xl font-bold text-white mb-3 group-hover:text-indigo-400 transition-colors duration-300">
                     {service.title}
                   </h3>
 
-                  <p className="text-gray-600 mb-6 text-sm">
+                  <p className="text-slate-400 mb-6 text-sm leading-relaxed">
                     {service.description}
                   </p>
 
@@ -593,14 +593,14 @@ export default function Home() {
                     {service.features.map((feature, featureIndex) => (
                       <motion.li
                         key={featureIndex}
-                        className="flex items-center text-sm text-gray-500"
+                        className="flex items-center text-sm text-slate-500"
                         initial={{ opacity: 0, x: -10 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         transition={{ delay: (index * 0.1) + (featureIndex * 0.05) }}
                       >
                         <motion.div
-                          className="w-2 h-2 bg-[#0077b6] rounded-full mr-3"
-                          animate={{ scale: [1, 1.3, 1] }}
+                          className="w-1.5 h-1.5 bg-indigo-500 rounded-full mr-3 shadow-[0_0_8px_rgba(99,102,241,0.6)]"
+                          animate={{ scale: [1, 1.4, 1] }}
                           transition={{
                             duration: 2,
                             repeat: Infinity,
@@ -608,7 +608,7 @@ export default function Home() {
                           }}
                           aria-hidden="true"
                         ></motion.div>
-                        <span className="font-medium">{feature}</span>
+                        <span className="font-medium group-hover:text-slate-300 transition-colors duration-300">{feature}</span>
                       </motion.li>
                     ))}
                   </ul>
@@ -638,7 +638,7 @@ export default function Home() {
       </section>
 
       {/* Stats Section - Enhanced */}
-      <section className="py-20 bg-[#0077b6] text-white relative overflow-hidden">
+      <section className="py-24 bg-indigo-600 text-white relative overflow-hidden">
         {/* Animated background elements */}
         <div className="absolute inset-0">
           <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
@@ -654,12 +654,12 @@ export default function Home() {
               { number: "24/7", label: "Support Available", icon: Shield }
             ].map((stat, index) => (
               <div key={index} className="group">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 hover:bg-white/20 transition-all duration-500 transform hover:scale-105 border border-white/20">
+                <div className="premium-glass backdrop-blur-xl bg-white/10 rounded-2xl p-8 hover:bg-white/20 transition-all duration-500 transform hover:scale-105 border border-white/20">
                   <div className="text-4xl mb-4 group-hover:animate-bounce">
-                    <stat.icon className="w-12 h-12 mx-auto text-white group-hover:text-yellow-300 transition-colors duration-300" />
+                    <stat.icon className="w-12 h-12 mx-auto text-white group-hover:text-indigo-200 transition-colors duration-300" />
                   </div>
-                  <div className="text-4xl md:text-5xl font-bold group-hover:text-yellow-300 transition-colors duration-300">{stat.number}</div>
-                  <div className="text-blue-100 group-hover:text-white transition-colors duration-300">{stat.label}</div>
+                  <div className="text-4xl md:text-5xl font-bold group-hover:text-indigo-100 transition-colors duration-300">{stat.number}</div>
+                  <div className="text-indigo-100 group-hover:text-white transition-colors duration-300">{stat.label}</div>
                 </div>
               </div>
             ))}

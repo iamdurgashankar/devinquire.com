@@ -3,34 +3,27 @@
 // Color palette
 export const colors = {
   primary: {
-    main: '#0077b6',
-    light: '#00a8e8',
-    dark: '#005a8a',
-    50: '#f0f9ff',
-    100: '#e0f2fe',
-    200: '#bae6fd',
-    300: '#7dd3fc',
-    400: '#38bdf8',
-    500: '#0ea5e9',
-    600: '#0284c7',
-    700: '#0369a1',
-    800: '#075985',
-    900: '#0c4a6e'
+    main: '#6366f1', // Indigo
+    light: '#818cf8',
+    dark: '#4f46e5',
+    500: '#6366f1',
+    600: '#4f46e5',
+    700: '#4338ca'
   },
-  gray: {
-    50: '#f9fafb',
-    100: '#f3f4f6',
-    200: '#e5e7eb',
-    300: '#d1d5db',
-    400: '#9ca3af',
-    500: '#6b7280',
-    600: '#4b5563',
-    700: '#374151',
-    800: '#1f2937',
-    900: '#111827'
+  violet: {
+    main: '#8b5cf6',
+    500: '#8b5cf6',
+    600: '#7c3aed'
   },
-  white: '#ffffff',
-  black: '#000000'
+  accent: {
+    main: '#06b6d4', // Cyan
+    500: '#06b6d4',
+    600: '#0891b2'
+  },
+  mesh: {
+    dark: '#0a0a0c',
+    light: '#f8fafc'
+  }
 };
 
 // Typography scale
@@ -155,17 +148,14 @@ export const animations = {
 // Common component styles
 export const componentStyles = {
   card: {
-    base: 'bg-white rounded-2xl shadow-xl',
+    base: 'backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]',
     padding: 'p-8',
-    hover: 'hover:shadow-2xl transition-shadow duration-300'
+    hover: 'hover:bg-white/10 hover:border-white/20 transition-all duration-300 transform hover:-translate-y-1'
   },
   button: {
-    primary: 'bg-[#0077b6] hover:bg-[#005a8a] text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200',
-    secondary: 'bg-white hover:bg-gray-50 text-[#0077b6] border border-[#0077b6] font-semibold py-3 px-6 rounded-lg transition-colors duration-200',
-    ghost: 'hover:bg-gray-100 text-gray-700 font-semibold py-3 px-6 rounded-lg transition-colors duration-200'
-  },
-  input: {
-    base: 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0077b6] focus:border-transparent transition-colors duration-200'
+    primary: 'bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-8 rounded-xl transition-all duration-300 hover:shadow-[0_0_20px_rgba(99,102,241,0.4)] active:scale-95',
+    secondary: 'bg-white/10 hover:bg-white/20 text-white border border-white/10 font-semibold py-3 px-8 rounded-xl transition-all duration-300 active:scale-95',
+    ghost: 'hover:bg-white/5 text-gray-300 hover:text-white font-semibold py-3 px-8 rounded-xl transition-all duration-300'
   }
 };
 

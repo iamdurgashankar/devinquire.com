@@ -39,7 +39,7 @@ const Sidebar = ({
       variants={sidebarVariants}
       className={`
         h-screen z-50 overflow-hidden
-        bg-[var(--bg-sidebar)] text-white/70
+        bg-white/[0.02] backdrop-blur-xl text-white/70
         border-r border-white/5 shadow-2xl
         transition-all hidden lg:flex flex-col flex-shrink-0 relative
       `}
@@ -58,7 +58,7 @@ const Sidebar = ({
               exit={{ opacity: 0, x: -10 }}
               className="flex items-center gap-3 overflow-hidden"
             >
-              <div className="w-9 h-9 rounded-lg bg-brand-600 flex items-center justify-center text-white font-bold shadow-lg shadow-brand-500/20">
+              <div className="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-500/20">
                 <Shield size={18} />
               </div>
               <div className="flex flex-col">
@@ -79,7 +79,7 @@ const Sidebar = ({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white font-bold shadow-lg shadow-brand-500/20 mx-auto transition-all hover:scale-105 active:scale-95"
+              className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-500/20 mx-auto transition-all hover:scale-105 active:scale-95"
             >
               <Shield size={20} />
             </motion.div>
@@ -103,13 +103,13 @@ const Sidebar = ({
             className={`
               w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative
               ${item.isActive
-                ? 'bg-brand-600/10 text-brand-500'
+                ? 'bg-indigo-600/10 text-indigo-500'
                 : 'text-white/50 hover:bg-white/5 hover:text-white'}
             `}
           >
             <div className={`
               transition-all duration-200
-              ${item.isActive ? 'text-brand-500' : 'text-current'}
+              ${item.isActive ? 'text-indigo-500' : 'text-current'}
             `}>
               <item.icon size={18} />
             </div>
@@ -130,7 +130,7 @@ const Sidebar = ({
             {item.isActive && (
               <motion.div
                 layoutId="active-nav-indicator"
-                className="absolute right-0 w-1 h-5 bg-brand-500 rounded-l-full shadow-[0_0_12px_rgba(59,130,246,0.5)]"
+                className="absolute right-0 w-1 h-5 bg-indigo-500 rounded-l-full shadow-[0_0_12px_rgba(99,102,241,0.5)]"
               />
             )}
 
