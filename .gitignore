@@ -76,3 +76,6 @@ api/cache/
 # Debug and test files (exclude from production)
 api/debug-*.php
 api/test-*.php
+
+# Sub-repositories
+devinquire-dashboard/
