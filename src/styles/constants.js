@@ -3,9 +3,9 @@
 // Color palette
 export const colors = {
   primary: {
-    main: '#0077b6',
-    light: '#00a8e8',
-    dark: '#005a8a',
+    main: '#4e45e1',
+    light: '#6B63F2',
+    dark: '#4139BF',
     50: '#f0f9ff',
     100: '#e0f2fe',
     200: '#bae6fd',
@@ -160,12 +160,12 @@ export const componentStyles = {
     hover: 'hover:shadow-2xl transition-shadow duration-300'
   },
   button: {
-    primary: 'bg-[#0077b6] hover:bg-[#005a8a] text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200',
-    secondary: 'bg-white hover:bg-gray-50 text-[#0077b6] border border-[#0077b6] font-semibold py-3 px-6 rounded-lg transition-colors duration-200',
+    primary: 'bg-[#4e45e1] hover:bg-[#4139BF] text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200',
+    secondary: 'bg-white hover:bg-gray-50 text-[#4e45e1] border border-[#4e45e1] font-semibold py-3 px-6 rounded-lg transition-colors duration-200',
     ghost: 'hover:bg-gray-100 text-gray-700 font-semibold py-3 px-6 rounded-lg transition-colors duration-200'
   },
   input: {
-    base: 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0077b6] focus:border-transparent transition-colors duration-200'
+    base: 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#4e45e1] focus:border-transparent transition-colors duration-200'
   }
 };
 

@@ -1,0 +1,72 @@
+name: Deploy to Hostinger
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Install dashboard dependencies
+      run: |
+        cd dashboard
+        npm install
+        cd ..
+        
+    - name: Build main application
+      run: npm run build
+      
+    - name: Build dashboard
+      run: |
+        cd dashboard
+        npm run build
+        cd ..
+        
+    - name: Trigger Hostinger Deployment
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+      run: |
+        curl -X POST "https://webhooks.hostinger.com/deploy/6a336b05bd6b1e6e2060ee80c41c2c01" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "ref": "${{ github.ref }}",
+            "repository": {
+              "name": "${{ github.repository }}",
+              "full_name": "${{ github.repository }}",
+              "html_url": "${{ github.server_url }}/${{ github.repository }}"
+            },
+            "head_commit": {
+              "id": "${{ github.sha }}",
+              "message": "${{ github.event.head_commit.message }}",
+              "author": {
+                "name": "${{ github.event.head_commit.author.name }}",
+                "email": "${{ github.event.head_commit.author.email }}"
+              }
+            },
+            "pusher": {
+              "name": "${{ github.actor }}"
+            }
+          }'
+          
+    - name: Deployment Status
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+      run: |
+        echo "✅ Deployment webhook triggered successfully!"
+        echo "🚀 Your application should be deploying to Hostinger now."
+        echo "📝 Commit: ${{ github.sha }}"
+        echo "👤 Author: ${{ github.actor }}"

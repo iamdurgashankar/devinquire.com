@@ -26,7 +26,7 @@ class NewsletterShadowComponent extends HTMLElement {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: linear-gradient(135deg, #0077b6 0%, #005a8a 100%);
+          background: linear-gradient(135deg, #4e45e1 0%, #4139BF 100%);
           box-shadow: 0 20px 40px rgba(0, 119, 182, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
           border-radius: 16px;
           max-width: 1200px;
@@ -175,7 +175,7 @@ class NewsletterShadowComponent extends HTMLElement {
         
         .submit-btn {
           position: relative;
-          background: #0077b6;
+          background: #4e45e1;
           color: white;
           padding: 0.75rem 1.5rem;
           border-radius: 0.5rem;
@@ -187,7 +187,7 @@ class NewsletterShadowComponent extends HTMLElement {
         }
         
         .submit-btn:hover {
-          background: #005a8a;
+          background: #4139BF;
           transform: scale(1.05);
         }
         
@@ -199,7 +199,7 @@ class NewsletterShadowComponent extends HTMLElement {
         .btn-bg {
           position: absolute;
           inset: 0;
-          background: #005a8a;
+          background: #4139BF;
           opacity: 0;
           transition: opacity 0.3s ease;
         }
@@ -211,7 +211,7 @@ class NewsletterShadowComponent extends HTMLElement {
         .btn-blur {
           position: absolute;
           inset: -0.25rem;
-          background: #0077b6;
+          background: #4e45e1;
           border-radius: 50%;
           filter: blur(1px);
           opacity: 0.3;

@@ -215,7 +215,7 @@ export const Grid = ({ cols = 3, children, className = '', responsive = true }) 
 export const StatCard = ({ number, label, suffix = '', className = '' }) => {
   return (
     <div className={`text-center ${className}`}>
-      <div className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#0077b6] mb-2">
+      <div className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#4e45e1] mb-2">
         {number}{suffix}
       </div>
       <div className={`${responsiveTypography.bodyBase} text-gray-600 font-medium`}>{label}</div>
@@ -253,7 +253,7 @@ export const FeatureCard = ({ icon: Icon, title, description, features = [], cla
   return (
     <Card className={className}>
       <div className="text-center">
-        <div className={`${responsiveComponents.iconSizeLarge} bg-[#0077b6] rounded-full flex items-center justify-center mx-auto mb-6`}>
+        <div className={`${responsiveComponents.iconSizeLarge} bg-[#4e45e1] rounded-full flex items-center justify-center mx-auto mb-6`}>
           <Icon className={`${responsiveComponents.iconSize} text-white`} />
         </div>
         <h3 className={`${responsiveTypography.cardTitle} text-gray-900 mb-4`}>{title}</h3>
@@ -262,7 +262,7 @@ export const FeatureCard = ({ icon: Icon, title, description, features = [], cla
           <ul className="text-left space-y-2">
             {features.map((feature, index) => (
               <li key={index} className={`flex items-center ${responsiveTypography.bodySmall} text-gray-700`}>
-                <div className="w-2 h-2 bg-[#0077b6] rounded-full mr-3 flex-shrink-0"></div>
+                <div className="w-2 h-2 bg-[#4e45e1] rounded-full mr-3 flex-shrink-0"></div>
                 {feature}
               </li>
             ))}

@@ -14,7 +14,7 @@ const Banner728x98 = ({
 }) => {
   return (
     <motion.section 
-      className={`relative bg-gradient-to-r from-[#0077b6] via-[#0088cc] to-[#0077b6] overflow-hidden ${className}`}
+      className={`relative bg-gradient-to-r from-[#4e45e1] via-[#0088cc] to-[#4e45e1] overflow-hidden ${className}`}
       style={{
         minHeight: '98px',
         maxWidth: '728px',
@@ -51,7 +51,7 @@ const Banner728x98 = ({
         <div className="flex items-center gap-3">
           <Link 
             to={primaryButtonLink}
-            className="group bg-white text-[#0077b6] px-4 py-2 rounded-lg font-semibold text-sm hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center gap-2"
+            className="group bg-white text-[#4e45e1] px-4 py-2 rounded-lg font-semibold text-sm hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center gap-2"
           >
             <span>{primaryButtonText}</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
@@ -59,7 +59,7 @@ const Banner728x98 = ({
           
           <Link 
             to={secondaryButtonLink}
-            className="border-2 border-white text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-white hover:text-[#0077b6] transition-all duration-300 transform hover:scale-105 hidden sm:block"
+            className="border-2 border-white text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-white hover:text-[#4e45e1] transition-all duration-300 transform hover:scale-105 hidden sm:block"
           >
             {secondaryButtonText}
           </Link>

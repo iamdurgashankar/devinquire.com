@@ -1,22 +1,22 @@
 /* Base Theme Colors - Update colors here for the entire application */
 :root {
   /* Primary Color Palette */
-  --primary: #0077b6;
-  --primary-light: #0099e6;
-  --primary-dark: #005a8a;
-  --primary-rgb: 0, 119, 182;
+  --primary: #4e45e1;
+  --primary-light: #6B63F2;
+  --primary-dark: #4139BF;
+  --primary-rgb: 78, 69, 225;
 
   /* Secondary Colors */
-  --secondary: #0077b6;
-  --secondary-light: #0099e6;
-  --secondary-dark: #005a8a;
-  --secondary-rgb: 0, 119, 182;
+  --secondary: #4e45e1;
+  --secondary-light: #6B63F2;
+  --secondary-dark: #4139BF;
+  --secondary-rgb: 78, 69, 225;
 
   /* Accent Colors */
-  --accent: #0077b6;
-  --accent-light: #0099e6;
-  --accent-dark: #005a8a;
-  --accent-rgb: 0, 119, 182;
+  --accent: #4e45e1;
+  --accent-light: #6B63F2;
+  --accent-dark: #4139BF;
+  --accent-rgb: 78, 69, 225;
 
   /* Neutral Colors - Enhanced for accessibility */
   --neutral-50: #f8fafc;
@@ -31,7 +31,7 @@
   --neutral-900: #0f172a;
   
   /* Accessibility Colors */
-  --focus-visible: #0077b6;
+  --focus-visible: #4e45e1;
   --focus-ring-width: 2px;
   --focus-ring-offset: 2px;
   --error-text: #dc2626; /* High contrast error text */
@@ -59,12 +59,12 @@
   /* Border Colors */
   --border-primary: #e2e8f0;
   --border-secondary: #cbd5e1;
-  --border-accent: #0077b6;
+  --border-accent: #4e45e1;
 
   /* Shadow Colors */
-  --shadow-color: rgba(0, 119, 182, 0.1);
-  --shadow-color-light: rgba(0, 119, 182, 0.05);
-  --shadow-color-dark: rgba(0, 119, 182, 0.2);
+  --shadow-color: rgba(78, 69, 225, 0.1);
+  --shadow-color-light: rgba(78, 69, 225, 0.05);
+  --shadow-color-dark: rgba(78, 69, 225, 0.2);
 
   /* Glass Effect Colors */
   --glass-bg: rgba(255, 255, 255, 0.1);

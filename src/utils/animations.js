@@ -274,7 +274,7 @@ export const navItemHover = {
   },
   hover: {
     scale: 1.05,
-    color: "#0077b6",
+    color: "#4e45e1",
     transition: {
       duration: animations.duration.fast
     }

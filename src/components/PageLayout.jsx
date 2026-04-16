@@ -7,7 +7,7 @@ import { responsiveContainers, responsiveSpacing, responsiveTypography } from '.
 const PageLayout = ({ 
   title, 
   subtitle, 
-  heroBackground = '#0077b6',
+  heroBackground = '#4e45e1',
   children,
   showAnimatedBackground = true 
 }) => {

@@ -155,6 +155,17 @@ class BlogApiService {
    */
   async getCategories() {
     try {
+      // For local PHP API
+      if (this.useLocalFallback || this.localBaseUrl === this.externalBaseUrl) {
+        const response = await fetch(`${this.localBaseUrl}/blog.php?action=categories`);
+        const data = await response.json();
+        
+        if (data.success && Array.isArray(data.data)) {
+          return data.data;
+        }
+        return [];
+      }
+      
       const response = await this.makeRequest('/categories');
       // Ensure we return an array - handle both direct array and wrapped response
       if (Array.isArray(response)) {
@@ -182,6 +193,26 @@ class BlogApiService {
         page = 1
       } = options;
       
+      // For local PHP API, use different endpoint format
+      if (this.useLocalFallback || this.localBaseUrl === this.externalBaseUrl) {
+        // Use PHP API endpoint: /api/blog.php?action=posts&category=...
+        let endpoint = `/blog.php?action=posts&status=${status}&limit=${limit}&offset=${(page - 1) * limit}`;
+        
+        if (category && category !== 'All') {
+          const categorySlug = category.toLowerCase().replace(/\s+/g, '-');
+          endpoint += `&category=${encodeURIComponent(categorySlug)}`;
+        }
+        
+        const response = await fetch(`${this.localBaseUrl}${endpoint}`);
+        const data = await response.json();
+        
+        if (data.success && Array.isArray(data.data)) {
+          return data.data;
+        }
+        return [];
+      }
+      
+      // External API (if needed)
       let endpoint = `/posts?status=${status}&limit=${limit}&page=${page}`;
       
       if (category && category !== 'All') {
