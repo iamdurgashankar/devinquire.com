@@ -13,9 +13,11 @@ import SEO from '../components/SEO';
 import webDevImg from '../images/services/web-dev.png';
 import mobileDevImg from '../images/services/mobile-dev.png';
 import uiUxImg from '../images/services/ui-ux.png';
-import cloudImg from '../images/services/cloud.png';
-import performanceImg from '../images/services/performance.png';
-import customImg from '../images/services/custom.png';
+
+// Product Images
+import aiBotImg from '../images/products/ai-bot.png';
+import analyticsImg from '../images/products/analytics.png';
+import ecommerceProductImg from '../images/products/ecommerce.png';
 
 export default function Home() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -262,20 +264,6 @@ export default function Home() {
         {/* Main Content */}
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32 z-10">
           <div className="text-center">
-            {/* Enhanced Professional Badge */}
-            <motion.div
-              className="mb-10"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.1 }}
-            >
-              <span className="inline-flex items-center px-6 py-3 rounded-full text-sm font-medium bg-white text-gray-900 border border-gray-100 backdrop-blur-md shadow-lg">
-                <span className="w-2 h-2 bg-green-500 rounded-full mr-3 animate-pulse"></span>
-                Professional Development Solutions
-                <span className="ml-3 text-xs text-gray-400">✨</span>
-              </span>
-            </motion.div>
-
             {/* Main Title with Enhanced Animation */}
             <motion.h1
               className="text-5xl md:text-7xl font-bold mb-6 text-gray-900 leading-tight"
@@ -395,23 +383,6 @@ export default function Home() {
             </motion.div>
           </div>
         </div>
-
-        {/* Professional Scroll indicator */}
-        <motion.div
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 1.5 }}
-        >
-          <div className="w-6 h-10 border-2 border-gray-300 rounded-full flex justify-center backdrop-blur-sm">
-            <motion.div
-              className="w-1 h-3 bg-gray-400 rounded-full mt-2"
-              animate={{ y: [0, 12, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            ></motion.div>
-          </div>
-        </motion.div>
-
         {/* Floating tech stack with animations */}
         <div className="absolute top-1/4 right-10 hidden lg:block">
           <div className="space-y-4">
@@ -512,45 +483,28 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12" role="list">
             {[
               {
-                icon: <Monitor className="w-10 h-10" />,
+                image: webDevImg,
                 title: "Web Development",
                 description: "Modern, responsive websites and web applications built with the latest technologies.",
                 features: ["React/Next.js", "Node.js", "Database Design", "API Integration"],
               },
               {
-                icon: <Smartphone className="w-10 h-10" />,
+                image: mobileDevImg,
                 title: "Mobile Development",
                 description: "Native and cross-platform mobile applications for iOS and Android.",
                 features: ["React Native", "iOS/Android", "App Store", "Performance"],
               },
               {
-                icon: <Palette className="w-10 h-10" />,
+                image: uiUxImg,
                 title: "UI/UX Design",
                 description: "User-centric design that provides beautiful and intuitive experiences.",
                 features: ["Wireframing", "Prototyping", "User Testing", "Design Systems"],
               },
-              {
-                icon: <Cloud className="w-10 h-10" />,
-                title: "Cloud Solutions",
-                description: "Scalable and secure cloud infrastructure and automated deployment pipelines.",
-                features: ["AWS/Azure", "Docker", "CI/CD", "Monitoring"],
-              },
-              {
-                icon: <Rocket className="w-10 h-10" />,
-                title: "SEO Optimization",
-                description: "Enhance your visibility and search rankings with our advanced SEO strategies.",
-                features: ["Keyword Analysis", "On-page SEO", "Backlinking", "Performance"],
-              },
-              {
-                icon: <Settings className="w-10 h-10" />,
-                title: "Custom Solutions",
-                description: "Tailored software solutions designed to meet your specific business needs.",
-                features: ["Custom Software", "Automation", "Integrations", "Legacy Support"],
-              }
+
             ].map((service, index) => (
               <motion.article
                 key={index}
-                className="bg-white p-8 rounded-xl shadow-md border border-gray-100 flex flex-col group hover:shadow-xl transition-all duration-300"
+                className="bg-white rounded-2xl shadow-md border border-gray-100 flex flex-col group hover:shadow-xl transition-all duration-300 overflow-hidden"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -558,17 +512,22 @@ export default function Home() {
                 role="listitem"
                 aria-labelledby={`service-${index}-title`}
               >
-                <div className="text-indigo-600 mb-6 group-hover:scale-110 transition-transform duration-300">
-                  {service.icon}
+                <div className="overflow-hidden h-48 bg-gray-100 border-b border-gray-100/50">
+                  <img 
+                    src={service.image} 
+                    alt={service.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
                 </div>
 
-                <h3 id={`service-${index}-title`} className="text-2xl font-bold text-gray-900 mb-4">
-                  {service.title}
-                </h3>
+                <div className="p-8 pt-6 flex-grow flex flex-col">
+                  <h3 id={`service-${index}-title`} className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-indigo-600 transition-colors">
+                    {service.title}
+                  </h3>
 
-                <p className="text-gray-600 mb-8 flex-grow">
-                  {service.description}
-                </p>
+                  <p className="text-gray-600 mb-8 flex-grow">
+                    {service.description}
+                  </p>
 
                 <ul className="space-y-3" aria-label={`${service.title} features`}>
                   {service.features.map((feature, featureIndex) => (
@@ -581,6 +540,7 @@ export default function Home() {
                     </li>
                   ))}
                 </ul>
+                </div>
               </motion.article>
             ))}
           </div>
@@ -604,6 +564,136 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+
+      {/* Top Products Section */}
+      <section className="py-20 bg-white relative overflow-hidden" aria-labelledby="products-heading">
+        {/* Background decoration */}
+        <div className="absolute inset-0" aria-hidden="true">
+          <div className="absolute top-0 right-1/4 w-32 h-32 bg-blue-100/50 rounded-full blur-2xl"></div>
+          <div className="absolute bottom-10 left-1/3 w-40 h-40 bg-indigo-50/50 rounded-full blur-3xl"></div>
+        </div>
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <header className="text-center mb-16">
+            <motion.h2
+              id="products-heading"
+              className="text-4xl font-bold text-gray-900 mb-4"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+            >
+              Top Products
+            </motion.h2>
+            <motion.p
+              className="text-xl text-gray-600"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              viewport={{ once: true }}
+            >
+              Market-leading solutions designed to accelerate your growth
+            </motion.p>
+          </header>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12" role="list">
+            {[
+              {
+                image: aiBotImg,
+                title: "AI Business Assistant",
+                description: "Intelligent conversational bots that automate customer support and boost engagement.",
+                features: ["NLP Capabilities", "24/7 Support", "Seamless Integration"],
+              },
+              {
+                image: analyticsImg,
+                title: "Data Analytics Suite",
+                description: "Comprehensive analytics platform to track performance, behavior, and market trends.",
+                features: ["Real-time Data", "Custom Dashboards", "Predictive Analytics"],
+              },
+              {
+                image: ecommerceProductImg,
+                title: "Next-Gen E-Commerce",
+                description: "A complete toolkit for building highly converting, scalable online storefronts.",
+                features: ["Inventory Management", "Secure Payments", "Mobile Optimized"],
+              },
+
+            ].map((product, index) => (
+              <motion.article
+                key={index}
+                className="bg-white rounded-2xl shadow-lg border border-gray-50 flex flex-col group hover:shadow-2xl transition-all duration-300 relative overflow-hidden"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                role="listitem"
+                aria-labelledby={`product-${index}-title`}
+              >
+                {/* Decorative background element on hover */}
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/0 to-indigo-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                
+                {/* Full-width edge-to-edge image container */}
+                <div className="relative z-10 overflow-hidden h-56 bg-gray-50 border-b border-gray-100/50">
+                  <motion.img 
+                    src={product.image} 
+                    alt={product.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                </div>
+
+                <div className="relative z-10 p-8 pt-6 flex-grow flex flex-col">
+                  <h3 id={`product-${index}-title`} className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-indigo-600 transition-colors duration-300">
+                    {product.title}
+                  </h3>
+
+                  <p className="text-gray-600 mb-6 flex-grow leading-relaxed">
+                    {product.description}
+                  </p>
+
+                  <ul className="space-y-3 mb-6" aria-label={`${product.title} features`}>
+                    {product.features.map((feature, featureIndex) => (
+                      <li
+                        key={featureIndex}
+                        className="flex items-center text-sm font-medium text-gray-500"
+                      >
+                        <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mr-3 shadow-[0_0_8px_rgba(99,102,241,0.6)]" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  
+                  <div className="mt-auto pt-4 border-t border-gray-100">
+                    <Link to="/products" className="inline-flex items-center text-sm font-semibold text-indigo-600 hover:text-indigo-700 transition-colors">
+                      Learn more
+                      <svg className="ml-1.5 w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </Link>
+                  </div>
+                </div>
+              </motion.article>
+            ))}
+          </div>
+
+          <motion.div
+            className="text-center mt-16"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
+            <Link
+              to="/products"
+              className="group inline-flex items-center text-indigo-600 hover:text-indigo-700 font-semibold text-lg transition-all duration-300"
+            >
+              Explore All Products
+              <svg className="ml-2 w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+
 
       {/* Stats Section - Enhanced */}
       <section className="py-20 bg-indigo-50 relative overflow-hidden">
@@ -655,185 +745,84 @@ export default function Home() {
             <p className="text-xl text-gray-600">Don't just take our word for it</p>
           </motion.header>
 
-          {/* Interactive Testimonial Carousel */}
-          <div className="relative max-w-4xl mx-auto" role="region" aria-labelledby="testimonials-heading" aria-live="polite">
-            <div className="overflow-hidden rounded-3xl">
-              <AnimatePresence mode="wait">
-                {[
-                  {
-                    name: "Sankalp",
-                    role: "CEO, DCIT",
-                    content: "DevInquire transformed our outdated website into a modern, high-performing platform that increased our conversions by 300%.",
-                    avatar: "SJ",
-                    rating: 5,
-                    gradient: "#4F46E5"
-                  },
-                  {
-                    name: "Shivraj",
-                    role: "Founder, DCIT",
-                    content: "The team at DevInquire delivered our mobile app on time and exceeded our expectations. Highly recommended!",
-                    avatar: "MC",
-                    rating: 5,
-                    gradient: "#4F46E5"
-                  },
-                  {
-                    name: "Sunil",
-                    role: "Marketing Director, Kinspire Biz",
-                    content: "Their SEO services helped us climb to the top of search results. Our organic traffic has never been better.",
-                    avatar: "ER",
-                    rating: 5,
-                    gradient: "#4F46E5"
-                  }
-                ].map((testimonial, index) => (
-                  currentTestimonial === index && (
-                    <motion.article
-                      key={index}
-                      initial={{ opacity: 0, x: 100, scale: 0.8 }}
-                      animate={{ opacity: 1, x: 0, scale: 1 }}
-                      exit={{ opacity: 0, x: -100, scale: 0.8 }}
-                      transition={{ duration: 0.5, ease: "easeInOut" }}
-                      className="bg-white p-12 rounded-3xl shadow-2xl border border-gray-100 relative overflow-hidden"
-                      aria-label={`Testimonial from ${testimonial.name}, ${testimonial.role}`}
-                    >
-                      {/* Background gradient */}
-                      <div className="absolute inset-0 bg-[#4F46E5] opacity-5" aria-hidden="true"></div>
+          {/* Continuous Scrolling Marquee */}
+        </div>
 
-                      <div className="relative z-10 text-center">
-                        {/* Large Quote Icon */}
-                        <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ delay: 0.2, duration: 0.5 }}
-                          className="text-6xl text-gray-200 mb-6"
-                          aria-hidden="true"
-                        >
-                          "
-                        </motion.div>
-
-                        {/* Avatar */}
-                        <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ delay: 0.3, duration: 0.5 }}
-                          className="w-20 h-20 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto mb-6"
-                          role="img"
-                          aria-label={`Avatar for ${testimonial.name}`}
-                        >
-                          {testimonial.avatar}
-                        </motion.div>
-
-                        {/* Content */}
-                        <motion.p
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.4, duration: 0.5 }}
-                          className="text-lg text-gray-700 mb-6 italic leading-relaxed"
-                        >
-                          {testimonial.content}
-                        </motion.p>
-
-                        {/* Name and Role */}
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.5, duration: 0.5 }}
-                          className="mb-4"
-                        >
-                          <h4 className="font-bold text-gray-900 text-lg">{testimonial.name}</h4>
-                          <p className="text-gray-600">{testimonial.role}</p>
-                        </motion.div>
-
-                        {/* Rating */}
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: 0.6, duration: 0.5 }}
-                          className="flex justify-center space-x-1"
-                        >
-                          {[...Array(testimonial.rating)].map((_, i) => (
-                            <motion.div
-                              key={i}
-                              initial={{ opacity: 0, rotate: -180 }}
-                              animate={{ opacity: 1, rotate: 0 }}
-                              transition={{ delay: 0.7 + i * 0.1, duration: 0.3 }}
-                              className="text-yellow-400"
-                            >
-                              <Star className="w-5 h-5 fill-current" />
-                            </motion.div>
-                          ))}
-                        </motion.div>
-                      </div>
-                    </motion.article>
-                  )
-                ))}
-              </AnimatePresence>
-            </div>
-
-            {/* Navigation Controls */}
-            <div className="flex justify-center mt-8 space-x-4">
-              <button
-                onClick={() => setCurrentTestimonial(prev => prev === 0 ? 2 : prev - 1)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    setCurrentTestimonial(prev => prev === 0 ? 2 : prev - 1);
-                  }
-                }}
-                className="w-12 h-12 bg-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-gray-600 hover:text-indigo-600 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                aria-label="Previous testimonial"
-                tabIndex={0}
+        <div className="relative w-full overflow-hidden mt-8 pb-12 [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)]">
+          <div className="flex w-max animate-infinite-scroll hover:[animation-play-state:paused] gap-8 px-4">
+            {[1, 2].flatMap(() => [
+              {
+                name: "Sankalp",
+                role: "CEO, DCIT",
+                content: "DevInquire transformed our outdated website into a modern, high-performing platform that increased our conversions by 300%.",
+                avatar: "SJ",
+                rating: 5,
+              },
+              {
+                name: "Shivraj",
+                role: "Founder, DCIT",
+                content: "The team at DevInquire delivered our mobile app on time and exceeded our expectations. Highly recommended!",
+                avatar: "MC",
+                rating: 5,
+              },
+              {
+                name: "Sunil",
+                role: "Marketing Director, Kinspire Biz",
+                content: "Their SEO services helped us climb to the top of search results. Our organic traffic has never been better.",
+                avatar: "ER",
+                rating: 5,
+              },
+              {
+                name: "Satya",
+                role: "Founder, GetFitWithSatya",
+                content: "DevInquire built an incredible custom fitness console that perfectly manages our member data and workout plans. The user experience is flawless.",
+                avatar: "SA",
+                rating: 5,
+              },
+              {
+                name: "Biswajit",
+                role: "Director, City Hospital",
+                content: "The OPD console they developed for our hospital streamlined our entire patient management process. It's secure, fast, and incredibly reliable.",
+                avatar: "BI",
+                rating: 5,
+              }
+            ]).map((testimonial, index) => (
+              <article
+                key={index}
+                className="w-[350px] md:w-[400px] flex-shrink-0 whitespace-normal bg-white/80 backdrop-blur-xl p-8 rounded-3xl border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 relative flex flex-col justify-between group cursor-grab active:cursor-grabbing"
+                aria-label={`Testimonial from ${testimonial.name}, ${testimonial.role}`}
               >
-                <motion.div
-                  whileHover={{ x: -2 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <ChevronLeft className="w-6 h-6" aria-hidden="true" />
-                </motion.div>
-              </button>
-              <button
-                onClick={() => setCurrentTestimonial(prev => prev === 2 ? 0 : prev + 1)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    setCurrentTestimonial(prev => prev === 2 ? 0 : prev + 1);
-                  }
-                }}
-                className="w-12 h-12 bg-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-gray-600 hover:text-indigo-600 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                aria-label="Next testimonial"
-                tabIndex={0}
-              >
-                <motion.div
-                  whileHover={{ x: 2 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <ChevronRight className="w-6 h-6" aria-hidden="true" />
-                </motion.div>
-              </button>
-            </div>
+                {/* Minimal Quote Icon */}
+                <div className="absolute top-8 right-8 text-indigo-100 opacity-50 group-hover:text-indigo-200 transition-colors duration-300">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14.017 21L16.411 14.5C14.017 14.5 14.017 10.5 14.017 10.5V3H21V10.5C21 16.5 17.5 21 17.5 21H14.017ZM3 21L5.394 14.5C3 14.5 3 10.5 3 10.5V3H10V10.5C10 16.5 6.5 21 6.5 21H3Z" />
+                  </svg>
+                </div>
 
-            {/* Dots Indicator */}
-            <div className="flex justify-center mt-6 space-x-2" role="tablist" aria-label="Testimonial navigation">
-              {[0, 1, 2].map((index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentTestimonial(index)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      setCurrentTestimonial(index);
-                    }
-                  }}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${currentTestimonial === index
-                    ? 'bg-indigo-600 scale-125'
-                    : 'bg-gray-300 hover:bg-gray-400'
-                    }`}
-                  role="tab"
-                  aria-selected={currentTestimonial === index}
-                  aria-label={`Go to testimonial ${index + 1}`}
-                  tabIndex={0}
-                />
-              ))}
-            </div>
+                {/* Rating */}
+                <div className="flex space-x-1 mb-6 relative z-10">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 fill-indigo-500 text-indigo-500" />
+                  ))}
+                </div>
+
+                {/* Content */}
+                <p className="text-gray-700 mb-8 leading-relaxed text-lg relative z-10 flex-grow font-medium">
+                  "{testimonial.content}"
+                </p>
+
+                {/* User Info */}
+                <div className="flex items-center gap-4 mt-auto relative z-10 border-t border-gray-100/50 pt-6">
+                  <div className="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600 font-bold text-sm border border-indigo-100">
+                    {testimonial.avatar}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-gray-900 text-sm">{testimonial.name}</h4>
+                    <p className="text-gray-500 text-xs">{testimonial.role}</p>
+                  </div>
+                </div>
+              </article>
+            ))}
           </div>
         </div>
       </section>

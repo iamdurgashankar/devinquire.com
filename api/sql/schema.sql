@@ -137,6 +137,7 @@ CREATE TABLE IF NOT EXISTS blog_tags (
 -- Blog posts table
 CREATE TABLE IF NOT EXISTS blog_posts (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    firestore_id VARCHAR(255) DEFAULT NULL,
     title VARCHAR(255) NOT NULL,
     slug VARCHAR(255) NOT NULL UNIQUE,
     excerpt TEXT,
@@ -160,7 +161,8 @@ CREATE TABLE IF NOT EXISTS blog_posts (
     INDEX idx_status (status),
     INDEX idx_published_at (published_at),
     INDEX idx_category_id (category_id),
-    INDEX idx_is_featured (is_featured)
+    INDEX idx_is_featured (is_featured),
+    INDEX idx_firestore_id (firestore_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Blog post tags junction table

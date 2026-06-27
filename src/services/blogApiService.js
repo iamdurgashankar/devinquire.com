@@ -240,6 +240,19 @@ class BlogApiService {
    */
   async getPost(identifier) {
     try {
+      // For local PHP API
+      if (this.useLocalFallback || this.localBaseUrl === this.externalBaseUrl) {
+        const isNumeric = /^\d+$/.test(identifier);
+        const param = isNumeric ? `id=${encodeURIComponent(identifier)}` : `slug=${encodeURIComponent(identifier)}`;
+        const response = await fetch(`${this.localBaseUrl}/blog.php?action=posts&${param}`);
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+          return data.data;
+        }
+        return null;
+      }
+
       const response = await this.makeRequest(`/posts/${encodeURIComponent(identifier)}`);
       // Handle both direct object and wrapped response
       if (response && typeof response === 'object' && !Array.isArray(response)) {

@@ -6,8 +6,14 @@
     "@google/generative-ai": "^0.24.1",
     "@tailwindcss/forms": "^0.5.10",
     "axios": "^1.6.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
     "framer-motion": "^12.18.1",
+    "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.539.0",
+    "mysql2": "^3.22.5",
+    "nodemailer": "^9.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-helmet-async": "^2.0.5",
@@ -16,6 +22,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.14",
+    "concurrently": "^10.0.3",
     "postcss": "^8.4.21",
     "postcss-import": "^16.1.1",
     "postcss-nesting": "^13.0.2",
@@ -27,8 +34,10 @@
     "build:dashboard": "REACT_APP_BUILD_TYPE=dashboard react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "server": "php -S localhost:8000 -t api"
+    "server": "node api/server.js",
+    "dev": "concurrently \"npm start\" \"npm run server\""
   },
+  "proxy": "http://localhost:8000",
   "browserslist": {
     "production": [
       ">0.2%",

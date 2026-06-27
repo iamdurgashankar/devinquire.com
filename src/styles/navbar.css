@@ -96,38 +96,12 @@
 /* Navigation Links */
 .nav-item {
   color: var(--text-secondary);
-  transition: color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   position: relative;
-  font-size: 14px;
   font-weight: 500;
-  transform: translateZ(0);
-  will-change: color;
 }
 
 .nav-item:hover {
   color: var(--primary);
-}
-
-.nav-item::after {
-  content: "";
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  width: 0;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.3),
-    rgba(255, 255, 255, 0.1)
-  );
-  transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  transform: translateZ(0);
-  will-change: width, opacity;
-  opacity: 1;
-}
-
-.nav-item:hover::after {
-  width: 100%;
 }
 
 /* Auth Buttons */
@@ -416,7 +390,7 @@
   }
   
   .hero-transparent-navbar .nav-item:hover {
-    color: rgba(255, 255, 255, 1);
+    color: var(--primary);
   }
   
   .hero-transparent-navbar .mobile-brand-text {

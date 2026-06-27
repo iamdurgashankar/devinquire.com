@@ -117,7 +117,7 @@ export default function Navbar() {
                 className="flex items-center space-x-3 group"
                 onClick={() => setIsMenuOpen(false)}
               >
-                                <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-lg sm:rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-110 bg-[#4e45e1] shadow-lg relative overflow-hidden mobile-logo">
+                                <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-lg sm:rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-110 bg-[var(--primary)] shadow-lg relative overflow-hidden mobile-logo">
                   <div className="absolute inset-0 bg-white/20 opacity-50"></div>
                   <div className="relative z-10 flex items-center justify-center text-white font-bold text-xs sm:text-sm">
                     <span className="text-white/80 mr-0.5 text-xs">&#123;</span>
@@ -125,7 +125,7 @@ export default function Navbar() {
                     <span className="text-white/80 ml-0.5 text-xs">&#125;</span>
                   </div>
                 </div>
-                <span className="font-semibold text-base sm:text-lg md:text-xl text-[#4e45e1] flex items-center min-w-0 mobile-brand-text">
+                <span className="font-semibold text-base sm:text-lg md:text-xl text-[var(--primary)] flex items-center min-w-0 mobile-brand-text">
                   <span className="truncate">{displayText}</span>
                   <span className={`ml-0.5 flex-shrink-0 ${showCursor ? 'opacity-100' : 'opacity-0'} transition-opacity duration-100`}>|</span>
                 </span>
@@ -138,8 +138,8 @@ export default function Navbar() {
               <div className="w-[30px] lg:w-[50px] flex-shrink-0"></div>
               
               {/* Centered Navigation Links */}
-              <div className="flex-1 flex items-center justify-center" style={{ pointerEvents: 'auto' }}>
-                <div className="flex items-center space-x-3 lg:space-x-6" style={{ pointerEvents: 'auto' }}>
+              <div className="flex-1 flex items-center justify-center">
+                <div className="flex items-center space-x-3 lg:space-x-6">
                   {[
                     ['About', '/about'],
                     ['Services', '/services'],
@@ -149,23 +149,14 @@ export default function Navbar() {
                     <Link 
                       key={path}
                       to={path} 
-                      className={`nav-item px-2 md:px-3 lg:px-4 py-2 font-medium relative group text-sm md:text-base transition-all duration-300 ease-out ${
-                        isScrolled ? 'text-gray-700 hover:text-[#4e45e1]' : 'text-gray-600 hover:text-[#4e45e1]'
-                      }`}
-                      style={{ pointerEvents: 'auto' }}
+                      className={`nav-item px-2 md:px-3 lg:px-4 py-2 font-medium relative group text-sm md:text-base transition-colors duration-300 ease-out ${
+                        isScrolled ? 'text-gray-700' : 'text-gray-600'
+                      } hover:text-[var(--primary)]`}
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      <span className="relative z-10 transition-all duration-300 ease-out">{label}</span>
-                      <span className={`absolute bottom-0 left-0 h-0.5 bg-[#4e45e1] transition-all duration-500 ease-out transform origin-left ${
-                        isScrolled 
-                          ? 'w-0 group-hover:w-full opacity-100 scale-x-0 group-hover:scale-x-100' 
-                          : 'w-0 opacity-0 scale-x-0'
-                      }`}></span>
-                      <span className={`absolute inset-0 rounded-lg transition-all duration-300 ease-out ${
-                        isScrolled 
-                          ? 'bg-gray-100/0 group-hover:bg-gray-100/50' 
-                          : 'bg-[var(--primary)]/0 group-hover:bg-[var(--primary)]/5'
-                      }`}></span>
+                      <span className="relative z-10">{label}</span>
+                      {/* Premium smooth underline effect */}
+                      <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[var(--primary)] origin-center scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out"></span>
                     </Link>
                   ))}
                 </div>
@@ -261,15 +252,15 @@ export default function Navbar() {
                       to="/contact" 
                       className={`auth-button sign-in px-3 md:px-4 py-2 border-2 rounded-full font-medium transition-all duration-300 text-sm md:text-base whitespace-nowrap ${
                         isScrolled 
-                          ? 'border-[#4e45e1] text-[#4e45e1] hover:border-[#4139BF] hover:text-white hover:bg-[#4e45e1]'
-                          : 'border-[#4e45e1] text-[#4e45e1] bg-white/90 hover:bg-[#4e45e1] hover:text-white shadow-sm backdrop-blur-sm'
+                          ? 'border-[var(--primary)] text-[var(--primary)] hover:border-[var(--primary-dark)] hover:text-white hover:bg-[var(--primary)]'
+                          : 'border-[var(--primary)] text-[var(--primary)] bg-white/90 hover:bg-[var(--primary)] hover:text-white shadow-sm backdrop-blur-sm'
                       }`}
                     >
                       Get Started
                     </Link>
                     <a 
                       href="https://dashboard.devinquire.com" 
-                      className="auth-button sign-up px-3 md:px-4 py-2 rounded-full font-medium transition-all duration-300 text-sm md:text-base bg-[#4e45e1] hover:bg-[#4139BF] text-white shadow-sm whitespace-nowrap"
+                      className="auth-button sign-up px-3 md:px-4 py-2 rounded-full font-medium transition-all duration-300 text-sm md:text-base bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white shadow-sm whitespace-nowrap"
                     >
                       Dashboard
                     </a>
@@ -341,7 +332,7 @@ export default function Navbar() {
                 <Link 
                   key={path}
                   to={path} 
-                  className="text-gray-700 hover:text-[#4e45e1] hover:bg-blue-50/50 block px-3 md:px-4 py-2 md:py-3 rounded-lg text-sm md:text-base font-medium transition-all duration-300 ease-out border-b border-gray-100 last:border-b-0 transform-gpu hover:translate-x-1 mobile-nav-link"
+                  className="text-gray-700 hover:text-[var(--primary)] hover:bg-[rgba(var(--primary-rgb),0.05)] block px-3 md:px-4 py-2 md:py-3 rounded-lg text-sm md:text-base font-medium transition-all duration-300 ease-out border-b border-gray-100 last:border-b-0 transform-gpu hover:translate-x-1 mobile-nav-link"
                   style={{ 
                     willChange: 'background-color, color, transform', 
                     pointerEvents: 'auto', 
@@ -412,7 +403,7 @@ export default function Navbar() {
                   <>
                     <Link 
                       to="/contact" 
-                      className="border-2 border-[#4e45e1] text-[#4e45e1] hover:border-[#4139BF] hover:text-[#4139BF] hover:bg-[#4e45e1]/10 bg-[#4e45e1]/5 block px-3 md:px-4 py-2 md:py-3 rounded-lg text-sm md:text-base font-medium transition-all duration-200 mb-2 text-center shadow-sm mobile-auth-button"
+                      className="border-2 border-[var(--primary)] text-[var(--primary)] hover:border-[var(--primary-dark)] hover:text-[var(--primary-dark)] hover:bg-[rgba(var(--primary-rgb),0.1)] bg-[rgba(var(--primary-rgb),0.05)] block px-3 md:px-4 py-2 md:py-3 rounded-lg text-sm md:text-base font-medium transition-all duration-200 mb-2 text-center shadow-sm mobile-auth-button"
                       style={{ pointerEvents: 'auto', position: 'relative', zIndex: 61, cursor: 'pointer' }}
                       onClick={(e) => {
                         // Stop propagation to prevent overlay from handling the click
@@ -425,7 +416,7 @@ export default function Navbar() {
                     </Link>
                     <a 
                       href="https://dashboard.devinquire.com" 
-                      className="bg-[#4e45e1] hover:bg-[#4139BF] text-white block px-3 md:px-4 py-2 md:py-3 rounded-lg text-sm md:text-base font-medium transition-all duration-300 mobile-auth-button"
+                      className="bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white block px-3 md:px-4 py-2 md:py-3 rounded-lg text-sm md:text-base font-medium transition-all duration-300 mobile-auth-button"
                       style={{ pointerEvents: 'auto', position: 'relative', zIndex: 61 }}
                       onClick={(e) => {
                         // Allow navigation to happen, then close menu
