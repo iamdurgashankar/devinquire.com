@@ -23,20 +23,11 @@ jobs:
     - name: Install dependencies
       run: npm install
       
-    - name: Install dashboard dependencies
-      run: |
-        cd dashboard
-        npm install
-        cd ..
-        
     - name: Build main application
       run: npm run build
       
     - name: Build dashboard
-      run: |
-        cd dashboard
-        npm run build
-        cd ..
+      run: npm run build:dashboard
         
     - name: Trigger Hostinger Deployment
       if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
