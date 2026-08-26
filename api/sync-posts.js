@@ -2,7 +2,9 @@ const express = require("express");
 const router = express.Router();
 const path = require("path");
 const db = require("./db");
+require("dotenv").config({ path: path.join(__dirname, ".env") });
 require("dotenv").config({ path: path.join(__dirname, "../.env") });
+require("dotenv").config();
 
 const isProd = process.env.NODE_ENV === "production";
 const WEBHOOK_SECRET = process.env.SYNC_WEBHOOK_SECRET;

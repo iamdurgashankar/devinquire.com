@@ -2,17 +2,19 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const path = require('path');
 const db = require('./db');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
+require('dotenv').config();
 
 const isProd = process.env.NODE_ENV === 'production';
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET || (!isProd ? 'dev-fallback-jwt-secret-min-32-chars-long' : null);
 const BLOG_API_KEY = process.env.BLOG_API_KEY;
 
-if (!JWT_SECRET) {
-  console.error('[FATAL] JWT_SECRET env var missing. Set in devinquire.com/.env. Generate:\n  node -e "console.log(crypto.randomBytes(48).toString(\'hex\'))"');
+if (!JWT_SECRET && isProd) {
+  console.error('[FATAL] JWT_SECRET env var missing. Set in .env. Generate:\n  node -e "console.log(crypto.randomBytes(48).toString(\'hex\'))"');
   process.exit(1);
 }
-if (isProd && JWT_SECRET.length < 24) {
+if (isProd && JWT_SECRET && JWT_SECRET.length < 24) {
   console.error('[FATAL] JWT_SECRET must be >= 24 chars in production.');
   process.exit(1);
 }

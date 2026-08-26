@@ -5,7 +5,9 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const morgan = require("morgan");
 const crypto = require("crypto");
+require("dotenv").config({ path: path.join(__dirname, ".env") });
 require("dotenv").config({ path: path.join(__dirname, "../.env") });
+require("dotenv").config();
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -13,7 +15,7 @@ const isProd = process.env.NODE_ENV === "production";
  *  ENV FAIL-FAST VALIDATION
  * ============================================================= */
 const REQUIRED_ENV = isProd
-  ? ["JWT_SECRET", "SYNC_WEBHOOK_SECRET", "ALLOWED_ORIGINS"]
+  ? ["JWT_SECRET", "SYNC_WEBHOOK_SECRET"]
   : [];
 const SECRET_ENV = ["JWT_SECRET", "SYNC_WEBHOOK_SECRET", "API_SECRET_KEY"];
 
@@ -23,7 +25,7 @@ for (const k of REQUIRED_ENV) {
     (typeof process.env[k] === "string" && process.env[k].length < 16)
   ) {
     console.error(
-      `[FATAL] Missing or insecure required env: ${k}. Set in devinquire.com/.env`,
+      `[FATAL] Missing or insecure required env: ${k}. Set in .env file`,
     );
     process.exit(1);
   }

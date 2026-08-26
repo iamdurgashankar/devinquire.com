@@ -1,6 +1,8 @@
 const mysql = require("mysql2/promise");
 const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, ".env") });
 require("dotenv").config({ path: path.join(__dirname, "../.env") });
+require("dotenv").config();
 
 const POOL_DB_NAME =
   process.env.DB_NAME || process.env.DB_DATABASE || "devinquire";
