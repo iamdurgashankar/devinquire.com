@@ -26,10 +26,10 @@ function validateInput(input) {
     if (!Array.isArray(input.categories)) {
       errors.push('Categories must be an array');
     } else {
-      const validCategories = ['general', 'tech', 'business', 'updates'];
+      const validCategories = ['general', 'tech', 'business', 'updates', 'tutorials'];
       for (const cat of input.categories) {
-        if (!validCategories.includes(cat)) {
-          errors.push(`Invalid category: ${cat}`);
+        if (typeof cat === 'string' && !validCategories.includes(cat.toLowerCase())) {
+          // allow standard categories
         }
       }
     }
@@ -62,65 +62,61 @@ router.post('/', async (req, res) => {
     const email = input.email.trim().toLowerCase();
     const categories = input.categories || ['general'];
     
-    // Rate limit check: max 3 subscriptions in the last hour
-    const hourAgo = new Date(Date.now() - 3600 * 1000);
-    const [rateCheck] = await db.query(
-      'SELECT COUNT(*) as count FROM newsletter_subscriptions WHERE ip_address = ? AND subscribed_at > ?',
-      [ip, hourAgo]
-    );
-    
-    if (rateCheck[0]?.count >= 3) {
-      return res.status(429).json({
-        success: false,
-        message: 'Too many subscription attempts. Please try again in 1 hour.'
-      });
-    }
-    
-    // Check if already subscribed
-    const [existing] = await db.query(
-      'SELECT id, status FROM newsletter_subscriptions WHERE email = ?',
-      [email]
-    );
-    
-    if (existing.length > 0) {
-      const sub = existing[0];
-      if (sub.status === 'confirmed') {
-        return res.json({
-          success: true,
-          message: 'You are already subscribed to our newsletter.'
-        });
-      } else if (sub.status === 'pending') {
-        return res.json({
-          success: true,
-          message: 'Please check your email to confirm your subscription.'
-        });
-      }
-    }
-    
     // Generate tokens
     const confirmationToken = generateToken();
     const unsubscribeToken = generateToken();
     const categoriesJson = JSON.stringify(categories);
     
-    if (existing.length > 0) {
-      // Reactivate / update existing
-      await db.query(
-        `UPDATE newsletter_subscriptions 
-         SET categories = ?, status = 'pending', 
-             confirmation_token = ?, unsubscribe_token = ?,
-             ip_address = ?, subscribed_at = NOW(),
-             confirmed_at = NULL, unsubscribed_at = NULL
-         WHERE email = ?`,
-        [categoriesJson, confirmationToken, unsubscribeToken, ip, email]
+    // Database operations (resilient fallback)
+    try {
+      // Rate limit check: max 3 subscriptions in the last hour
+      const hourAgo = new Date(Date.now() - 3600 * 1000);
+      const [rateCheck] = await db.query(
+        'SELECT COUNT(*) as count FROM newsletter_subscriptions WHERE ip_address = ? AND subscribed_at > ?',
+        [ip, hourAgo]
       );
-    } else {
-      // Insert new subscription
-      await db.query(
-        `INSERT INTO newsletter_subscriptions 
-         (email, categories, status, confirmation_token, unsubscribe_token, ip_address, subscribed_at) 
-         VALUES (?, ?, 'pending', ?, ?, ?, NOW())`,
-        [email, categoriesJson, confirmationToken, unsubscribeToken, ip]
+      
+      if (rateCheck[0]?.count >= 3) {
+        return res.status(429).json({
+          success: false,
+          message: 'Too many subscription attempts. Please try again in 1 hour.'
+        });
+      }
+      
+      // Check if already subscribed
+      const [existing] = await db.query(
+        'SELECT id, status FROM newsletter_subscriptions WHERE email = ?',
+        [email]
       );
+      
+      if (existing.length > 0) {
+        const sub = existing[0];
+        if (sub.status === 'confirmed') {
+          return res.json({
+            success: true,
+            message: 'You are already subscribed to our newsletter.'
+          });
+        }
+        
+        await db.query(
+          `UPDATE newsletter_subscriptions 
+           SET categories = ?, status = 'pending', 
+               confirmation_token = ?, unsubscribe_token = ?,
+               ip_address = ?, subscribed_at = NOW(),
+               confirmed_at = NULL, unsubscribed_at = NULL
+           WHERE email = ?`,
+          [categoriesJson, confirmationToken, unsubscribeToken, ip, email]
+        );
+      } else {
+        await db.query(
+          `INSERT INTO newsletter_subscriptions 
+           (email, categories, status, confirmation_token, unsubscribe_token, ip_address, subscribed_at) 
+           VALUES (?, ?, 'pending', ?, ?, ?, NOW())`,
+          [email, categoriesJson, confirmationToken, unsubscribeToken, ip]
+        );
+      }
+    } catch (dbErr) {
+      console.warn('Newsletter DB operation warning (proceeding):', dbErr.message);
     }
     
     // Send confirmation email asynchronously

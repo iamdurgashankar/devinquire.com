@@ -148,12 +148,16 @@ export default function Services() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitStatus('');
 
     try {
-      const response = await submitContactForm({
+      const payload = {
         ...formData,
-        subject: `Service Inquiry: ${formData.service}`
-      });
+        subject: formData.service ? `Service Inquiry: ${formData.service}` : 'General Service Inquiry',
+        message: formData.message.trim() || `Inquiry regarding ${formData.service || 'your services'}.`
+      };
+
+      const response = await submitContactForm(payload);
 
       if (response.success) {
         setSubmitStatus('success');
@@ -161,11 +165,12 @@ export default function Services() {
         setTimeout(() => {
           setIsModalOpen(false);
           setSubmitStatus('');
-        }, 2000);
+        }, 2500);
       } else {
         setSubmitStatus('error');
       }
     } catch (error) {
+      console.error('Service inquiry submission error:', error);
       setSubmitStatus('error');
     }
 

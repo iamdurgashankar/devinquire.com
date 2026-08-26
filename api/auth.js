@@ -4,8 +4,25 @@ const path = require('path');
 const db = require('./db');
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
-const JWT_SECRET = process.env.JWT_SECRET || 'jwt-secret-token-xyz';
-const BLOG_API_KEY = process.env.BLOG_API_KEY || '2fbe97e6809d5312f88de5926050926a4b8b8b31fa7776927969eac2386d1271';
+const isProd = process.env.NODE_ENV === 'production';
+const JWT_SECRET = process.env.JWT_SECRET;
+const BLOG_API_KEY = process.env.BLOG_API_KEY;
+
+if (!JWT_SECRET) {
+  console.error('[FATAL] JWT_SECRET env var missing. Set in devinquire.com/.env. Generate:\n  node -e "console.log(crypto.randomBytes(48).toString(\'hex\'))"');
+  process.exit(1);
+}
+if (isProd && JWT_SECRET.length < 24) {
+  console.error('[FATAL] JWT_SECRET must be >= 24 chars in production.');
+  process.exit(1);
+}
+if (JWT_SECRET === 'jwt-secret-token-xyz' && isProd) {
+  console.error('[FATAL] JWT_SECRET is using the hardcoded weak placeholder. ROTATE immediately.');
+  process.exit(1);
+}
+if (BLOG_API_KEY && BLOG_API_KEY.length < 24 && isProd) {
+  console.warn('[WARN] BLOG_API_KEY appears too short for production. Recommend >= 24 bytes hex.');
+}
 
 /**
  * Get client IP address matching PHP logic

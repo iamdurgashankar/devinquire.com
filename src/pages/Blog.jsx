@@ -35,9 +35,12 @@ export default function Blog() {
   
   const loadCategories = async () => {
     try {
-      const categories = await blogApiService.getCategories();
-      const categoryNames = categories.map(cat => cat.name || cat.category_name);
-      setCategories(['All', ...categoryNames]);
+      const categoriesData = await blogApiService.getCategories();
+      const categoryNames = categoriesData
+        .map(cat => typeof cat === 'string' ? cat : (cat.name || cat.category_name))
+        .filter(Boolean);
+      const uniqueNames = Array.from(new Set(categoryNames));
+      setCategories(['All', ...uniqueNames]);
     } catch (error) {
       console.error('Error loading categories:', error);
     }
@@ -56,22 +59,34 @@ export default function Blog() {
       
       const postsData = await blogApiService.getPosts(options);
       
-      const transformedPosts = postsData.map(post => ({
-        id: post.id,
-        title: post.title,
-        excerpt: post.excerpt,
-        author: post.author_name || 'Admin User',
-        date: new Date(post.published_at || post.created_at).toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        }),
-        category: post.category_name || 'Uncategorized',
-        readTime: post.read_time ? `${post.read_time} min read` : '5 min read',
-        image: post.featured_image || `https://images.unsplash.com/photo-1461749280684-dccba630e2f6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80`,
-        tags: Array.isArray(post.tags) ? post.tags : [],
-        slug: post.slug
-      }));
+      const transformedPosts = postsData.map(post => {
+        let formattedDate = 'Recently published';
+        try {
+          const d = new Date(post.published_at || post.created_at);
+          if (!isNaN(d.getTime())) {
+            formattedDate = d.toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            });
+          }
+        } catch {
+          // fallback
+        }
+
+        return {
+          id: post.id,
+          title: post.title,
+          excerpt: post.excerpt,
+          author: post.author_name || post.author || 'DevInquire Team',
+          date: formattedDate,
+          category: post.category_name || post.category || 'Uncategorized',
+          readTime: post.read_time ? `${post.read_time} min read` : '5 min read',
+          image: post.featured_image || `https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1000&q=80`,
+          tags: Array.isArray(post.tags) ? post.tags : [],
+          slug: post.slug || post.id
+        };
+      });
       setBlogPosts(transformedPosts);
     } catch (error) {
       console.error('Error loading posts:', error);

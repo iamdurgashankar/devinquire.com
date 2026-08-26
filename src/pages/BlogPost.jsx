@@ -23,19 +23,33 @@ export default function BlogPost() {
       const postData = await blogApiService.getPost(id);
       
       if (postData) {
+        let formattedDate = 'Recently published';
+        try {
+          const d = new Date(postData.published_at || postData.created_at);
+          if (!isNaN(d.getTime())) {
+            formattedDate = d.toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            });
+          }
+        } catch {
+          // fallback
+        }
+
         setPost({
           id: postData.id,
           title: postData.title,
           excerpt: postData.excerpt,
           content: postData.content,
-          author_name: postData.author_name || 'Admin User',
-          created_at: postData.published_at || postData.created_at,
+          author_name: postData.author_name || postData.author || 'DevInquire Team',
+          created_at: formattedDate,
           updated_at: postData.updated_at,
-          category: postData.category_name || 'Uncategorized',
-          featured_image: postData.featured_image,
+          category: postData.category_name || postData.category || 'Uncategorized',
+          featured_image: postData.featured_image || 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1000&q=80',
           tags: Array.isArray(postData.tags) ? postData.tags : [],
           readTime: postData.read_time ? `${postData.read_time} min read` : '5 min read',
-          slug: postData.slug
+          slug: postData.slug || postData.id
         });
       } else {
         setError('Post not found');
@@ -152,11 +166,7 @@ export default function BlogPost() {
             <div className="text-left">
               <div className="font-medium text-white">{post.author_name || 'Admin User'}</div>
               <div className="text-blue-200 text-sm">
-                {new Date(post.created_at).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                })}
+                {post.created_at}
               </div>
             </div>
           </div>

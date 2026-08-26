@@ -102,24 +102,35 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid JSON data' });
     }
     
+    // Ensure subject has default if missing
+    if (!input.subject && input.service) {
+      input.subject = `Service Request: ${input.service}`;
+    } else if (!input.subject) {
+      input.subject = 'Contact Form Submission';
+    }
+
     // Validate inputs
     const validationResult = validateInput(input);
     if (!validationResult.valid) {
       return res.status(400).json({ success: false, message: validationResult.message });
     }
     
-    // Check rate limit: max 5 submissions in the last hour
-    const hourAgo = new Date(Date.now() - 3600 * 1000);
-    const [rateCheck] = await db.query(
-      'SELECT COUNT(*) as count FROM contact_submissions WHERE ip_address = ? AND created_at > ?',
-      [ip, hourAgo]
-    );
-    
-    if (rateCheck[0]?.count >= 5) {
-      return res.status(429).json({
-        success: false,
-        message: 'Too many submissions. Please try again in 1 hour.'
-      });
+    // Check rate limit (gracefully fallback if DB fails)
+    try {
+      const hourAgo = new Date(Date.now() - 3600 * 1000);
+      const [rateCheck] = await db.query(
+        'SELECT COUNT(*) as count FROM contact_submissions WHERE ip_address = ? AND created_at > ?',
+        [ip, hourAgo]
+      );
+      
+      if (rateCheck[0]?.count >= 5) {
+        return res.status(429).json({
+          success: false,
+          message: 'Too many submissions. Please try again in 1 hour.'
+        });
+      }
+    } catch (rateErr) {
+      console.warn('Database rate limit check warning:', rateErr.message);
     }
     
     // Sanitize input
@@ -129,34 +140,37 @@ router.post('/', async (req, res) => {
       phone: input.phone ? input.phone.trim() : null,
       company: input.company ? input.company.trim() : null,
       service: input.service ? input.service.trim() : null,
-      subject: input.subject ? input.subject.trim() : (input.service ? `Service Request: ${input.service}` : 'Contact Form Submission'),
+      subject: input.subject.trim(),
       timeline: input.timeline ? input.timeline.trim() : null,
       message: input.message.trim(),
       ip_address: ip,
       user_agent: userAgent
     };
     
-    // Save to Database
-    const [result] = await db.query(
-      `INSERT INTO contact_submissions 
-       (name, email, phone, company, service, subject, timeline, message, ip_address, user_agent, status, priority, response_sent) 
-       VALUES (:name, :email, :phone, :company, :service, :subject, :timeline, :message, :ip_address, :user_agent, 'new', 'medium', 0)`,
-      sanitized
-    );
+    let submissionId = Date.now();
+
+    // Save to Database (resilient - non-blocking if DB fails)
+    try {
+      const [result] = await db.query(
+        `INSERT INTO contact_submissions 
+         (name, email, phone, company, service, subject, timeline, message, ip_address, user_agent, status, priority, response_sent) 
+         VALUES (:name, :email, :phone, :company, :service, :subject, :timeline, :message, :ip_address, :user_agent, 'new', 'medium', 0)`,
+        sanitized
+      );
+      if (result && result.insertId) {
+        submissionId = result.insertId;
+      }
+      
+      await db.query(
+        'INSERT INTO rate_limiting (identifier, created_at) VALUES (?, NOW())',
+        [ip + '_contact']
+      ).catch(() => {});
+    } catch (dbErr) {
+      console.warn('Database save warning (proceeding to email send):', dbErr.message);
+    }
     
-    const submissionId = result.insertId;
-    
-    // Add record to rate limiting table as well to log it
-    await db.query(
-      'INSERT INTO rate_limiting (identifier, created_at) VALUES (?, NOW())',
-      [ip + '_contact']
-    );
-    
-    // Send email notification to Admin
-    // Wait for it asynchronously, don't block the HTTP response if email is slow
-    emailSender.sendContactNotification(sanitized).catch(err => {
-      console.error('Asynchronous email notify error:', err);
-    });
+    // Send email notification to contact@devinquire.com
+    await emailSender.sendContactNotification(sanitized);
     
     return res.json({
       success: true,

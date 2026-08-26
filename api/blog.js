@@ -41,6 +41,96 @@ async function addTagsToPost(postId, tags) {
   }
 }
 
+// RESTful Endpoints
+router.get('/categories', checkRateLimit, async (req, res) => {
+  try {
+    const [categories] = await db.query('SELECT * FROM blog_categories ORDER BY name');
+    return res.json({ success: true, data: categories });
+  } catch (error) {
+    console.error('Blog categories error:', error);
+    return res.status(500).json({ error: 'Failed to fetch categories' });
+  }
+});
+
+router.get('/posts', checkRateLimit, async (req, res) => {
+  try {
+    const category = req.query.category || '';
+    const status = req.query.status || 'published';
+    const limit = parseInt(req.query.limit || '20', 10);
+    const offset = parseInt(req.query.offset || '0', 10);
+
+    let sql = `
+      SELECT p.*, c.name as category_name, c.slug as category_slug, c.color as category_color,
+             GROUP_CONCAT(t.name) as tags
+      FROM blog_posts p
+      LEFT JOIN blog_categories c ON p.category_id = c.id
+      LEFT JOIN blog_post_tags pt ON p.id = pt.post_id
+      LEFT JOIN blog_tags t ON pt.tag_id = t.id
+      WHERE 1=1
+    `;
+    const params = {};
+
+    if (status && status !== 'all') {
+      sql += ` AND p.status = :status`;
+      params.status = status;
+    }
+
+    if (category && category !== 'All' && category !== 'all') {
+      sql += ` AND (c.slug = :category OR LOWER(c.name) = LOWER(:category))`;
+      params.category = category.toLowerCase().replace(/\s+/g, '-');
+    }
+
+    sql += ` GROUP BY p.id ORDER BY p.published_at DESC, p.created_at DESC LIMIT :limit OFFSET :offset`;
+    params.limit = limit;
+    params.offset = offset;
+
+    const [posts] = await db.query(sql, params);
+    posts.forEach(post => {
+      post.tags = post.tags ? post.tags.split(',') : [];
+      post.is_featured = !!post.is_featured;
+    });
+
+    return res.json({ success: true, data: posts });
+  } catch (error) {
+    console.error('Blog posts error:', error);
+    return res.status(500).json({ error: 'Failed to fetch posts' });
+  }
+});
+
+router.get('/posts/:identifier', checkRateLimit, async (req, res) => {
+  const { identifier } = req.params;
+  try {
+    const isNumeric = /^\d+$/.test(identifier);
+    const sql = `
+      SELECT p.*, c.name as category_name, c.slug as category_slug, c.color as category_color,
+             GROUP_CONCAT(t.name) as tags
+      FROM blog_posts p
+      LEFT JOIN blog_categories c ON p.category_id = c.id
+      LEFT JOIN blog_post_tags pt ON p.id = pt.post_id
+      LEFT JOIN blog_tags t ON pt.tag_id = t.id
+      WHERE ${isNumeric ? 'p.id = ?' : 'p.slug = ?'}
+      GROUP BY p.id
+    `;
+
+    const [posts] = await db.query(sql, [identifier]);
+    if (posts.length > 0) {
+      const post = posts[0];
+      post.tags = post.tags ? post.tags.split(',') : [];
+      post.is_featured = !!post.is_featured;
+
+      // Increment view count
+      await db.query(`UPDATE blog_posts SET views = views + 1 WHERE ${isNumeric ? 'id' : 'slug'} = ?`, [identifier]);
+
+      return res.json({ success: true, data: post });
+    } else {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+  } catch (error) {
+    console.error('Blog post detail error:', error);
+    return res.status(500).json({ error: 'Failed to fetch post detail' });
+  }
+});
+
 /**
  * Handle GET requests (mimicking PHP handleGet)
  */
@@ -139,7 +229,7 @@ router.get('/', checkRateLimit, async (req, res) => {
           // Get all posts
           const category = req.query.category || '';
           const status = req.query.status || 'published';
-          const limit = parseInt(req.query.limit || '10', 10);
+          const limit = parseInt(req.query.limit || '20', 10);
           const offset = parseInt(req.query.offset || '0', 10);
           
           let sql = `
@@ -149,14 +239,18 @@ router.get('/', checkRateLimit, async (req, res) => {
             LEFT JOIN blog_categories c ON p.category_id = c.id
             LEFT JOIN blog_post_tags pt ON p.id = pt.post_id
             LEFT JOIN blog_tags t ON pt.tag_id = t.id
-            WHERE p.status = :status
+            WHERE 1=1
           `;
           
-          const params = { status };
+          const params = {};
+          if (status && status !== 'all') {
+            sql += ` AND p.status = :status`;
+            params.status = status;
+          }
           
-          if (category) {
-            sql += ` AND c.slug = :category`;
-            params.category = category;
+          if (category && category !== 'All' && category !== 'all') {
+            sql += ` AND (c.slug = :category OR LOWER(c.name) = LOWER(:category))`;
+            params.category = category.toLowerCase().replace(/\s+/g, '-');
           }
           
           // Append pagination and order

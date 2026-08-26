@@ -275,17 +275,17 @@ class NewsletterShadowComponent extends HTMLElement {
       submitBtn.querySelector('.btn-text').textContent = 'Subscribing...';
 
       try {
-        // Subscribe using PHP service
-        const result = await subscribeToNewsletter({ email });
+        // Subscribe using email service
+        const result = await subscribeToNewsletter(email);
         
         if (result.success) {
-          this.showStatus('success', '✅ Thank you for subscribing!');
+          this.showStatus('success', '✅ ' + (result.message || 'Thank you for subscribing!'));
           emailInput.value = '';
         } else {
-          throw new Error(result.message || 'Subscription failed');
+          throw new Error(result.error || result.message || 'Subscription failed');
         }
       } catch (error) {
-        this.showStatus('error', '❌ Subscription failed. Please try again.');
+        this.showStatus('error', '❌ ' + (error.message || 'Subscription failed. Please try again.'));
       } finally {
         submitBtn.disabled = false;
         submitBtn.querySelector('.btn-text').textContent = 'Subscribe';
