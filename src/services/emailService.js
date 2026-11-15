@@ -10,24 +10,72 @@ class EmailService {
       ? 'http://localhost:8001/api/public/contact_intake'
       : 'https://dashboard.devinquire.com/api/public/contact_intake';
 
-    this.contactEndpoints = [
-      '/api/contact',
-      '/api/contact.php',
-      '/contact.php',
-      `${API_BASE}/contact`,
-      dashIntake
-    ];
     this.dashboardIntakeUrl = dashIntake;
-    this.newsletterEndpoints = [
-      '/api/newsletter',
-      '/api/newsletter.php',
-      '/newsletter.php',
-      `${API_BASE}/newsletter`
-    ];
+    this.contactEndpoints = Array.from(
+      new Set(['/api/contact', `${API_BASE}/contact`].filter(Boolean))
+    );
+    this.newsletterEndpoints = Array.from(
+      new Set(['/api/newsletter', `${API_BASE}/newsletter`].filter(Boolean))
+    );
+    this.web3FormsKey = '803e30e6-5c54-4cae-9406-8d13bcf3d8e9';
+  }
+
+  async fetchWithTimeout(url, options = {}, timeoutMs = 5000) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      return await fetch(url, { ...options, signal: controller.signal });
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  async logToDashboard(payload) {
+    try {
+      const dashRes = await this.fetchWithTimeout(
+        this.dashboardIntakeUrl,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        },
+        6000
+      );
+      if (dashRes.ok) {
+        const dashJson = await dashRes.json().catch(() => null);
+        return Boolean(dashJson && (dashJson.status === 'success' || dashJson.success));
+      }
+    } catch (dashErr) {
+      console.warn('Direct dashboard intake warning:', dashErr.message);
+    }
+    return false;
+  }
+
+  async sendViaWeb3Forms(payload) {
+    try {
+      const res = await this.fetchWithTimeout(
+        'https://api.web3forms.com/submit',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            access_key: this.web3FormsKey,
+            ...payload,
+            to_email: 'contact@devinquire.com'
+          })
+        },
+        6000
+      );
+      const data = await res.json().catch(() => null);
+      return Boolean(res.ok && data && data.success);
+    } catch (err) {
+      console.error('Web3Forms dispatch error:', err);
+      return false;
+    }
   }
 
   /**
-   * Contact Form Submission with API & Web3Forms fallback
+   * Contact Form Submission: logs to Dashboard Client Inquiries AND emails contact@devinquire.com
    */
   async submitContactForm(formData) {
     if (!formData || !formData.email || !formData.message) {
@@ -37,48 +85,40 @@ class EmailService {
       };
     }
 
-    // Always push to Dashboard Client Inquiries Intake API first so it appears in the Dashboard immediately
-    let recordedInDashboard = false;
-    try {
-      const dashRes = await fetch(this.dashboardIntakeUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      if (dashRes.ok) {
-        const dashJson = await dashRes.json().catch(() => null);
-        if (dashJson && (dashJson.status === 'success' || dashJson.success)) {
-          recordedInDashboard = true;
-        }
-      }
-    } catch (dashErr) {
-      console.warn('Direct dashboard intake warning:', dashErr.message);
-    }
+    const normalizedPayload = {
+      ...formData,
+      name: (formData.name || 'Website Inquiry').trim(),
+      email: formData.email.trim().toLowerCase(),
+      subject:
+        (formData.subject || '').trim() ||
+        (formData.service ? `Service Inquiry: ${formData.service}` : 'DevInquire Contact Form Submission'),
+      message: formData.message.trim()
+    };
 
-    // Try primary API endpoints
+    // 1. Always log to Dashboard Client Inquiries Intake API
+    const recordedInDashboard = await this.logToDashboard(normalizedPayload);
+
+    // 2. Try site backend API (which handles email dispatch + DB storage)
+    let emailDispatched = false;
+    let backendMessage = '';
     for (const endpoint of this.contactEndpoints) {
-      if (endpoint === this.dashboardIntakeUrl && recordedInDashboard) {
-        return {
-          success: true,
-          message: "Thank you for your message! We'll get back to you within 24 hours."
-        };
-      }
       try {
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+        const response = await this.fetchWithTimeout(
+          endpoint,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(normalizedPayload)
           },
-          body: JSON.stringify(formData)
-        });
+          4000
+        );
 
         if (response.ok) {
-          const result = await response.json();
-          if (result.success || result.status === 'success') {
-            return {
-              success: true,
-              message: result.message || 'Thank you for your message! We\'ll get back to you within 24 hours.'
-            };
+          const result = await response.json().catch(() => null);
+          if (result && (result.success || result.status === 'success')) {
+            emailDispatched = true;
+            backendMessage = result.message || '';
+            break;
           }
         }
       } catch (err) {
@@ -86,41 +126,27 @@ class EmailService {
       }
     }
 
-    if (recordedInDashboard) {
-      return {
-        success: true,
-        message: "Thank you for your message! We'll get back to you within 24 hours."
-      };
+    // 3. If no backend endpoint handled email delivery (e.g. static SPA hosting), send via Web3Forms to contact@devinquire.com
+    if (!emailDispatched) {
+      emailDispatched = await this.sendViaWeb3Forms({
+        name: normalizedPayload.name,
+        email: normalizedPayload.email,
+        replyto: normalizedPayload.email,
+        phone: normalizedPayload.phone || '',
+        company: normalizedPayload.company || '',
+        service: normalizedPayload.service || '',
+        timeline: normalizedPayload.timeline || '',
+        subject: normalizedPayload.subject,
+        message: normalizedPayload.message,
+        from_name: 'DevInquire Contact Form'
+      });
     }
 
-    // Direct Fallback: Dispatch to contact@devinquire.com via Web3Forms API
-    try {
-      const fallbackResponse = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          access_key: '803e30e6-5c54-4cae-9406-8d13bcf3d8e9',
-          name: formData.name || 'Website Inquiry',
-          email: formData.email,
-          phone: formData.phone || '',
-          company: formData.company || '',
-          subject: formData.subject || (formData.service ? `Service Inquiry: ${formData.service}` : 'DevInquire Contact Form Submission'),
-          timeline: formData.timeline || '',
-          message: formData.message,
-          to_email: 'contact@devinquire.com',
-          from_name: 'DevInquire Contact Form'
-        })
-      });
-
-      const fallbackResult = await fallbackResponse.json();
-      if (fallbackResponse.ok && fallbackResult.success) {
-        return {
-          success: true,
-          message: 'Thank you for your message! We\'ll get back to you within 24 hours.'
-        };
-      }
-    } catch (fallbackError) {
-      console.error('Client-side fallback submission error:', fallbackError);
+    if (recordedInDashboard || emailDispatched) {
+      return {
+        success: true,
+        message: backendMessage || "Thank you for your message! We'll get back to you within 24 hours."
+      };
     }
 
     return {
@@ -130,7 +156,7 @@ class EmailService {
   }
 
   /**
-   * Newsletter Subscription with API & Fallback
+   * Newsletter Subscription: logs to Dashboard Client Inquiries AND emails contact@devinquire.com
    */
   async subscribeToNewsletter(emailParam, categoriesParam = ['general']) {
     let cleanEmail = '';
@@ -151,27 +177,41 @@ class EmailService {
       };
     }
 
-    // Try primary newsletter endpoints
+    const categoryList = Array.isArray(categories) ? categories : [categories];
+
+    // 1. Log newsletter subscription to Dashboard Client Inquiries
+    const recordedInDashboard = await this.logToDashboard({
+      name: 'Newsletter Subscriber',
+      email: cleanEmail,
+      subject: 'Newsletter Subscription',
+      service: 'Newsletter',
+      message: `Newsletter subscription request (${categoryList.join(', ')})`
+    });
+
+    // 2. Try primary newsletter backend endpoints
+    let emailDispatched = false;
+    let backendMessage = '';
     for (const endpoint of this.newsletterEndpoints) {
       try {
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+        const response = await this.fetchWithTimeout(
+          endpoint,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: cleanEmail,
+              categories: categoryList
+            })
           },
-          body: JSON.stringify({
-            email: cleanEmail,
-            categories: Array.isArray(categories) ? categories : [categories]
-          })
-        });
+          4000
+        );
 
         if (response.ok) {
-          const result = await response.json();
-          if (result.success) {
-            return {
-              success: true,
-              message: result.message || 'Thank you for subscribing to our newsletter!'
-            };
+          const result = await response.json().catch(() => null);
+          if (result && (result.success || result.status === 'success')) {
+            emailDispatched = true;
+            backendMessage = result.message || '';
+            break;
           }
         }
       } catch (err) {
@@ -179,31 +219,23 @@ class EmailService {
       }
     }
 
-    // Direct Fallback: Web3Forms subscription dispatch to contact@devinquire.com
-    try {
-      const fallbackResponse = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          access_key: '803e30e6-5c54-4cae-9406-8d13bcf3d8e9',
-          name: 'Newsletter Subscriber',
-          email: cleanEmail,
-          subject: 'New Newsletter Subscription - DevInquire',
-          message: `New subscriber registered with categories: ${JSON.stringify(categories)}`,
-          to_email: 'contact@devinquire.com',
-          from_name: 'DevInquire Newsletter'
-        })
+    // 3. Fallback: Dispatch to contact@devinquire.com via Web3Forms API
+    if (!emailDispatched) {
+      emailDispatched = await this.sendViaWeb3Forms({
+        name: 'Newsletter Subscriber',
+        email: cleanEmail,
+        replyto: cleanEmail,
+        subject: 'New Newsletter Subscription - DevInquire',
+        message: `New subscriber registered with categories: ${JSON.stringify(categoryList)}`,
+        from_name: 'DevInquire Newsletter'
       });
+    }
 
-      const fallbackResult = await fallbackResponse.json();
-      if (fallbackResponse.ok && fallbackResult.success) {
-        return {
-          success: true,
-          message: 'Thank you for subscribing! We\'ve received your subscription request.'
-        };
-      }
-    } catch (fallbackErr) {
-      console.error('Newsletter fallback error:', fallbackErr);
+    if (recordedInDashboard || emailDispatched) {
+      return {
+        success: true,
+        message: backendMessage || 'Thank you for subscribing to our newsletter!'
+      };
     }
 
     return {
