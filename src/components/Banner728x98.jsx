@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 const Banner728x98 = ({ 
   title = "Ready to Work Together?", 
@@ -14,77 +14,50 @@ const Banner728x98 = ({
 }) => {
   return (
     <motion.section 
-      className={`relative bg-gradient-to-r from-[#4e45e1] via-[#0088cc] to-[#4e45e1] overflow-hidden ${className}`}
+      className={`relative apple-card overflow-hidden ${className}`}
       style={{
         minHeight: '98px',
         maxWidth: '728px',
         margin: '0 auto'
       }}
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.6 }}
+      transition={{ duration: 0.5 }}
     >
-      {/* Background Effects */}
-      <div className="absolute inset-0">
-        <div className="absolute top-0 left-1/4 w-24 h-24 bg-white/10 rounded-full blur-xl animate-pulse"></div>
-        <div className="absolute bottom-0 right-1/4 w-32 h-32 bg-white/5 rounded-full blur-2xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-yellow-300/20 rounded-full blur-lg animate-bounce"></div>
-      </div>
+      {/* Ambient Apple Glow */}
+      <div className="absolute -top-12 -left-12 w-36 h-36 bg-[#007AFF]/15 rounded-full blur-2xl pointer-events-none" />
+      <div className="absolute -bottom-12 -right-12 w-36 h-36 bg-[#5E5CE6]/15 rounded-full blur-2xl pointer-events-none" />
 
-      {/* Content Container */}
-      <div className="relative z-10 h-full flex items-center justify-between px-6 py-4">
-        {/* Left Content */}
-        <div className="flex-1 pr-4">
-          <div className="flex items-center mb-1">
-            <Sparkles className="w-4 h-4 text-yellow-300 mr-2 animate-pulse" />
-            <h2 className="text-lg md:text-xl font-bold text-white leading-tight">
+      <div className="relative z-10 h-full flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4">
+        <div className="flex-1 text-center sm:text-left">
+          <div className="flex items-center justify-center sm:justify-start mb-1">
+            <h2 className="text-[17px] font-bold tracking-[-0.015em] text-[var(--text-primary)] leading-tight">
               {title}
             </h2>
           </div>
-          <p className="text-xs md:text-sm text-blue-100 leading-tight max-w-md">
+          <p className="text-[13px] text-[var(--text-secondary)] leading-snug max-w-md">
             {subtitle}
           </p>
         </div>
 
-        {/* Right CTA Buttons */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 shrink-0">
           <Link 
             to={primaryButtonLink}
-            className="group bg-white text-[#4e45e1] px-4 py-2 rounded-lg font-semibold text-sm hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center gap-2"
+            className="apple-pill-btn px-4 py-2 text-[13px]"
           >
             <span>{primaryButtonText}</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+            <ArrowRight className="w-3.5 h-3.5" />
           </Link>
           
           <Link 
             to={secondaryButtonLink}
-            className="border-2 border-white text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-white hover:text-[#4e45e1] transition-all duration-300 transform hover:scale-105 hidden sm:block"
+            className="apple-secondary-btn px-4 py-2 text-[13px] hidden sm:inline-flex"
           >
             {secondaryButtonText}
           </Link>
         </div>
       </div>
-
-      {/* Responsive Adjustments */}
-      <style jsx>{`
-        @media (max-width: 640px) {
-          .banner-content {
-            flex-direction: column;
-            text-align: center;
-            gap: 0.75rem;
-          }
-        }
-        
-        @media (max-width: 480px) {
-          .banner-title {
-            font-size: 1rem;
-          }
-          .banner-subtitle {
-            font-size: 0.75rem;
-          }
-        }
-      `}</style>
     </motion.section>
   );
 };

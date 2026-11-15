@@ -143,13 +143,16 @@ async function syncPostToMySQL(postData) {
   const dashboardId = postData.id;
   const title = postData.title || "";
 
-  let slug = generateSlug(title);
+  let slug = postData.slug || generateSlug(title);
   if (!slug) slug = "post-" + dashboardId;
 
   const content = postData.content || "";
   const excerpt = postData.excerpt || "";
   const category = postData.category || "Uncategorized";
   const authorName = postData.author_name || "Admin";
+  const featuredImage = postData.featured_image || null;
+  const readTime = parseInt(postData.read_time, 10) || 5;
+  const isFeatured = postData.is_featured ? 1 : 0;
   const status = "published";
   const publishedAt = formatMySQLDate(postData.created_at);
   const tags = postData.tags || [];
@@ -186,6 +189,7 @@ async function syncPostToMySQL(postData) {
       `UPDATE blog_posts SET 
          title = ?, slug = ?, content = ?, excerpt = ?, 
          category_id = ?, status = ?, author_name = ?, 
+         featured_image = ?, read_time = ?, is_featured = ?,
          published_at = ?, updated_at = NOW()
        WHERE firestore_id = ?`,
       [
@@ -196,6 +200,9 @@ async function syncPostToMySQL(postData) {
         categoryId,
         status,
         authorName,
+        featuredImage,
+        readTime,
+        isFeatured,
         publishedAt,
         String(dashboardId),
       ],
@@ -205,8 +212,9 @@ async function syncPostToMySQL(postData) {
     const [postInsert] = await db.query(
       `INSERT INTO blog_posts 
        (firestore_id, title, slug, content, excerpt, category_id, 
-        status, author_name, published_at, created_at, updated_at, author_id)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), NULL)`,
+        status, author_name, featured_image, read_time, is_featured,
+        published_at, created_at, updated_at, author_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), NULL)`,
       [
         String(dashboardId),
         title,
@@ -216,6 +224,9 @@ async function syncPostToMySQL(postData) {
         categoryId,
         status,
         authorName,
+        featuredImage,
+        readTime,
+        isFeatured,
         publishedAt,
       ],
     );
@@ -258,6 +269,90 @@ async function syncPostToMySQL(postData) {
   return true;
 }
 
+async function syncFromDashboard() {
+  let synced = 0;
+  let skipped = 0;
+
+  const baseUrl = DASHBOARD_API_URL.replace(/\/$/, "");
+  let listResponse = await fetch(`${baseUrl}/blog_list.php`, {
+    signal: AbortSignal.timeout(4000),
+  }).catch(() => null);
+  if (!listResponse || !listResponse.ok) {
+    listResponse = await fetch(`${baseUrl}/blog_list`, {
+      signal: AbortSignal.timeout(4000),
+    }).catch(() => null);
+  }
+
+  if (!listResponse || !listResponse.ok) {
+    throw new Error("Failed to fetch blog list from dashboard");
+  }
+
+  const listData = await listResponse.json();
+  if (listData.status !== "success" || !Array.isArray(listData.data)) {
+    throw new Error("Invalid response layout from dashboard posts list");
+  }
+
+  const postsList = listData.data;
+  const activeDashboardIds = [];
+
+  for (const postOverview of postsList) {
+    try {
+      let postPayload = postOverview;
+      if (postOverview.content === undefined) {
+        let detailResponse = await fetch(
+          `${baseUrl}/blog_detail.php?id=${encodeURIComponent(postOverview.id)}`,
+          { signal: AbortSignal.timeout(4000) },
+        ).catch(() => null);
+        if (!detailResponse || !detailResponse.ok) {
+          detailResponse = await fetch(
+            `${baseUrl}/blog_detail?id=${encodeURIComponent(postOverview.id)}`,
+            { signal: AbortSignal.timeout(4000) },
+          ).catch(() => null);
+        }
+
+        if (!detailResponse || !detailResponse.ok) {
+          skipped++;
+          continue;
+        }
+        const detailData = await detailResponse.json();
+        if (detailData.status !== "success" || !detailData.data) {
+          skipped++;
+          continue;
+        }
+        postPayload = detailData.data;
+      }
+
+      await syncPostToMySQL(postPayload);
+      activeDashboardIds.push(String(postPayload.id));
+      synced++;
+    } catch (postError) {
+      console.error(
+        `Error syncing post ID ${postOverview.id}:`,
+        postError.message,
+      );
+      skipped++;
+    }
+  }
+
+  // Unpublish any previously synced posts that were unpublished or deleted in dashboard
+  await ensureTablesExist();
+  if (activeDashboardIds.length > 0) {
+    const placeholders = activeDashboardIds.map(() => "?").join(",");
+    await db.query(
+      `UPDATE blog_posts SET status = 'draft', updated_at = NOW()
+       WHERE firestore_id IS NOT NULL AND firestore_id NOT IN (${placeholders})`,
+      activeDashboardIds,
+    );
+  } else if (skipped === 0) {
+    await db.query(
+      `UPDATE blog_posts SET status = 'draft', updated_at = NOW()
+       WHERE firestore_id IS NOT NULL`,
+    );
+  }
+
+  return { synced, skipped };
+}
+
 /**
  * Handle Webhook Sync Route
  */
@@ -269,65 +364,9 @@ router.all("/", async (req, res) => {
   }
 
   console.log("Starting Dashboard posts sync...");
-  let synced = 0;
-  let skipped = 0;
 
   try {
-    const baseUrl = DASHBOARD_API_URL.replace(/\/$/, "");
-    let listResponse = await fetch(`${baseUrl}/blog_list.php`).catch(
-      () => null,
-    );
-    if (!listResponse || !listResponse.ok) {
-      listResponse = await fetch(`${baseUrl}/blog_list`).catch(() => null);
-    }
-
-    if (!listResponse || !listResponse.ok) {
-      throw new Error(`Failed to fetch blog list from dashboard`);
-    }
-
-    const listData = await listResponse.json();
-    if (listData.status !== "success" || !Array.isArray(listData.data)) {
-      throw new Error("Invalid response layout from dashboard posts list");
-    }
-
-    const postsList = listData.data;
-    console.log(`Fetched ${postsList.length} posts overview from dashboard`);
-
-    for (const postOverview of postsList) {
-      try {
-        let detailResponse = await fetch(
-          `${baseUrl}/blog_detail.php?id=${encodeURIComponent(postOverview.id)}`,
-        ).catch(() => null);
-        if (!detailResponse || !detailResponse.ok) {
-          detailResponse = await fetch(
-            `${baseUrl}/blog_detail?id=${encodeURIComponent(postOverview.id)}`,
-          ).catch(() => null);
-        }
-
-        if (!detailResponse || !detailResponse.ok) {
-          console.warn(
-            `Skipping post ID ${postOverview.id} details fetch failed`,
-          );
-          skipped++;
-          continue;
-        }
-
-        const detailData = await detailResponse.json();
-        if (detailData.status === "success" && detailData.data) {
-          await syncPostToMySQL(detailData.data);
-          synced++;
-        } else {
-          skipped++;
-        }
-      } catch (postError) {
-        console.error(
-          `Error syncing post ID ${postOverview.id}:`,
-          postError.message,
-        );
-        skipped++;
-      }
-    }
-
+    const { synced, skipped } = await syncFromDashboard();
     const message = `Sync completed: ${synced} posts synced, ${skipped} skipped`;
     console.log(`✅ ${message}`);
     return res.json({ success: true, message, synced, skipped });
@@ -337,5 +376,5 @@ router.all("/", async (req, res) => {
   }
 });
 
+router.syncFromDashboard = syncFromDashboard;
 module.exports = router;
-exportSyncLogic = { syncPostToMySQL }; // export for command line testing or manual execution if needed

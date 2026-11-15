@@ -1,335 +1,208 @@
-/* Base Theme Colors - Update colors here for the entire application */
+/* =========================================================
+ * Apple System Design Tokens — Light Mode (Default)
+ * ========================================================= */
 :root {
-  /* Primary Color Palette */
-  --primary: #4e45e1;
-  --primary-light: #6B63F2;
-  --primary-dark: #4139BF;
+  --apple-bg: #F5F5F7;
+  --apple-bg-elevated: #FFFFFF;
+  --apple-bg-secondary: #EFEFF4;
+  --apple-bg-gradient-1: rgba(78, 69, 225, 0.08);
+  --apple-bg-gradient-2: rgba(107, 99, 242, 0.07);
+  --apple-bg-gradient-3: rgba(175, 82, 222, 0.05);
+  --apple-surface-glass: rgba(255, 255, 255, 0.82);
+  --apple-surface-sidebar: rgba(246, 246, 248, 0.84);
+  --apple-surface-header: rgba(255, 255, 255, 0.78);
+  --apple-surface-card-top: rgba(255, 255, 255, 0.92);
+  --apple-surface-card-bottom: rgba(255, 255, 255, 0.82);
+  --apple-surface-subcard: rgba(0, 0, 0, 0.035);
+  --apple-surface-subcard-hover: rgba(0, 0, 0, 0.06);
+  --apple-border: rgba(0, 0, 0, 0.08);
+  --apple-border-strong: rgba(0, 0, 0, 0.15);
+  --apple-specular: rgba(255, 255, 255, 0.92);
+  --apple-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.07), 0 2px 8px -2px rgba(0, 0, 0, 0.04);
+  --apple-shadow-hover: 0 20px 42px -12px rgba(0, 0, 0, 0.12), 0 4px 12px -2px rgba(0, 0, 0, 0.05);
+  --apple-blue: #4e45e1;
+  --apple-blue-hover: #6B63F2;
+  --apple-indigo: #4139BF;
+  --apple-green: #28CD41;
+  --apple-orange: #FF9500;
+  --apple-red: #FF3B30;
+  --apple-teal: #4e45e1;
+  --apple-purple: #AF52DE;
+  --apple-text-primary: #1D1D1F;
+  --apple-text-secondary: #515154;
+  --apple-text-tertiary: #86868B;
+  --apple-input-bg: rgba(255, 255, 255, 0.92);
+  --apple-input-border: rgba(0, 0, 0, 0.12);
+
+  /* Legacy alias tokens mapped to Apple System Design */
+  --primary: var(--apple-blue);
+  --primary-light: var(--apple-blue-hover);
+  --primary-dark: var(--apple-indigo);
   --primary-rgb: 78, 69, 225;
+  --secondary: var(--apple-blue-hover);
+  --secondary-light: #8179FF;
+  --secondary-dark: var(--apple-indigo);
+  --secondary-rgb: 107, 99, 242;
+  --accent: var(--apple-purple);
+  --accent-light: #BF5AF2;
+  --accent-dark: #8944AB;
+  --accent-rgb: 175, 82, 222;
 
-  /* Secondary Colors */
-  --secondary: #4e45e1;
-  --secondary-light: #6B63F2;
-  --secondary-dark: #4139BF;
-  --secondary-rgb: 78, 69, 225;
+  --neutral-50: #F5F5F7;
+  --neutral-100: #EFEFF4;
+  --neutral-200: #E5E5EA;
+  --neutral-300: #D1D1D6;
+  --neutral-400: #AEAEB2;
+  --neutral-500: #8E8E93;
+  --neutral-600: #636366;
+  --neutral-700: #48484A;
+  --neutral-800: #2C2C2E;
+  --neutral-900: #1C1C1E;
 
-  /* Accent Colors */
-  --accent: #4e45e1;
-  --accent-light: #6B63F2;
-  --accent-dark: #4139BF;
-  --accent-rgb: 78, 69, 225;
-
-  /* Neutral Colors - Enhanced for accessibility */
-  --neutral-50: #f8fafc;
-  --neutral-100: #f1f5f9;
-  --neutral-200: #e2e8f0;
-  --neutral-300: #cbd5e1;
-  --neutral-400: #94a3b8;
-  --neutral-500: #64748b;
-  --neutral-600: #475569;
-  --neutral-700: #334155;
-  --neutral-800: #1e293b;
-  --neutral-900: #0f172a;
-  
-  /* Accessibility Colors */
-  --focus-visible: #4e45e1;
+  --focus-visible: var(--apple-blue);
   --focus-ring-width: 2px;
   --focus-ring-offset: 2px;
-  --error-text: #dc2626; /* High contrast error text */
-  --success-text: #059669; /* High contrast success text */
-  --warning-text: #d97706; /* High contrast warning text */
+  --error-text: var(--apple-red);
+  --success-text: var(--apple-green);
+  --warning-text: var(--apple-orange);
 
-  /* Status Colors */
-  --success: #10b981;
-  --warning: #f59e0b;
-  --error: #ef4444;
-  --info: #3b82f6;
+  --success: var(--apple-green);
+  --warning: var(--apple-orange);
+  --error: var(--apple-red);
+  --info: var(--apple-blue);
 
-  /* Background Colors */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8fafc;
-  --bg-tertiary: #f1f5f9;
+  --bg-primary: var(--apple-bg);
+  --bg-secondary: var(--apple-bg-elevated);
+  --bg-tertiary: var(--apple-bg-secondary);
 
-  /* Text Colors - WCAG 2.1 AA Compliant */
-  --text-primary: #0f172a; /* Darker for better contrast */
-  --text-secondary: #334155; /* Improved contrast ratio */
-  --text-tertiary: #475569; /* Meets 4.5:1 ratio */
+  --text-primary: var(--apple-text-primary);
+  --text-secondary: var(--apple-text-secondary);
+  --text-tertiary: var(--apple-text-tertiary);
   --text-inverse: #ffffff;
-  --text-muted: #64748b; /* For less important text */
+  --text-muted: var(--apple-text-tertiary);
 
-  /* Border Colors */
-  --border-primary: #e2e8f0;
-  --border-secondary: #cbd5e1;
-  --border-accent: #4e45e1;
+  --border-primary: var(--apple-border);
+  --border-secondary: var(--apple-border-strong);
+  --border-accent: var(--apple-blue);
 
-  /* Shadow Colors */
-  --shadow-color: rgba(78, 69, 225, 0.1);
-  --shadow-color-light: rgba(78, 69, 225, 0.05);
-  --shadow-color-dark: rgba(78, 69, 225, 0.2);
+  --shadow-color: rgba(78, 69, 225, 0.14);
+  --shadow-color-light: rgba(78, 69, 225, 0.08);
+  --shadow-color-dark: rgba(78, 69, 225, 0.24);
 
-  /* Glass Effect Colors */
-  --glass-bg: rgba(255, 255, 255, 0.1);
-  --glass-border: rgba(255, 255, 255, 0.2);
-  --glass-shadow: rgba(31, 38, 135, 0.15);
+  --glass-bg: var(--apple-surface-glass);
+  --glass-border: var(--apple-border);
+  --glass-shadow: rgba(0, 0, 0, 0.08);
 
-  /* Solid Colors (replacing gradients) */
-  --gradient-primary: var(--primary);
-  --gradient-secondary: var(--secondary);
-  --gradient-hero: var(--primary);
+  --gradient-primary: linear-gradient(180deg, #6B63F2 0%, #4e45e1 100%);
+  --gradient-secondary: linear-gradient(135deg, #4e45e1 0%, #AF52DE 100%);
+  --gradient-hero: linear-gradient(180deg, #6B63F2 0%, #4e45e1 100%);
 
-  /* Hover States */
-  --hover-primary: var(--primary-dark);
-  --hover-secondary: var(--secondary-dark);
-  --hover-accent: var(--accent-dark);
-
-  /* Focus States */
-  --focus-ring: var(--primary);
-  --focus-ring-offset: 2px;
+  --hover-primary: var(--apple-blue-hover);
+  --hover-secondary: var(--apple-indigo);
+  --hover-accent: var(--apple-purple);
+  --focus-ring: var(--apple-blue);
 }
 
-/* Dark Theme Overrides */
+/* =========================================================
+ * Apple System Design Tokens — Dark Mode (html.dark)
+ * ========================================================= */
+html.dark,
 [data-theme="dark"] {
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-tertiary: #334155;
+  --apple-bg: #050507;
+  --apple-bg-elevated: #141416;
+  --apple-bg-secondary: #1C1C1E;
+  --apple-bg-gradient-1: rgba(78, 69, 225, 0.16);
+  --apple-bg-gradient-2: rgba(107, 99, 242, 0.14);
+  --apple-bg-gradient-3: rgba(191, 90, 242, 0.09);
+  --apple-surface-glass: rgba(28, 28, 30, 0.72);
+  --apple-surface-sidebar: rgba(20, 20, 22, 0.75);
+  --apple-surface-header: rgba(18, 18, 20, 0.72);
+  --apple-surface-card-top: rgba(38, 38, 42, 0.74);
+  --apple-surface-card-bottom: rgba(24, 24, 27, 0.74);
+  --apple-surface-subcard: rgba(255, 255, 255, 0.05);
+  --apple-surface-subcard-hover: rgba(255, 255, 255, 0.09);
+  --apple-border: rgba(255, 255, 255, 0.09);
+  --apple-border-strong: rgba(255, 255, 255, 0.18);
+  --apple-specular: rgba(255, 255, 255, 0.12);
+  --apple-shadow: 0 14px 34px -10px rgba(0, 0, 0, 0.55);
+  --apple-shadow-hover: 0 22px 46px -10px rgba(0, 0, 0, 0.7);
+  --apple-blue: #6B63F2;
+  --apple-blue-hover: #8179FF;
+  --apple-indigo: #4e45e1;
+  --apple-green: #30D158;
+  --apple-orange: #FF9F0A;
+  --apple-red: #FF453A;
+  --apple-teal: #8179FF;
+  --apple-purple: #BF5AF2;
+  --apple-text-primary: #F5F5F7;
+  --apple-text-secondary: rgba(235, 235, 245, 0.68);
+  --apple-text-tertiary: rgba(235, 235, 245, 0.44);
+  --apple-input-bg: rgba(0, 0, 0, 0.36);
+  --apple-input-border: rgba(255, 255, 255, 0.14);
 
-  --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --text-tertiary: #94a3b8;
-
-  --border-primary: #334155;
-  --border-secondary: #475569;
-
-  --glass-bg: rgba(0, 0, 0, 0.2);
-  --glass-border: rgba(255, 255, 255, 0.1);
+  --bg-primary: var(--apple-bg);
+  --bg-secondary: var(--apple-bg-elevated);
+  --bg-tertiary: var(--apple-bg-secondary);
+  --text-primary: var(--apple-text-primary);
+  --text-secondary: var(--apple-text-secondary);
+  --text-tertiary: var(--apple-text-tertiary);
+  --border-primary: var(--apple-border);
+  --border-secondary: var(--apple-border-strong);
+  --glass-bg: var(--apple-surface-glass);
+  --glass-border: var(--apple-border);
 }
 
 /* Utility Classes */
 .text-primary {
-  color: var(--primary);
+  color: var(--apple-blue);
 }
 .text-secondary {
-  color: var(--secondary);
+  color: var(--apple-text-secondary);
 }
 .text-accent {
-  color: var(--accent);
+  color: var(--apple-purple);
 }
 .text-success {
-  color: var(--success);
+  color: var(--apple-green);
 }
 .text-warning {
-  color: var(--warning);
+  color: var(--apple-orange);
 }
 .text-error {
-  color: var(--error);
+  color: var(--apple-red);
 }
 .text-info {
-  color: var(--info);
+  color: var(--apple-blue);
 }
 
 .bg-primary {
-  background-color: var(--primary);
+  background-color: var(--apple-blue);
 }
 .bg-secondary {
-  background-color: var(--secondary);
+  background-color: var(--apple-bg-elevated);
 }
 .bg-accent {
-  background-color: var(--accent);
+  background-color: var(--apple-purple);
 }
 .bg-success {
-  background-color: var(--success);
+  background-color: var(--apple-green);
 }
 .bg-warning {
-  background-color: var(--warning);
+  background-color: var(--apple-orange);
 }
 .bg-error {
-  background-color: var(--error);
+  background-color: var(--apple-red);
 }
 .bg-info {
-  background-color: var(--info);
+  background-color: var(--apple-blue);
 }
 
 .border-primary {
-  border-color: var(--border-primary);
+  border-color: var(--apple-border);
 }
 .border-secondary {
-  border-color: var(--border-secondary);
+  border-color: var(--apple-border-strong);
 }
 .border-accent {
-  border-color: var(--border-accent);
-}
-
-.shadow-primary {
-  box-shadow: 0 4px 6px -1px var(--shadow-color);
-}
-.shadow-primary-lg {
-  box-shadow: 0 10px 15px -3px var(--shadow-color);
-}
-.shadow-primary-xl {
-  box-shadow: 0 20px 25px -5px var(--shadow-color);
-}
-
-/* Button Variants */
-.btn-primary {
-  background: var(--gradient-primary);
-  color: var(--text-inverse);
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.75rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  box-shadow: var(--shadow-primary);
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-primary-lg);
-}
-
-.btn-secondary {
-  background: transparent;
-  color: var(--primary);
-  border: 2px solid var(--primary);
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.75rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.btn-secondary:hover {
-  background: var(--primary);
-  color: var(--text-inverse);
-  transform: translateY(-2px);
-}
-
-/* Card Variants */
-.card {
-  background: var(--bg-primary);
-  border: 1px solid var(--border-primary);
-  border-radius: 0.75rem;
-  box-shadow: var(--shadow-primary);
-  transition: all 0.3s ease;
-}
-
-.card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-primary-lg);
-}
-
-.card-glass {
-  background: var(--glass-bg);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--glass-border);
-  border-radius: 1rem;
-  box-shadow: 0 8px 32px 0 var(--glass-shadow);
-}
-
-/* Input Variants */
-.input-primary {
-  background: var(--bg-primary);
-  border: 1px solid var(--border-primary);
-  border-radius: 0.5rem;
-  padding: 0.75rem 1rem;
-  color: var(--text-primary);
-  transition: all 0.3s ease;
-}
-
-.input-primary:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(34, 87, 122, 0.1);
-}
-
-/* Gradient Text */
-.gradient-text {
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.gradient-text-secondary {
-  background: var(--gradient-secondary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Loading Spinner */
-.loading-spinner {
-  border: 2px solid var(--neutral-200);
-  border-top: 2px solid var(--primary);
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  animation: spin 1s linear infinite;
-}
-
-/* Focus Styles */
-.focus-ring:focus {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: var(--focus-ring-offset);
-}
-
-/* Hover Effects */
-.hover-lift:hover {
-  transform: translateY(-2px);
-  transition: transform 0.2s ease-in-out;
-}
-
-.hover-glow:hover {
-  box-shadow: 0 0 30px var(--shadow-color-dark);
-  transform: translateY(-2px);
-  transition: all 0.3s ease-in-out;
-}
-
-/* Animation Keyframes */
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slide-in-right {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes scale-in {
-  from {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* Animation Classes */
-.animate-fade-in-up {
-  animation: fade-in-up 0.6s ease-out;
-}
-.animate-slide-in-right {
-  animation: slide-in-right 0.6s ease-out;
-}
-.animate-scale-in {
-  animation: scale-in 0.5s ease-out;
+  border-color: var(--apple-blue);
 }

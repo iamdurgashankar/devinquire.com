@@ -94,9 +94,37 @@ async function fetchDashboardDetailFallback(identifier) {
   }
 }
 
+const syncPostsRouter = require('./sync-posts');
+
+let lastDashboardSyncAt = 0;
+let syncInFlight = null;
+const SYNC_TTL_MS = 10000;
+
+async function ensureFreshDashboardSync() {
+  if (Date.now() - lastDashboardSyncAt < SYNC_TTL_MS) return;
+  if (syncInFlight) {
+    await syncInFlight;
+    return;
+  }
+  syncInFlight = (async () => {
+    try {
+      if (typeof syncPostsRouter.syncFromDashboard === 'function') {
+        await syncPostsRouter.syncFromDashboard();
+        lastDashboardSyncAt = Date.now();
+      }
+    } catch {
+      // Non-fatal: continue serving from MySQL or fallback
+    } finally {
+      syncInFlight = null;
+    }
+  })();
+  await syncInFlight;
+}
+
 // RESTful Endpoints
 router.get('/categories', checkRateLimit, async (req, res) => {
   try {
+    await ensureFreshDashboardSync();
     const [categories] = await db.query('SELECT * FROM blog_categories ORDER BY name');
     return res.json({ success: true, data: categories });
   } catch (error) {
@@ -115,6 +143,7 @@ router.get('/categories', checkRateLimit, async (req, res) => {
 router.get('/posts', checkRateLimit, async (req, res) => {
   const category = req.query.category || '';
   try {
+    await ensureFreshDashboardSync();
     const status = req.query.status || 'published';
     const limit = parseInt(req.query.limit || '20', 10);
     const offset = parseInt(req.query.offset || '0', 10);

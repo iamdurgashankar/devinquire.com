@@ -1,99 +1,101 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { ShieldCheck, Mail, MapPin } from 'lucide-react';
+import PageLayout from '../components/PageLayout';
+import SEO from '../components/SEO';
 
 const PrivacyPolicy = () => (
-  <div className="min-h-screen bg-gray-50 pt-20">
-    {/* Hero Section */}
-    <section className="bg-[#4e45e1] text-white py-20 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-white/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-pulse delay-500"></div>
-      </div>
-      
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h1 className="text-5xl font-bold mb-6 animate-fade-in-up">Privacy Policy</h1>
-        <p className="text-xl text-blue-100 max-w-3xl mx-auto animate-fade-in-up" style={{animationDelay: '0.2s'}}>
-          Your privacy is important to us. Learn how we collect, use, and protect your information.
-        </p>
-      </div>
-    </section>
+  <>
+    <SEO
+      title="Privacy Policy - DevInquire"
+      description="Learn how DevInquire collects, uses, and protects your personal information with Apple-grade privacy standards."
+      canonical="https://devinquire.com/privacy"
+    />
+    <PageLayout
+      badge="Privacy & Trust"
+      title="Privacy Policy"
+      subtitle="Your privacy is fundamental. Learn how we collect, use, and safeguard your information."
+    >
+      <section className="py-12 md:py-16">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="apple-card p-8 md:p-12 prose max-w-none">
+            <div className="flex flex-wrap justify-between items-center gap-4 mb-8 border-b border-[var(--border-subtle)] pb-6">
+              <span className="inline-flex items-center gap-2 text-[12px] font-semibold text-[#007AFF] dark:text-[#0A84FF] uppercase tracking-[0.06em]">
+                <ShieldCheck className="w-4 h-4" />
+                Version 2.0
+              </span>
+              <span className="text-[13px] text-[var(--text-tertiary)]">Last updated: June 28, 2025</span>
+            </div>
 
-    {/* Content Section */}
-    <section className="py-20 relative">
-      <div className="absolute inset-0">
-        <div className="absolute top-20 left-20 w-32 h-32 bg-blue-100/50 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-20 w-40 h-40 bg-purple-100/50 rounded-full blur-3xl"></div>
-      </div>
-      
-      <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12 prose prose-indigo max-w-none">
-          <div className="flex justify-between items-center mb-8 border-b border-gray-100 pb-6">
-            <span className="text-sm font-semibold text-[#4e45e1] uppercase tracking-wider">Version 1.0</span>
-            <span className="text-sm text-gray-500">Last updated: June 28, 2025</span>
-          </div>
-
-          <h2 className="text-2xl font-bold text-gray-900 mt-0">Introduction</h2>
-          <p className="text-gray-600 leading-relaxed">
-            Welcome to Devinquire. We respect your privacy and are committed to protecting your personal data. This privacy policy will inform you as to how we look after your personal data when you visit our website (regardless of where you visit it from) and tell you about your privacy rights and how the law protects you.
-          </p>
-
-          <h2 className="text-2xl font-bold text-gray-900 mt-8">1. The Data We Collect</h2>
-          <p className="text-gray-600 leading-relaxed">
-            Personal data, or personal information, means any information about an individual from which that person can be identified. We may collect, use, store and transfer different kinds of personal data about you which we have grouped together as follows:
-          </p>
-          <ul className="list-disc pl-6 text-gray-600 space-y-2">
-            <li><strong>Identity Data:</strong> includes first name, last name, username or similar identifier.</li>
-            <li><strong>Contact Data:</strong> includes email address and telephone numbers.</li>
-            <li><strong>Technical Data:</strong> includes internet protocol (IP) address, your login data, browser type and version, time zone setting and location, browser plug-in types and versions, operating system and platform.</li>
-            <li><strong>Usage Data:</strong> includes information about how you use our website, products and services.</li>
-          </ul>
-
-          <h2 className="text-2xl font-bold text-gray-900 mt-8">2. How We Use Your Data</h2>
-          <p className="text-gray-600 leading-relaxed">
-            We will only use your personal data when the law allows us to. Most commonly, we will use your personal data in the following circumstances:
-          </p>
-          <ul className="list-disc pl-6 text-gray-600 space-y-2">
-            <li>Where we need to perform the contract we are about to enter into or have entered into with you.</li>
-            <li>Where it is necessary for our legitimate interests (or those of a third party) and your interests and fundamental rights do not override those interests.</li>
-            <li>Where we need to comply with a legal or regulatory obligation.</li>
-          </ul>
-
-          <h2 className="text-2xl font-bold text-gray-900 mt-8">3. Cookies</h2>
-          <p className="text-gray-600 leading-relaxed">
-            Our website uses cookies to distinguish you from other users of our website. This helps us to provide you with a good experience when you browse our website and also allows us to improve our site. For detailed information on the cookies we use and the purposes for which we use them see our <a href="/cookies" className="text-[#4e45e1] font-semibold hover:underline">Cookie Policy</a>.
-          </p>
-
-          <h2 className="text-2xl font-bold text-gray-900 mt-8">4. Data Security</h2>
-          <p className="text-gray-600 leading-relaxed">
-            We have put in place appropriate security measures to prevent your personal data from being accidentally lost, used or accessed in an unauthorised way, altered or disclosed. In addition, we limit access to your personal data to those employees, agents, contractors and other third parties who have a business need to know.
-          </p>
-
-          <h2 className="text-2xl font-bold text-gray-900 mt-8">5. Your Legal Rights</h2>
-          <p className="text-gray-600 leading-relaxed">
-            Under certain circumstances, you have rights under data protection laws in relation to your personal data, including the right to request access, correction, erasure, restriction, transfer, to object to processing, to portability of data and (where the lawful ground of processing is consent) to withdraw consent.
-          </p>
-
-          <div className="mt-12 p-8 bg-gray-50 rounded-2xl border border-gray-100">
-            <h3 className="text-xl font-bold text-gray-900 mt-0 mb-4">Questions or Concerns?</h3>
-            <p className="text-gray-600 mb-6">
-              If you have any questions about this privacy policy or our privacy practices, please contact our data privacy manager in the following ways:
+            <h2 className="text-2xl font-bold text-[var(--text-primary)] mt-0">Introduction</h2>
+            <p className="text-[var(--text-secondary)] leading-relaxed">
+              Welcome to DevInquire. We respect your privacy and are committed to protecting your personal data. This privacy policy informs you how we look after your personal data when you visit our website and explains your privacy rights and how the law protects you.
             </p>
-            <div className="space-y-3">
-              <p className="flex items-center text-gray-700">
-                <span className="font-semibold w-24">Email:</span>
-                <a href="mailto:privacy@devinquire.com" className="text-[#4e45e1] hover:underline">privacy@devinquire.com</a>
+
+            <h2 className="text-2xl font-bold text-[var(--text-primary)] mt-8">1. The Data We Collect</h2>
+            <p className="text-[var(--text-secondary)] leading-relaxed">
+              Personal data means any information about an individual from which that person can be identified. We may collect, use, store, and transfer different kinds of personal data grouped as follows:
+            </p>
+            <ul className="list-disc pl-6 text-[var(--text-secondary)] space-y-2">
+              <li><strong className="text-[var(--text-primary)]">Identity Data:</strong> includes first name, last name, username, or similar identifier.</li>
+              <li><strong className="text-[var(--text-primary)]">Contact Data:</strong> includes email address and telephone numbers.</li>
+              <li><strong className="text-[var(--text-primary)]">Technical Data:</strong> includes internet protocol (IP) address, browser type and version, time zone setting and location, and operating system.</li>
+              <li><strong className="text-[var(--text-primary)]">Usage Data:</strong> includes information about how you use our website, products, and services.</li>
+            </ul>
+
+            <h2 className="text-2xl font-bold text-[var(--text-primary)] mt-8">2. How We Use Your Data</h2>
+            <p className="text-[var(--text-secondary)] leading-relaxed">
+              We will only use your personal data when the law allows us to. Most commonly, we will use your personal data in the following circumstances:
+            </p>
+            <ul className="list-disc pl-6 text-[var(--text-secondary)] space-y-2">
+              <li>Where we need to perform the contract we are about to enter into or have entered into with you.</li>
+              <li>Where it is necessary for our legitimate interests and your interests and fundamental rights do not override those interests.</li>
+              <li>Where we need to comply with a legal or regulatory obligation.</li>
+            </ul>
+
+            <h2 className="text-2xl font-bold text-[var(--text-primary)] mt-8">3. Cookies</h2>
+            <p className="text-[var(--text-secondary)] leading-relaxed">
+              Our website uses cookies to distinguish you from other users of our website. This helps us provide you with a seamless experience when you browse our website and allows us to improve our site. For detailed information on the cookies we use, see our{' '}
+              <Link to="/cookies" className="text-[#007AFF] dark:text-[#0A84FF] font-semibold hover:underline">
+                Cookie Policy
+              </Link>.
+            </p>
+
+            <h2 className="text-2xl font-bold text-[var(--text-primary)] mt-8">4. Data Security</h2>
+            <p className="text-[var(--text-secondary)] leading-relaxed">
+              We have put in place strict security measures to prevent your personal data from being accidentally lost, used, or accessed in an unauthorized way, altered, or disclosed. We limit access to your personal data to employees, agents, contractors, and other third parties who have a strict business need to know.
+            </p>
+
+            <h2 className="text-2xl font-bold text-[var(--text-primary)] mt-8">5. Your Legal Rights</h2>
+            <p className="text-[var(--text-secondary)] leading-relaxed">
+              Under data protection laws, you have rights in relation to your personal data, including the right to request access, correction, erasure, restriction, transfer, to object to processing, and data portability.
+            </p>
+
+            <div className="mt-12 p-6 md:p-8 apple-subcard rounded-2xl not-prose">
+              <h3 className="text-lg font-bold text-[var(--text-primary)] mb-2">Questions or Concerns?</h3>
+              <p className="text-[14px] text-[var(--text-secondary)] mb-5">
+                If you have any questions about this privacy policy or our privacy practices, please contact our data privacy officer:
               </p>
-              <p className="flex items-center text-gray-700">
-                <span className="font-semibold w-24">Address:</span>
-                <span>Virtual Headquarters, Tech District, Cloud City</span>
-              </p>
+              <div className="space-y-2.5 text-[14px]">
+                <div className="flex items-center gap-3 text-[var(--text-primary)]">
+                  <Mail className="w-4 h-4 text-[#007AFF]" />
+                  <span className="font-semibold">Email:</span>
+                  <a href="mailto:privacy@devinquire.com" className="text-[#007AFF] dark:text-[#0A84FF] hover:underline">
+                    privacy@devinquire.com
+                  </a>
+                </div>
+                <div className="flex items-center gap-3 text-[var(--text-primary)]">
+                  <MapPin className="w-4 h-4 text-[#007AFF]" />
+                  <span className="font-semibold">Location:</span>
+                  <span className="text-[var(--text-secondary)]">Bengaluru, Karnataka, India</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
-  </div>
+      </section>
+    </PageLayout>
+  </>
 );
 
 export default PrivacyPolicy;

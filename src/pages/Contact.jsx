@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Mail, Phone, Globe, Monitor } from 'lucide-react';
+import { MapPin, Mail, Phone, Globe, Monitor, Clock, CheckCircle2, AlertCircle, Send, HelpCircle } from 'lucide-react';
 import PageLayout from '../components/PageLayout';
 import SEO from '../components/SEO';
-import { responsiveTypography, responsiveSpacing, responsiveContainers } from '../utils/responsive';
+import ModernCTA from '../components/ModernCTA';
+import { responsiveSpacing, responsiveContainers } from '../utils/responsive';
 import { submitContactForm } from '../services/emailService';
 
 const Contact = () => {
-
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -23,13 +23,11 @@ const Contact = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    // Preserve original value but ensure proper handling of spacing
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
-    
-    // Clear validation error when user starts typing
+
     if (validationErrors[name]) {
       setValidationErrors(prev => ({
         ...prev,
@@ -43,14 +41,14 @@ const Contact = () => {
     const now = Date.now();
     const attempts = JSON.parse(localStorage.getItem('contact_attempts') || '[]');
     const recentAttempts = attempts.filter(time => now - time < 900000); // 15 minutes
-    
+
     if (recentAttempts.length >= 3) {
       return {
         allowed: false,
         resetTime: new Date(recentAttempts[0] + 900000)
       };
     }
-    
+
     recentAttempts.push(now);
     localStorage.setItem('contact_attempts', JSON.stringify(recentAttempts));
     return { allowed: true };
@@ -58,8 +56,7 @@ const Contact = () => {
 
   const validateForm = () => {
     const errors = {};
-    
-    // Required field validation with enhanced checks
+
     if (!formData.name.trim()) {
       errors.name = 'Full name is required';
     } else if (formData.name.trim().length < 2) {
@@ -67,7 +64,7 @@ const Contact = () => {
     } else if (formData.name.trim().length > 100) {
       errors.name = 'Name must be less than 100 characters';
     }
-    
+
     if (!formData.email.trim()) {
       errors.email = 'Email address is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
@@ -75,9 +72,7 @@ const Contact = () => {
     } else if (formData.email.length > 254) {
       errors.email = 'Email address is too long';
     }
-    
 
-    
     if (!formData.subject.trim()) {
       errors.subject = 'Subject is required';
     } else if (formData.subject.trim().length < 3) {
@@ -85,7 +80,7 @@ const Contact = () => {
     } else if (formData.subject.trim().length > 200) {
       errors.subject = 'Subject must be less than 200 characters';
     }
-    
+
     if (!formData.message.trim()) {
       errors.message = 'Message is required';
     } else if (formData.message.trim().length < 10) {
@@ -93,45 +88,40 @@ const Contact = () => {
     } else if (formData.message.trim().length > 5000) {
       errors.message = 'Message must be less than 5000 characters';
     }
-    
-    // Enhanced phone validation (if provided)
+
     if (formData.phone && formData.phone.trim()) {
       const cleanPhone = formData.phone.replace(/[\s\-\(\)\+]/g, '');
       if (!/^[0-9]{7,15}$/.test(cleanPhone)) {
         errors.phone = 'Please enter a valid phone number (7-15 digits)';
       }
     }
-    
-    // Company name validation (if provided)
+
     if (formData.company && formData.company.trim().length > 200) {
       errors.company = 'Company name must be less than 200 characters';
     }
-    
-    // Basic spam detection
+
     const spamPatterns = [
       /\b(viagra|cialis|casino|lottery|winner|congratulations)\b/i,
       /\b(click here|act now|limited time|urgent)\b/i,
       /(http:\/\/|https:\/\/)[^\s]{10,}/g
     ];
-    
+
     const messageText = formData.message.toLowerCase();
     if (spamPatterns.some(pattern => pattern.test(messageText))) {
       errors.message = 'Message contains prohibited content';
     }
-    
+
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Validate form before submission
+
     if (!validateForm()) {
       return;
     }
-    
-    // Check rate limiting
+
     const rateCheck = checkRateLimit();
     if (!rateCheck.allowed) {
       setSubmitStatus({
@@ -141,7 +131,7 @@ const Contact = () => {
       setTimeout(() => setSubmitStatus(null), 8000);
       return;
     }
-    
+
     setIsSubmitting(true);
     setSubmitStatus(null);
 
@@ -162,8 +152,7 @@ const Contact = () => {
           message: ''
         });
         setValidationErrors({});
-        
-        // Track successful form submission
+
         if (typeof gtag !== 'undefined') {
           gtag('event', 'contact_form_submit', {
             event_category: 'engagement',
@@ -171,8 +160,7 @@ const Contact = () => {
             value: 1
           });
         }
-        
-        // Auto-hide success message after 8 seconds
+
         setTimeout(() => setSubmitStatus(null), 8000);
       } else {
         setSubmitStatus({
@@ -184,7 +172,7 @@ const Contact = () => {
     } catch (error) {
       console.error('Contact form submission error:', error);
       let errorMessage = 'An unexpected error occurred. Please try again.';
-      
+
       if (error.name === 'NetworkError' || error.message.includes('fetch')) {
         errorMessage = 'Network error. Please check your internet connection and try again.';
       } else if (error.message.includes('Server')) {
@@ -192,7 +180,7 @@ const Contact = () => {
       } else if (error.code === 'permission-denied') {
         errorMessage = 'Permission denied. Please refresh the page and try again.';
       }
-      
+
       setSubmitStatus({
         type: 'error',
         message: errorMessage
@@ -206,27 +194,31 @@ const Contact = () => {
   const contactInfo = [
     {
       icon: MapPin,
-      title: "Address",
+      title: "Headquarters",
       details: "Bengaluru, Karnataka, India",
-      link: "https://maps.google.com"
+      link: "https://maps.google.com",
+      color: "#007AFF"
     },
     {
       icon: Mail,
-      title: "Email",
+      title: "Direct Email",
       details: "contact@devinquire.com",
-      link: "mailto:contact@devinquire.com"
+      link: "mailto:contact@devinquire.com",
+      color: "#5E5CE6"
     },
     {
       icon: Phone,
-      title: "Phone",
+      title: "Phone Line",
       details: "+91 8763155488",
-      link: "tel:+918763155488"
+      link: "tel:+918763155488",
+      color: "#34C759"
     },
     {
       icon: Globe,
-      title: "Website",
+      title: "Global Web",
       details: "www.devinquire.com",
-      link: "https://devinquire.com"
+      link: "https://devinquire.com",
+      color: "#FF9F0A"
     }
   ];
 
@@ -239,19 +231,16 @@ const Contact = () => {
     "Consulting"
   ];
 
-  // Animation variants for better performance
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
+      transition: { staggerChildren: 0.08 }
     }
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 16 },
     visible: { opacity: 1, y: 0 }
   };
 
@@ -267,440 +256,421 @@ const Contact = () => {
         ogUrl="https://devinquire.com/contact"
       />
       <PageLayout
+        badge="Direct Line"
         title="Get in Touch"
-        subtitle="Ready to start your next project? We'd love to hear from you. Let's discuss how we can help bring your ideas to life."
+        subtitle="Ready to start your next flagship project? Connect directly with our engineering and architecture team."
       >
-
-      {/* Contact Form & Info Section */}
-      <section className={`${responsiveSpacing.sectionPadding}`}>
-        <div className={responsiveContainers.standard}>
-          <div className="grid lg:grid-cols-2 gap-16">
-            {/* Contact Form */}
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="bg-white rounded-2xl shadow-xl p-8"
-            >
-              <h2 className={`${responsiveTypography.sectionTitle} text-gray-900 mb-6`}>Send us a Message</h2>
-              
-              {submitStatus?.type === 'success' && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex items-start gap-3"
-                >
-                  <span className="text-green-600 text-xl">✅</span>
-                  <div>
-                    <p className="font-semibold">Message Sent Successfully!</p>
-                    <p className="text-sm">{submitStatus.message}</p>
-                  </div>
-                </motion.div>
-              )}
-
-              {submitStatus?.type === 'error' && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-start gap-3"
-                >
-                  <span className="text-red-600 text-xl">❌</span>
-                  <div>
-                    <p className="font-semibold">Submission Failed</p>
-                    <p className="text-sm">{submitStatus.message}</p>
-                  </div>
-                </motion.div>
-              )}
-
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Personal Information */}
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                      Full Name *
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      required
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 text-gray-900 bg-white ${
-                        validationErrors.name ? 'border-red-500' : 'border-gray-300'
-                      }`}
-                      placeholder="John Doe"
-                    />
-                    {validationErrors.name && (
-                      <p className="text-red-500 text-sm mt-1">{validationErrors.name}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                      Email Address *
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 text-gray-900 bg-white ${
-                        validationErrors.email ? 'border-red-500' : 'border-gray-300'
-                      }`}
-                      placeholder="john@example.com"
-                    />
-                    {validationErrors.email && (
-                      <p className="text-red-500 text-sm mt-1">{validationErrors.email}</p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                      Phone Number
-                    </label>
-                    <input
-                      type="tel"
-                      id="phone"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 text-gray-900 bg-white ${
-                        validationErrors.phone ? 'border-red-500' : 'border-gray-300'
-                      }`}
-                      placeholder="+1 (555) 123-4567"
-                    />
-                    {validationErrors.phone && (
-                      <p className="text-red-500 text-sm mt-1">{validationErrors.phone}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-2">
-                      Company/Organization
-                    </label>
-                    <input
-                      type="text"
-                      id="company"
-                      name="company"
-                      value={formData.company}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 text-gray-900 bg-white"
-                      placeholder="Your Company Name"
-                    />
-                  </div>
-                </div>
-                
-                {/* Project Details */}
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="timeline" className="block text-sm font-medium text-gray-700 mb-2">
-                      Project Timeline
-                    </label>
-                    <select
-                      id="timeline"
-                      name="timeline"
-                      value={formData.timeline}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 text-gray-900 bg-white"
-                      style={{ color: '#111827' }}
-                    >
-                      <option value="" style={{ color: '#6b7280' }}>Select timeline...</option>
-                      <option value="asap" style={{ color: '#111827' }}>ASAP</option>
-                      <option value="1-month" style={{ color: '#111827' }}>Within 1 Month</option>
-                      <option value="2-3-months" style={{ color: '#111827' }}>2-3 Months</option>
-                      <option value="3-6-months" style={{ color: '#111827' }}>3-6 Months</option>
-                      <option value="6-months-plus" style={{ color: '#111827' }}>6+ Months</option>
-                      <option value="flexible" style={{ color: '#111827' }}>Flexible</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-                      Subject *
-                    </label>
-                    <input
-                      type="text"
-                      id="subject"
-                      name="subject"
-                      value={formData.subject}
-                      onChange={handleChange}
-                      required
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 text-gray-900 bg-white ${
-                        validationErrors.subject ? 'border-red-500' : 'border-gray-300'
-                      }`}
-                      placeholder="Project Inquiry"
-                    />
-                    {validationErrors.subject && (
-                      <p className="text-red-500 text-sm mt-1">{validationErrors.subject}</p>
-                    )}
-                  </div>
-                </div>
-                
-                {/* Message Section */}
-                <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                    Project Details & Message *
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    required
-                    rows={6}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 resize-none text-gray-900 bg-white ${
-                      validationErrors.message ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    placeholder="Please describe your project in detail. Include any specific requirements, features you need, design preferences, or questions you have. The more information you provide, the better we can assist you."
-                  ></textarea>
-                  {validationErrors.message && (
-                    <p className="text-red-500 text-sm mt-1">{validationErrors.message}</p>
-                  )}
-                  <p className="text-sm text-gray-500 mt-2">
-                    💡 Tip: Include details about your target audience, preferred technologies, existing systems to integrate with, or any specific challenges you're facing.
-                  </p>
-                </div>
-                
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-[#4e45e1] text-white py-3 px-6 rounded-lg font-semibold hover:bg-[#4139BF] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isSubmitting ? (
-                    <span className="flex items-center justify-center">
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Sending...
-                    </span>
-                  ) : (
-                    'Send Message'
-                  )}
-                </button>
-              </form>
-            </motion.div>
-
-            {/* Contact Information */}
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="space-y-8"
-            >
-              <div>
-                <h2 className={`${responsiveTypography.sectionTitle} text-gray-900 mb-6`}>Contact Information</h2>
-                <motion.div 
-                  className="space-y-6"
-                  variants={containerVariants}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true }}
-                >
-                  {contactInfo.map((info, index) => (
-                    <motion.a
-                      key={index}
-                      href={info.link}
-                      variants={itemVariants}
-                      className="flex items-start space-x-4 p-4 rounded-lg hover:bg-white hover:shadow-md transition-all duration-300"
-                    >
-                      <motion.div
-                    className="text-2xl text-blue-600"
-                    animate={{
-                      rotate: [0, 10, -10, 0],
-                      scale: [1, 1.1, 1]
-                    }}
-                    transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      repeatType: "reverse",
-                      ease: "easeInOut"
-                    }}
-                  >
-                    <info.icon className="w-6 h-6" />
-                  </motion.div>
-                      <div>
-                        <h3 className={`${responsiveTypography.cardTitle} text-gray-900`}>{info.title}</h3>
-                        <p className={`${responsiveTypography.bodyBase} text-gray-600`}>{info.details}</p>
-                      </div>
-                    </motion.a>
-                  ))}
-                </motion.div>
-              </div>
-
-              <motion.div 
-                className="bg-[#4e45e1] rounded-2xl p-8 text-white"
+        {/* Contact Form & Info Section */}
+        <section id="contact-form" className="pt-4 pb-16 md:pb-20">
+          <div className={responsiveContainers.standard}>
+            <div className="grid lg:grid-cols-12 gap-8 items-start">
+              {/* Contact Form (7 cols) */}
+              <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: 0.2 }}
+                transition={{ duration: 0.6 }}
+                className="lg:col-span-7 apple-card p-8 md:p-10"
               >
-                <h3 className={`${responsiveTypography.cardTitle} mb-4`}>Business Hours</h3>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span>Monday - Friday</span>
-                    <span>9:00 AM - 6:00 PM</span>
+                <div className="mb-8">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full apple-subcard mb-3">
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--text-secondary)]">
+                      Project Brief
+                    </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Saturday</span>
-                    <span>10:00 AM - 4:00 PM</span>
+                  <h2 className="text-2xl md:text-3xl font-bold tracking-[-0.025em] text-[var(--text-primary)]">
+                    Send us a Message
+                  </h2>
+                  <p className="text-[14px] text-[var(--text-secondary)] mt-1">
+                    Our architects respond to all project inquiries within 24 hours.
+                  </p>
+                </div>
+                
+                {submitStatus?.type === 'success' && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.96 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="mb-6 p-4 rounded-2xl bg-[#34C759]/12 border border-[#34C759]/30 text-[#248A3D] dark:text-[#30D158] flex items-start gap-3"
+                  >
+                    <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-[14px]">Message Sent Successfully</p>
+                      <p className="text-[13px] opacity-90">{submitStatus.message}</p>
+                    </div>
+                  </motion.div>
+                )}
+
+                {submitStatus?.type === 'error' && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.96 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="mb-6 p-4 rounded-2xl bg-[#FF3B30]/12 border border-[#FF3B30]/30 text-[#D70015] dark:text-[#FF453A] flex items-start gap-3"
+                  >
+                    <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-[14px]">Submission Failed</p>
+                      <p className="text-[13px] opacity-90">{submitStatus.message}</p>
+                    </div>
+                  </motion.div>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="min-w-0">
+                      <label htmlFor="name" className="block text-[13px] font-medium text-[var(--apple-text-secondary)] mb-1.5">
+                        Full Name *
+                      </label>
+                      <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        required
+                        className={`apple-input w-full ${validationErrors.name ? '!border-[#FF3B30]' : ''}`}
+                        placeholder="John Appleseed"
+                      />
+                      {validationErrors.name && (
+                        <p className="text-[#FF3B30] text-[12px] mt-1">{validationErrors.name}</p>
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <label htmlFor="email" className="block text-[13px] font-medium text-[var(--apple-text-secondary)] mb-1.5">
+                        Email Address *
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                        className={`apple-input w-full ${validationErrors.email ? '!border-[#FF3B30]' : ''}`}
+                        placeholder="john@company.com"
+                      />
+                      {validationErrors.email && (
+                        <p className="text-[#FF3B30] text-[12px] mt-1">{validationErrors.email}</p>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Sunday</span>
-                    <span>Closed</span>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="min-w-0">
+                      <label htmlFor="phone" className="block text-[13px] font-medium text-[var(--apple-text-secondary)] mb-1.5">
+                        Phone Number
+                      </label>
+                      <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        className={`apple-input w-full ${validationErrors.phone ? '!border-[#FF3B30]' : ''}`}
+                        placeholder="+1 (555) 123-4567"
+                      />
+                      {validationErrors.phone && (
+                        <p className="text-[#FF3B30] text-[12px] mt-1">{validationErrors.phone}</p>
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <label htmlFor="company" className="block text-[13px] font-medium text-[var(--apple-text-secondary)] mb-1.5">
+                        Company / Organization
+                      </label>
+                      <input
+                        type="text"
+                        id="company"
+                        name="company"
+                        value={formData.company}
+                        onChange={handleChange}
+                        className="apple-input w-full"
+                        placeholder="Your Company Name"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="min-w-0">
+                      <label htmlFor="timeline" className="block text-[13px] font-medium text-[var(--apple-text-secondary)] mb-1.5">
+                        Project Timeline
+                      </label>
+                      <select
+                        id="timeline"
+                        name="timeline"
+                        value={formData.timeline}
+                        onChange={handleChange}
+                        className="apple-input w-full"
+                      >
+                        <option value="">Select timeline...</option>
+                        <option value="asap">ASAP</option>
+                        <option value="1-month">Within 1 Month</option>
+                        <option value="2-3-months">2-3 Months</option>
+                        <option value="3-6-months">3-6 Months</option>
+                        <option value="6-months-plus">6+ Months</option>
+                        <option value="flexible">Flexible</option>
+                      </select>
+                    </div>
+                    <div className="min-w-0">
+                      <label htmlFor="subject" className="block text-[13px] font-medium text-[var(--apple-text-secondary)] mb-1.5">
+                        Subject *
+                      </label>
+                      <input
+                        type="text"
+                        id="subject"
+                        name="subject"
+                        value={formData.subject}
+                        onChange={handleChange}
+                        required
+                        className={`apple-input w-full ${validationErrors.subject ? '!border-[#FF3B30]' : ''}`}
+                        placeholder="Enterprise Web Platform"
+                      />
+                      {validationErrors.subject && (
+                        <p className="text-[#FF3B30] text-[12px] mt-1">{validationErrors.subject}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="message" className="block text-[13px] font-medium text-[var(--apple-text-secondary)] mb-1.5">
+                      Project Details & Message *
+                    </label>
+                    <textarea
+                      id="message"
+                      name="message"
+                      value={formData.message}
+                      onChange={handleChange}
+                      required
+                      rows={5}
+                      className={`apple-input w-full resize-none ${validationErrors.message ? '!border-[#FF3B30]' : ''}`}
+                      placeholder="Describe your project goals, required features, design preferences, or architectural questions..."
+                    ></textarea>
+                    {validationErrors.message && (
+                      <p className="text-[#FF3B30] text-[12px] mt-1">{validationErrors.message}</p>
+                    )}
+                    <p className="text-[12px] text-[var(--apple-text-tertiary)] mt-2">
+                      Tip: Mention your target audience, preferred stack, existing systems to integrate with, or key milestones.
+                    </p>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="apple-pill-btn w-full py-3.5 text-[15px] inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Sending Message...
+                      </span>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4" />
+                        <span>Send Message</span>
+                      </>
+                    )}
+                  </button>
+                </form>
+              </motion.div>
+
+              {/* Contact Information & Hours (5 cols) */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="lg:col-span-5 space-y-6"
+              >
+                <div className="apple-card p-8">
+                  <h2 className="text-xl font-bold tracking-[-0.02em] text-[var(--text-primary)] mb-6">
+                    Direct Channels
+                  </h2>
+                  <motion.div 
+                    className="space-y-3.5"
+                    variants={containerVariants}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                  >
+                    {contactInfo.map((info, index) => (
+                      <motion.a
+                        key={index}
+                        href={info.link}
+                        variants={itemVariants}
+                        className="apple-subcard flex items-center gap-4 p-4 rounded-2xl hover:border-[#007AFF]/40 transition-all group"
+                      >
+                        <div
+                          className="w-11 h-11 rounded-[13px] flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105"
+                          style={{
+                            backgroundColor: `${info.color}18`,
+                            color: info.color
+                          }}
+                        >
+                          <info.icon className="w-5 h-5" />
+                        </div>
+                        <div className="min-w-0">
+                          <h3 className="text-[12px] font-semibold uppercase tracking-[0.04em] text-[var(--text-tertiary)]">
+                            {info.title}
+                          </h3>
+                          <p className="text-[15px] font-semibold text-[var(--text-primary)] truncate group-hover:text-[#007AFF] dark:group-hover:text-[#0A84FF] transition-colors">
+                            {info.details}
+                          </p>
+                        </div>
+                      </motion.a>
+                    ))}
+                  </motion.div>
+                </div>
+
+                {/* Business Hours Card */}
+                <div className="apple-card p-8 relative overflow-hidden">
+                  <div className="absolute -top-16 -right-16 w-40 h-40 rounded-full bg-[#007AFF]/10 blur-2xl pointer-events-none" />
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="w-10 h-10 rounded-[12px] bg-[#007AFF]/15 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center">
+                      <Clock className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-[17px] font-bold text-[var(--text-primary)]">Operating Hours</h3>
+                      <p className="text-[12px] text-[var(--text-tertiary)]">IST (UTC +5:30) & Global Coverage</p>
+                    </div>
+                  </div>
+                  <div className="space-y-3 text-[14px]">
+                    <div className="flex justify-between py-2 border-b border-[var(--border-subtle)]">
+                      <span className="text-[var(--text-secondary)]">Monday – Friday</span>
+                      <span className="font-semibold text-[var(--text-primary)]">9:00 AM – 6:00 PM</span>
+                    </div>
+                    <div className="flex justify-between py-2 border-b border-[var(--border-subtle)]">
+                      <span className="text-[var(--text-secondary)]">Saturday</span>
+                      <span className="font-semibold text-[var(--text-primary)]">10:00 AM – 4:00 PM</span>
+                    </div>
+                    <div className="flex justify-between py-2">
+                      <span className="text-[var(--text-secondary)]">Sunday</span>
+                      <span className="font-semibold text-[#FF9500] dark:text-[#FF9F0A]">On-Call SLA</span>
+                    </div>
+                  </div>
+                  <div className="mt-5 pt-4 border-t border-[var(--border-subtle)] flex items-center gap-2 text-[12px] text-[var(--text-secondary)]">
+                    <span className="w-2 h-2 rounded-full bg-[#34C759] animate-pulse" />
+                    <span>24/7 Priority incident response active for enterprise partners</span>
                   </div>
                 </div>
-                <p className="mt-4 text-blue-100">
-                  Emergency support available 24/7 for existing clients
-                </p>
               </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* Services Overview Section */}
+        <section className={responsiveSpacing.sectionPadding}>
+          <div className={responsiveContainers.standard}>
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full apple-subcard mb-3">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[#007AFF] dark:text-[#0A84FF]">
+                  Capabilities
+                </span>
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold tracking-[-0.03em] text-[var(--text-primary)] mb-3">
+                How We Can Partner
+              </h2>
+              <p className="text-[16px] text-[var(--text-secondary)] max-w-2xl mx-auto">
+                Comprehensive engineering and product design disciplines tailored to your roadmap.
+              </p>
+            </div>
+            
+            <motion.div 
+              className="grid md:grid-cols-2 lg:grid-cols-3 gap-5"
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+            >
+              {services.map((service, index) => (
+                <motion.div
+                  key={index}
+                  variants={itemVariants}
+                  className="apple-card apple-card-interactive p-6"
+                >
+                  <div className="w-11 h-11 rounded-[13px] bg-[#007AFF]/12 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center mb-4">
+                    <Monitor className="w-5 h-5" />
+                  </div>
+                  <h3 className="text-[17px] font-bold tracking-[-0.015em] text-[var(--text-primary)] mb-1.5">
+                    {service}
+                  </h3>
+                  <p className="text-[14px] text-[var(--text-secondary)] leading-relaxed">
+                    Production-grade {service.toLowerCase()} engineered for scale, reliability, and human-centered polish.
+                  </p>
+                </motion.div>
+              ))}
             </motion.div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Services Section */}
-      <section className={`${responsiveSpacing.sectionPadding} bg-white`}>
-        <div className={responsiveContainers.standard}>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-16"
-          >
-            <h2 className={`${responsiveTypography.pageTitle} text-gray-900 mb-4`}>Our Services</h2>
-            <p className={`${responsiveTypography.bodyLarge} text-gray-600 max-w-2xl mx-auto`}>
-              We offer a comprehensive range of development and design services to meet your needs.
-            </p>
-          </motion.div>
-          
-          <motion.div 
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-          >
-            {services.map((service, index) => (
-              <motion.div
-                key={index}
-                variants={itemVariants}
-                className="bg-gray-50 rounded-xl p-6 hover:bg-blue-50 transition-colors duration-300"
-              >
-                <motion.div
-                  className="text-3xl mb-4 text-blue-600"
-                  whileHover={{
-                    scale: 1.05,
-                    y: -2
-                  }}
-                  transition={{
-                    duration: 0.3,
-                    ease: "easeInOut"
-                  }}
-                >
-                  <Monitor className="w-8 h-8" />
-                </motion.div>
-                <h3 className={`${responsiveTypography.cardTitle} text-gray-900 mb-2`}>{service}</h3>
-                <p className={`${responsiveTypography.bodyBase} text-gray-600`}>
-                  Professional {service.toLowerCase()} services tailored to your specific requirements.
-                </p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* FAQ Section */}
-      <section className={`${responsiveSpacing.sectionPadding} bg-gray-50`}>
-        <div className={responsiveContainers.narrow}>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-16"
-          >
-            <h2 className={`${responsiveTypography.pageTitle} text-gray-900 mb-4`}>Frequently Asked Questions</h2>
-            <p className={`${responsiveTypography.bodyLarge} text-gray-600`}>
-              Get answers to common questions about our services and process.
-            </p>
-          </motion.div>
-          
-          <motion.div 
-            className="space-y-6"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-          >
-            {[
-              {
-                question: "How long does a typical project take?",
-                answer: "Project timelines vary depending on complexity. A simple website might take 2-4 weeks, while complex applications can take 2-6 months. We'll provide a detailed timeline during our initial consultation."
-              },
-              {
-                question: "Do you provide ongoing support after launch?",
-                answer: "Yes! We offer various support packages including maintenance, updates, and technical support. We're here to ensure your project continues to perform optimally."
-              },
-              {
-                question: "What is your development process?",
-                answer: "We follow an agile methodology: Discovery & Planning → Design → Development → Testing → Launch → Support. We keep you involved throughout the entire process."
-              },
-              {
-                question: "Do you work with international clients?",
-                answer: "Absolutely! We work with clients worldwide and are experienced in managing projects across different time zones and cultures."
-              }
-            ].map((faq, index) => (
-              <motion.div
-                key={index}
-                variants={itemVariants}
-                className="bg-white rounded-xl p-6 shadow-sm"
-              >
-                <h3 className={`${responsiveTypography.bodyLarge} font-semibold text-gray-900 mb-3`}>{faq.question}</h3>
-                <p className={`${responsiveTypography.bodyBase} text-gray-600`}>{faq.answer}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className={`${responsiveSpacing.sectionPadding} bg-[#4e45e1]`}>
-        <div className={`${responsiveContainers.narrow} text-center`}>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          >
-            <h2 className={`${responsiveTypography.pageTitle} text-white mb-6`}>
-              Ready to Start Your Project?
-            </h2>
-            <p className={`${responsiveTypography.bodyLarge} text-blue-100 mb-8`}>
-              Let's discuss your ideas and create something amazing together.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
-                href="#contact-form"
-                className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-300"
-              >
-                Get Free Quote
-              </a>
-              <a
-                href="/services"
-                className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors duration-300"
-              >
-                View Services
-              </a>
+        {/* FAQ Section */}
+        <section className={responsiveSpacing.sectionPadding}>
+          <div className={responsiveContainers.narrow}>
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full apple-subcard mb-3">
+                <HelpCircle className="w-3.5 h-3.5 text-[#5E5CE6]" />
+                <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--text-secondary)]">
+                  FAQ
+                </span>
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold tracking-[-0.03em] text-[var(--text-primary)] mb-3">
+                Frequently Asked Questions
+              </h2>
+              <p className="text-[16px] text-[var(--text-secondary)]">
+                Clear answers about our engineering cadence, timelines, and delivery model.
+              </p>
             </div>
-          </motion.div>
-        </div>
-      </section>
+            
+            <motion.div 
+              className="space-y-4"
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+            >
+              {[
+                {
+                  question: "How long does a typical project take?",
+                  answer: "Project timelines depend on scope and architectural complexity. Marketing platforms typically ship in 2–4 weeks, while custom SaaS and AI applications take 8–16 weeks with weekly milestone releases."
+                },
+                {
+                  question: "Do you provide ongoing support after launch?",
+                  answer: "Yes. We offer dedicated SLA retainers covering proactive security updates, cloud scaling, telemetry monitoring, and continuous feature iteration."
+                },
+                {
+                  question: "What is your development process?",
+                  answer: "We follow a transparent agile cadence: Architecture & Discovery → Apple-grade UI/UX Prototyping → Iterative Engineering Sprints → Automated QA → Zero-downtime Deployment."
+                },
+                {
+                  question: "Do you work with international clients?",
+                  answer: "Absolutely. We partner with founders and enterprises across North America, Europe, Asia, and Oceania with overlapping synchronous communication windows."
+                }
+              ].map((faq, index) => (
+                <motion.div
+                  key={index}
+                  variants={itemVariants}
+                  className="apple-card p-6 md:p-7"
+                >
+                  <h3 className="text-[17px] font-bold tracking-[-0.015em] text-[var(--text-primary)] mb-2">
+                    {faq.question}
+                  </h3>
+                  <p className="text-[14px] text-[var(--text-secondary)] leading-relaxed">
+                    {faq.answer}
+                  </p>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+        </section>
+
+        <ModernCTA
+          title="Ready to Start Your Project?"
+          subtitle="Let's architect and ship something extraordinary together."
+          primaryText="Get Free Quote"
+          primaryLink="#contact-form"
+          secondaryText="Explore Services"
+          secondaryLink="/services"
+        />
       </PageLayout>
     </>
   );

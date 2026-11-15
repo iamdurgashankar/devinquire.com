@@ -1,32 +1,49 @@
-// Shared UI components for consistent styling across all pages
-import React from 'react';
-import { motion } from 'framer-motion';
-import { componentStyles, sectionSpacing, containers } from '../../styles/constants';
-import { fadeInUp, scaleIn, cardHover, buttonHover, defaultViewport } from '../../utils/animations';
-import { responsiveContainers, responsiveSpacing, responsiveTypography, responsiveComponents } from '../../utils/responsive';
+// Shared Apple System UI components for consistent styling across all pages
+import React from "react";
+import { motion } from "framer-motion";
+import { componentStyles } from "../../styles/constants";
+import {
+  fadeInUp,
+  scaleIn,
+  cardHover,
+  buttonHover,
+  defaultViewport,
+} from "../../utils/animations";
+import {
+  responsiveContainers,
+  responsiveSpacing,
+  responsiveTypography,
+  responsiveComponents,
+} from "../../utils/responsive";
 
-// Reusable Section Container
-export const Section = ({ children, spacing = 'large', container = 'standard', className = '', ...props }) => {
+export const Section = ({
+  children,
+  spacing = "large",
+  container = "standard",
+  className = "",
+  ...props
+}) => {
   const getSpacingClass = () => {
     switch (spacing) {
-      case 'small': return responsiveSpacing.sectionPaddingSmall;
-      case 'large': return responsiveSpacing.sectionPaddingLarge;
-      default: return responsiveSpacing.sectionPadding;
+      case "small":
+        return responsiveSpacing.sectionPaddingSmall;
+      case "large":
+        return responsiveSpacing.sectionPaddingLarge;
+      default:
+        return responsiveSpacing.sectionPadding;
     }
   };
-  
-  const containerClass = responsiveContainers[container] || responsiveContainers.standard;
-  
+
+  const containerClass =
+    responsiveContainers[container] || responsiveContainers.standard;
+
   return (
     <section className={`${getSpacingClass()} ${className}`} {...props}>
-      <div className={containerClass}>
-        {children}
-      </div>
+      <div className={containerClass}>{children}</div>
     </section>
   );
 };
 
-// Animated Section with consistent motion
 export const AnimatedSection = ({ children, delay = 0, ...props }) => {
   const animationVariant = {
     ...fadeInUp,
@@ -34,9 +51,9 @@ export const AnimatedSection = ({ children, delay = 0, ...props }) => {
       ...fadeInUp.visible,
       transition: {
         ...fadeInUp.visible.transition,
-        delay
-      }
-    }
+        delay,
+      },
+    },
   };
 
   return (
@@ -46,43 +63,56 @@ export const AnimatedSection = ({ children, delay = 0, ...props }) => {
       whileInView="visible"
       viewport={defaultViewport}
     >
-      <Section {...props}>
-        {children}
-      </Section>
+      <Section {...props}>{children}</Section>
     </motion.div>
   );
 };
 
-// Consistent Card Component
-export const Card = ({ children, hover = true, padding = 'default', className = '', ...props }) => {
-  const baseClasses = componentStyles.card.base;
+export const Card = ({
+  children,
+  hover = true,
+  padding = "default",
+  className = "",
+  ...props
+}) => {
+  const baseClasses = "apple-card";
   const getPaddingClass = () => {
     switch (padding) {
-      case 'small': return responsiveComponents.cardPaddingSmall;
-      case 'large': return responsiveComponents.cardPaddingLarge;
-      default: return responsiveComponents.cardPadding;
+      case "small":
+        return responsiveComponents.cardPaddingSmall;
+      case "large":
+        return responsiveComponents.cardPaddingLarge;
+      default:
+        return responsiveComponents.cardPadding;
     }
   };
-  const hoverClasses = hover ? componentStyles.card.hover : '';
-  
+  const hoverClasses = hover ? "apple-card-interactive" : "";
+
   return (
-    <div className={`${baseClasses} ${getPaddingClass()} ${hoverClasses} ${className}`} {...props}>
+    <div
+      className={`${baseClasses} ${getPaddingClass()} ${hoverClasses} ${className}`}
+      {...props}
+    >
       {children}
     </div>
   );
 };
 
-// Animated Card
-export const AnimatedCard = ({ children, delay = 0, hover = true, ...props }) => {
+export const AnimatedCard = ({
+  children,
+  delay = 0,
+  hover = true,
+  ...props
+}) => {
   const animationVariant = {
     ...fadeInUp,
     visible: {
       ...fadeInUp.visible,
       transition: {
         ...fadeInUp.visible.transition,
-        delay
-      }
-    }
+        delay,
+      },
+    },
   };
 
   return (
@@ -96,7 +126,7 @@ export const AnimatedCard = ({ children, delay = 0, hover = true, ...props }) =>
         initial: "hidden",
         whileInView: "visible",
         whileHover: "hover",
-        animate: "rest"
+        animate: "rest",
       })}
     >
       <Card hover={hover} {...props}>
@@ -106,13 +136,19 @@ export const AnimatedCard = ({ children, delay = 0, hover = true, ...props }) =>
   );
 };
 
-// Consistent Button Components
-export const Button = ({ variant = 'primary', children, className = '', animated = true, ...props }) => {
-  const variantClasses = componentStyles.button[variant] || componentStyles.button.primary;
-  
+export const Button = ({
+  variant = "primary",
+  children,
+  className = "",
+  animated = true,
+  ...props
+}) => {
+  const variantClasses =
+    componentStyles.button[variant] || componentStyles.button.primary;
+
   if (animated) {
     return (
-      <motion.button 
+      <motion.button
         className={`${variantClasses} ${className}`}
         variants={buttonHover}
         initial="rest"
@@ -124,7 +160,7 @@ export const Button = ({ variant = 'primary', children, className = '', animated
       </motion.button>
     );
   }
-  
+
   return (
     <button className={`${variantClasses} ${className}`} {...props}>
       {children}
@@ -132,35 +168,52 @@ export const Button = ({ variant = 'primary', children, className = '', animated
   );
 };
 
-// Consistent Input Component
-export const Input = ({ className = '', ...props }) => {
+export const Input = ({ className = "", ...props }) => {
   return (
-    <input className={`${componentStyles.input.base} ${className}`} {...props} />
+    <input
+      className={`${componentStyles.input.base} ${className}`}
+      {...props}
+    />
   );
 };
 
-// Consistent Textarea Component
-export const Textarea = ({ className = '', ...props }) => {
+export const Textarea = ({ className = "", ...props }) => {
   return (
-    <textarea className={`${componentStyles.input.base} ${className}`} {...props} />
+    <textarea
+      className={`${componentStyles.input.base} ${className}`}
+      {...props}
+    />
   );
 };
 
-// Section Title Component
-export const SectionTitle = ({ title, subtitle, centered = true, className = '' }) => {
-  const alignmentClass = centered ? 'text-center' : '';
-  
+export const SectionTitle = ({
+  title,
+  subtitle,
+  centered = true,
+  className = "",
+}) => {
+  const alignmentClass = centered ? "text-center" : "";
+
   return (
-    <div className={`${responsiveSpacing.marginBottomLarge} ${alignmentClass} ${className}`}>
-      <h2 className={`${responsiveTypography.sectionTitle} text-gray-900 mb-4`}>{title}</h2>
+    <div
+      className={`${responsiveSpacing.marginBottomLarge} ${alignmentClass} ${className}`}
+    >
+      <h2
+        className={`${responsiveTypography.sectionTitle} tracking-[-0.025em] text-[var(--apple-text-primary)] mb-4`}
+      >
+        {title}
+      </h2>
       {subtitle && (
-        <p className={`${responsiveTypography.sectionSubtitle} text-gray-600 max-w-3xl mx-auto`}>{subtitle}</p>
+        <p
+          className={`${responsiveTypography.sectionSubtitle} text-[var(--apple-text-secondary)] max-w-3xl mx-auto`}
+        >
+          {subtitle}
+        </p>
       )}
     </div>
   );
 };
 
-// Animated Section Title
 export const AnimatedSectionTitle = ({ delay = 0, ...props }) => {
   const animationVariant = {
     ...fadeInUp,
@@ -168,9 +221,9 @@ export const AnimatedSectionTitle = ({ delay = 0, ...props }) => {
       ...fadeInUp.visible,
       transition: {
         ...fadeInUp.visible.transition,
-        delay
-      }
-    }
+        delay,
+      },
+    },
   };
 
   return (
@@ -185,25 +238,29 @@ export const AnimatedSectionTitle = ({ delay = 0, ...props }) => {
   );
 };
 
-// Grid Container for consistent layouts
-export const Grid = ({ cols = 3, children, className = '', responsive = true }) => {
+export const Grid = ({
+  cols = 3,
+  children,
+  className = "",
+  responsive = true,
+}) => {
   const getGridClasses = () => {
     if (!responsive) {
       return `grid grid-cols-${cols}`;
     }
-    
+
     switch (cols) {
       case 2:
-        return 'grid grid-cols-1 lg:grid-cols-2';
+        return "grid grid-cols-1 lg:grid-cols-2";
       case 3:
-        return 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
+        return "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3";
       case 4:
-        return 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4';
+        return "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4";
       default:
-        return 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
+        return "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3";
     }
   };
-  
+
   return (
     <div className={`${getGridClasses()} ${responsiveSpacing.gap} ${className}`}>
       {children}
@@ -211,19 +268,20 @@ export const Grid = ({ cols = 3, children, className = '', responsive = true }) 
   );
 };
 
-// Stats Component for consistent number displays
-export const StatCard = ({ number, label, suffix = '', className = '' }) => {
+export const StatCard = ({ number, label, suffix = "", className = "" }) => {
   return (
-    <div className={`text-center ${className}`}>
-      <div className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#4e45e1] mb-2">
-        {number}{suffix}
+    <div className={`apple-card p-6 text-center ${className}`}>
+      <div className="text-3xl md:text-4xl font-bold tracking-tight text-[var(--apple-blue)] mb-1.5">
+        {number}
+        {suffix}
       </div>
-      <div className={`${responsiveTypography.bodyBase} text-gray-600 font-medium`}>{label}</div>
+      <div className="text-[13px] font-medium text-[var(--apple-text-secondary)]">
+        {label}
+      </div>
     </div>
   );
 };
 
-// Animated Stats
 export const AnimatedStatCard = ({ delay = 0, ...props }) => {
   const animationVariant = {
     ...scaleIn,
@@ -231,9 +289,9 @@ export const AnimatedStatCard = ({ delay = 0, ...props }) => {
       ...scaleIn.visible,
       transition: {
         ...scaleIn.visible.transition,
-        delay
-      }
-    }
+        delay,
+      },
+    },
   };
 
   return (
@@ -248,21 +306,37 @@ export const AnimatedStatCard = ({ delay = 0, ...props }) => {
   );
 };
 
-// Feature Card for services/products
-export const FeatureCard = ({ icon: Icon, title, description, features = [], className = '' }) => {
+export const FeatureCard = ({
+  icon: Icon,
+  title,
+  description,
+  features = [],
+  className = "",
+}) => {
   return (
     <Card className={className}>
       <div className="text-center">
-        <div className={`${responsiveComponents.iconSizeLarge} bg-[#4e45e1] rounded-full flex items-center justify-center mx-auto mb-6`}>
-          <Icon className={`${responsiveComponents.iconSize} text-white`} />
+        <div className="w-14 h-14 rounded-2xl bg-gradient-to-b from-[#6B63F2] to-[#4e45e1] shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_8px_20px_-4px_rgba(78,69,225,0.4)] flex items-center justify-center mx-auto mb-6">
+          <Icon className="w-7 h-7 text-white badge-white" />
         </div>
-        <h3 className={`${responsiveTypography.cardTitle} text-gray-900 mb-4`}>{title}</h3>
-        <p className={`${responsiveTypography.bodyBase} text-gray-600 mb-6`}>{description}</p>
+        <h3
+          className={`${responsiveTypography.cardTitle} text-[var(--apple-text-primary)] mb-3`}
+        >
+          {title}
+        </h3>
+        <p
+          className={`${responsiveTypography.bodyBase} text-[var(--apple-text-secondary)] mb-6`}
+        >
+          {description}
+        </p>
         {features.length > 0 && (
           <ul className="text-left space-y-2">
             {features.map((feature, index) => (
-              <li key={index} className={`flex items-center ${responsiveTypography.bodySmall} text-gray-700`}>
-                <div className="w-2 h-2 bg-[#4e45e1] rounded-full mr-3 flex-shrink-0"></div>
+              <li
+                key={index}
+                className={`flex items-center ${responsiveTypography.bodySmall} text-[var(--apple-text-secondary)]`}
+              >
+                <div className="w-1.5 h-1.5 bg-[var(--apple-blue)] rounded-full mr-3 flex-shrink-0" />
                 {feature}
               </li>
             ))}
@@ -273,7 +347,6 @@ export const FeatureCard = ({ icon: Icon, title, description, features = [], cla
   );
 };
 
-// Animated Feature Card
 export const AnimatedFeatureCard = ({ delay = 0, ...props }) => {
   const animationVariant = {
     ...fadeInUp,
@@ -281,9 +354,9 @@ export const AnimatedFeatureCard = ({ delay = 0, ...props }) => {
       ...fadeInUp.visible,
       transition: {
         ...fadeInUp.visible.transition,
-        delay
-      }
-    }
+        delay,
+      },
+    },
   };
 
   return (

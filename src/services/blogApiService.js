@@ -127,8 +127,7 @@ class BlogApiService {
       console.warn('[BlogAPI] Dashboard public API also unreachable:', err.message);
     }
 
-    // 3. Last Resort Mock Data
-    return this.getMockPosts();
+    return [];
   }
 
   /**
@@ -166,10 +165,7 @@ class BlogApiService {
       console.warn(`[BlogAPI] Dashboard blog_detail API failed:`, err.message);
     }
 
-    // 3. Fallback: Search inside mock posts or all posts
-    const mockPosts = this.getMockPosts();
-    const found = mockPosts.find(p => String(p.id) === String(identifier) || p.slug === identifier);
-    return found ? this.normalizePost(found) : null;
+    return null;
   }
 
   /**
@@ -215,44 +211,6 @@ class BlogApiService {
       published_at: post.published_at || post.created_at || new Date().toISOString(),
       created_at: post.created_at || new Date().toISOString()
     };
-  }
-
-  /**
-   * Mock posts for offline safety
-   */
-  getMockPosts() {
-    return [
-      {
-        id: 101,
-        title: 'Building Production-Grade Micro Frontends & AI Dashboards',
-        slug: 'building-production-grade-micro-frontends',
-        excerpt: 'Explore best practices for designing distributed web applications, state synchronization, and real-time management pipelines.',
-        content: 'Building scalable modern web architectures requires clean decoupling between presentation layers and backend services...\n\n### Key Principles\n1. Resilient State Management\n2. Webhook Event Pipelines\n3. High-Performance API Caching',
-        author_name: 'DevInquire Architecture Team',
-        category_name: 'Engineering',
-        category_slug: 'engineering',
-        featured_image: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1000&q=80',
-        read_time: 6,
-        tags: ['react', 'node', 'architecture', 'dashboard'],
-        published_at: new Date().toISOString(),
-        created_at: new Date().toISOString()
-      },
-      {
-        id: 102,
-        title: 'Optimizing Core Web Vitals for Modern React Applications',
-        slug: 'optimizing-core-web-vitals-react',
-        excerpt: 'Learn how to streamline Largest Contentful Paint (LCP) and Interaction to Next Paint (INP) for lightning-fast digital experiences.',
-        content: 'Core Web Vitals are critical metrics for search rankings and user satisfaction. In this guide, we walk through modern image optimization, code splitting, and DOM render strategies.',
-        author_name: 'Performance Lead',
-        category_name: 'Performance',
-        category_slug: 'performance',
-        featured_image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1000&q=80',
-        read_time: 5,
-        tags: ['performance', 'web-vitals', 'react', 'seo'],
-        published_at: new Date().toISOString(),
-        created_at: new Date().toISOString()
-      }
-    ];
   }
 }
 

@@ -1,93 +1,173 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Globe, BarChart3, ShoppingCart, Bot, Smartphone, Shield } from "lucide-react";
-import PageLayout from '../components/PageLayout';
-import Banner728x98 from '../components/Banner728x98';
-import SEO from '../components/SEO';
-import ModernCTA from '../components/ModernCTA';
-import { responsiveTypography, responsiveSpacing, responsiveContainers } from '../utils/responsive';
+import {
+  Globe,
+  BarChart3,
+  ShoppingCart,
+  Bot,
+  Smartphone,
+  Shield,
+  CheckCircle2,
+  ArrowRight,
+} from "lucide-react";
+import PageLayout from "../components/PageLayout";
+import SEO from "../components/SEO";
+import ModernCTA from "../components/ModernCTA";
+import { responsiveSpacing, responsiveContainers } from "../utils/responsive";
 
-// Product Images
-import cmsImg from '../images/products/cms.png';
-import analyticsImg from '../images/products/analytics.png';
-import ecommerceImg from '../images/products/ecommerce.png';
-import aiBotImg from '../images/products/ai-bot.png';
-import mobileImg from '../images/services/mobile-dev.png'; // Reusing mobile dev for framework
-import securityImg from '../images/products/security.png';
+// Product Real Stock Images
+import cmsImg from "../images/stock/headless-cms-platform.jpg";
+import analyticsImg from "../images/stock/data-analytics-suite.jpg";
+import ecommerceImg from "../images/stock/ecommerce-suite-platform.jpg";
+import aiBotImg from "../images/stock/ai-chatbot-assistant.jpg";
+import mobileImg from "../images/stock/mobile-app-framework.jpg";
+import securityImg from "../images/stock/cybersecurity-shield-platform.jpg";
 
 const products = [
   {
     image: cmsImg,
     icon: Globe,
+    tint: "from-[#6B63F2] to-[#4e45e1]",
     title: "DevInquire CMS",
-    description: "A powerful content management system built for modern websites",
-    features: ["Drag & Drop Editor", "SEO Optimization", "Multi-language Support", "Custom Themes", "Analytics Dashboard", "API Integration"],
+    description:
+      "A high-velocity headless content management system built for modern digital publishing.",
+    features: [
+      "Visual Block Editor",
+      "Automated SEO Metadata",
+      "Multi-Locale Publishing",
+      "Edge Webhook Sync",
+      "Editorial Analytics",
+      "REST & GraphQL API",
+    ],
     category: "Software",
     status: "Available",
-    technologies: ["React", "Node.js", "MongoDB", "AWS"]
+    technologies: ["React", "Node.js", "PostgreSQL", "AWS"],
   },
   {
     image: analyticsImg,
     icon: BarChart3,
+    tint: "from-[#30D158] to-[#248A3D]",
     title: "Analytics Pro",
-    description: "Advanced analytics platform for tracking website performance and user behavior",
-    features: ["Real-time Analytics", "Custom Reports", "User Journey Tracking", "A/B Testing", "Conversion Optimization", "Data Export"],
+    description:
+      "Privacy-first telemetry platform for tracking real-time web performance and conversion funnels.",
+    features: [
+      "Real-time Event Stream",
+      "Custom Executive Reports",
+      "User Journey Attribution",
+      "A/B Experimentation",
+      "Funnel Optimization",
+      "One-Click CSV/JSON Export",
+    ],
     category: "Analytics",
     status: "Available",
-    technologies: ["React", "Python", "PostgreSQL", "Redis"]
+    technologies: ["React", "Python", "PostgreSQL", "Redis"],
   },
   {
     image: ecommerceImg,
     icon: ShoppingCart,
+    tint: "from-[#FF9F0A] to-[#FF9500]",
     title: "E-Commerce Suite",
-    description: "Complete e-commerce solution with payment processing and inventory management",
-    features: ["Product Catalog", "Payment Gateway", "Inventory Management", "Order Tracking", "Customer Portal", "Mobile App"],
+    description:
+      "Complete digital commerce engine with global payment processing and live inventory control.",
+    features: [
+      "Dynamic Product Catalog",
+      "Stripe & Apple Pay Ready",
+      "Multi-Warehouse Inventory",
+      "Real-Time Order Tracking",
+      "Customer Loyalty Portal",
+      "Mobile Storefront",
+    ],
     category: "E-Commerce",
     status: "Available",
-    technologies: ["React", "Stripe", "Node.js", "MongoDB"]
+    technologies: ["React", "Stripe", "Node.js", "PostgreSQL"],
   },
   {
     image: aiBotImg,
     icon: Bot,
+    tint: "from-[#BF5AF2] via-[#5E5CE6] to-[#4e45e1]",
     title: "AI Chatbot Builder",
-    description: "Intelligent chatbot platform for customer support and lead generation",
-    features: ["Natural Language Processing", "Multi-channel Support", "Custom Training", "Analytics", "Integration APIs", "24/7 Support"],
+    description:
+      "Intelligent conversational AI platform for 24/7 customer support and automated lead intake.",
+    features: [
+      "Gemini & LLM Grounding",
+      "Omnichannel Deployment",
+      "Custom Knowledge Base",
+      "Sentiment Telemetry",
+      "Webhook Integrations",
+      "24/7 Autonomous Triage",
+    ],
     category: "AI/ML",
     status: "Available",
-    technologies: ["Python", "TensorFlow", "React", "WebSocket"]
+    technologies: ["Node.js", "Gemini AI", "React", "WebSockets"],
   },
   {
     image: mobileImg,
     icon: Smartphone,
+    tint: "from-[#5E5CE6] to-[#3634A3]",
     title: "Mobile App Framework",
-    description: "Cross-platform mobile development framework for rapid app creation",
-    features: ["Cross-platform", "Native Performance", "UI Components", "Push Notifications", "Offline Support", "App Store Ready"],
+    description:
+      "Cross-platform mobile starter kit engineered with native gestures and offline-first storage.",
+    features: [
+      "iOS & Android Parity",
+      "60fps Native Animations",
+      "Apple HIG Component Kit",
+      "Push Notification Hub",
+      "Offline SQLite Sync",
+      "App Store Fast-Track",
+    ],
     category: "Mobile",
     status: "Beta",
-    technologies: ["React Native", "Flutter", "MySQL", "AWS"]
+    technologies: ["React Native", "Swift", "TypeScript", "AWS"],
   },
   {
     image: securityImg,
     icon: Shield,
+    tint: "from-[#FF375F] to-[#D70015]",
     title: "Security Shield",
-    description: "Comprehensive security solution for web applications and APIs",
-    features: ["Threat Detection", "SSL Management", "Access Control", "Audit Logs", "Compliance Reports", "Real-time Monitoring"],
+    description:
+      "Zero-trust security and rate-limiting suite for enterprise web applications and APIs.",
+    features: [
+      "Anomaly Threat Detection",
+      "Automated TLS/SSL",
+      "Role-Based Access Guard",
+      "Immutable Audit Logs",
+      "SOC2 Readiness Reports",
+      "Real-Time Alerting",
+    ],
     category: "Security",
     status: "Coming Soon",
-    technologies: ["Node.js", "Redis", "Docker", "Kubernetes"]
-  }
+    technologies: ["Node.js", "Redis", "Docker", "Cloudflare"],
+  },
 ];
 
-const categories = ["All", "Software", "Analytics", "E-Commerce", "AI/ML", "Mobile", "Security"];
+const categories = [
+  "All",
+  "Software",
+  "Analytics",
+  "E-Commerce",
+  "AI/ML",
+  "Mobile",
+  "Security",
+];
 
 export default function Products() {
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  // Filter products based on selected category
-  const filteredProducts = selectedCategory === "All"
-    ? products
-    : products.filter(product => product.category === selectedCategory);
+  const filteredProducts =
+    selectedCategory === "All"
+      ? products
+      : products.filter((product) => product.category === selectedCategory);
+
+  const getStatusBadgeStyle = (status) => {
+    if (status === "Available") {
+      return "bg-[#28CD41]/15 text-[#28CD41] border border-[#28CD41]/30";
+    }
+    if (status === "Beta") {
+      return "bg-[#FF9500]/15 text-[#FF9500] border border-[#FF9500]/30";
+    }
+    return "apple-subcard text-[var(--apple-text-secondary)]";
+  };
 
   return (
     <>
@@ -101,128 +181,120 @@ export default function Products() {
         ogUrl="https://devinquire.com/products"
       />
       <PageLayout
+        badge="Product Suite"
         title="Our Products"
-        subtitle="Innovative software solutions designed to accelerate your business growth. From content management to AI-powered tools, we've got you covered."
+        subtitle="Turnkey software platforms engineered to accelerate your business velocity—from headless CMS to autonomous AI agents."
       >
-
-        {/* Categories */}
-        <section className="py-8 bg-white border-b border-gray-200 relative overflow-hidden">
-          {/* Background decoration */}
-          <div className="absolute inset-0">
-            <div className="absolute top-1/2 left-10 w-16 h-16 bg-blue-100/50 rounded-full blur-2xl"></div>
-            <div className="absolute top-1/2 right-10 w-20 h-20 bg-purple-100/50 rounded-full blur-2xl"></div>
-          </div>
-
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-wrap gap-4 justify-center">
-              {categories.map((category, index) => (
-                <button
-                  key={index}
-                  onClick={() => setSelectedCategory(category)}
-                  className={`group relative px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 ${selectedCategory === category
-                      ? 'bg-[#4e45e1] text-white shadow-lg'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+        {/* Apple Segmented Filter Bar */}
+        <section className="py-3 sticky top-[68px] z-30">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-start">
+            <div className="inline-flex flex-wrap gap-1.5 p-1.5 rounded-2xl apple-glass">
+              {categories.map((category) => {
+                const active = selectedCategory === category;
+                return (
+                  <button
+                    key={category}
+                    onClick={() => setSelectedCategory(category)}
+                    className={`px-4 py-1.5 rounded-full text-[13px] font-medium transition-all duration-200 ${
+                      active
+                        ? "bg-[var(--apple-blue)] text-white shadow-sm badge-white"
+                        : "text-[var(--apple-text-secondary)] hover:text-[var(--apple-text-primary)]"
                     }`}
-                >
-                  {category}
-                  {selectedCategory === category && (
-                    <div className="absolute inset-0 bg-[#4e45e1] rounded-full blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
-                  )}
-                </button>
-              ))}
+                  >
+                    {category}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </section>
 
-        {/* Products Grid */}
-        <section className={`${responsiveSpacing.sectionPadding} relative`}>
-          {/* Background decoration */}
-          <div className="absolute inset-0">
-            <div className="absolute top-20 left-20 w-32 h-32 bg-blue-100/50 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-20 right-20 w-40 h-40 bg-purple-100/50 rounded-full blur-3xl"></div>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-yellow-100/30 rounded-full blur-3xl"></div>
-          </div>
-
+        {/* Products Bento Grid */}
+        <section className="pt-4 pb-16 md:pb-20 relative">
           <div className={`relative ${responsiveContainers.standard}`}>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
               {filteredProducts.map((product, index) => (
                 <motion.div
-                  key={index}
+                  key={product.title}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 border border-gray-100 overflow-hidden relative"
+                  transition={{ duration: 0.45, delay: index * 0.08 }}
+                  className="apple-card apple-card-interactive overflow-hidden flex flex-col group"
                 >
-                  {/* Product Image Header */}
-                  <div className="h-48 overflow-hidden relative">
-                    <motion.img
+                  <div className="h-48 overflow-hidden relative border-b border-[var(--apple-border)] bg-[var(--apple-surface-subcard)]">
+                    <img
                       src={product.image}
-                      alt={product.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      alt={`${product.title} - ${product.description}`}
+                      title={`${product.title} by DevInquire`}
+                      width="900"
+                      height="600"
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent opacity-60"></div>
-
-                    {/* Status Badge moved inside image area for better look */}
-                    <div className="absolute top-4 right-4 z-20">
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${product.status === 'Available' ? 'bg-green-500 text-white' :
-                          product.status === 'Beta' ? 'bg-yellow-500 text-white' :
-                            'bg-gray-500 text-white'
-                        }`}>
+                    <div
+                      className={`absolute top-4 left-4 w-10 h-10 rounded-[12px] bg-gradient-to-b ${product.tint} flex items-center justify-center shadow-md`}
+                    >
+                      <product.icon className="w-5 h-5 text-white badge-white" />
+                    </div>
+                    <div className="absolute top-4 right-4">
+                      <span
+                        className={`px-3 py-1 rounded-full text-[11px] font-semibold backdrop-blur-md ${getStatusBadgeStyle(
+                          product.status
+                        )}`}
+                      >
                         {product.status}
                       </span>
                     </div>
                   </div>
 
-                  <div className="relative z-10 p-8 -mt-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <motion.div
-                        className="p-3 bg-blue-50 rounded-xl text-blue-600"
-                        whileHover={{ scale: 1.1 }}
-                      >
-                        <product.icon className="w-6 h-6" />
-                      </motion.div>
+                  <div className="p-7 flex-1 flex flex-col">
+                    <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--apple-blue)] mb-1">
+                      {product.category}
                     </div>
-                    <h3 className={`${responsiveTypography.cardTitle} text-gray-900 mb-2 group-hover:text-[#4e45e1] transition-colors duration-300`}>{product.title}</h3>
-                    <p className={`${responsiveTypography.bodyBase} text-gray-600 mb-6 line-clamp-2`}>{product.description}</p>
+                    <h3 className="text-xl font-bold text-[var(--apple-text-primary)] mb-2">
+                      {product.title}
+                    </h3>
+                    <p className="text-[14px] text-[var(--apple-text-secondary)] mb-6 leading-relaxed">
+                      {product.description}
+                    </p>
 
-                    <div className="mb-6">
-                      <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
-                        <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-                        Key Features:
+                    <div className="mb-6 flex-1">
+                      <h4 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--apple-text-tertiary)] mb-3">
+                        Key Capabilities
                       </h4>
                       <ul className="space-y-2">
                         {product.features.map((feature, featureIndex) => (
-                          <li key={featureIndex} className="flex items-center text-sm text-gray-600 group-hover:text-gray-700 transition-colors duration-300">
-                            <svg className="w-4 h-4 text-green-500 mr-2 flex-shrink-0 group-hover:scale-110 transition-transform duration-300" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
+                          <li
+                            key={featureIndex}
+                            className="flex items-center text-[13px] text-[var(--apple-text-secondary)]"
+                          >
+                            <CheckCircle2 className="w-4 h-4 text-[#28CD41] mr-2.5 shrink-0" />
                             {feature}
                           </li>
                         ))}
                       </ul>
                     </div>
 
-                    <div className="mb-6">
-                      <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
-                        <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-                        Technologies:
-                      </h4>
-                      <div className="flex flex-wrap gap-2">
-                        {product.technologies.map((tech, techIndex) => (
-                          <span key={techIndex} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full group-hover:bg-blue-100 group-hover:text-blue-700 transition-colors duration-300">
-                            {tech}
-                          </span>
-                        ))}
-                      </div>
+                    <div className="mb-6 flex flex-wrap gap-1.5">
+                      {product.technologies.map((tech, techIndex) => (
+                        <span
+                          key={techIndex}
+                          className="px-2.5 py-1 apple-subcard text-[var(--apple-text-secondary)] text-[11px] font-medium rounded-full"
+                        >
+                          {tech}
+                        </span>
+                      ))}
                     </div>
 
-                    <div className="pt-6 border-t border-gray-100">
+                    <div className="pt-4 border-t border-[var(--apple-border)]">
                       <Link
                         to="/contact"
-                        className="w-full bg-[#4e45e1] hover:bg-[#4139BF] text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 group-hover:shadow-lg text-center block"
+                        className="w-full apple-pill-btn py-2.5 px-5 rounded-full font-semibold text-[13px] inline-flex items-center justify-center gap-1.5 group/btn"
                       >
-                        Get Started
+                        <span className="badge-white">Request Demo</span>
+                        <ArrowRight className="w-3.5 h-3.5 badge-white group-hover/btn:translate-x-0.5 transition-transform" />
                       </Link>
                     </div>
                   </div>
@@ -232,12 +304,12 @@ export default function Products() {
           </div>
         </section>
 
-        <ModernCTA 
-          title="Ready to Transform Your Business?"
-          subtitle="Join thousands of businesses already using our products to streamline operations and drive growth."
-          primaryText="Contact Sales"
+        <ModernCTA
+          title="Ready to Transform Your Workflow?"
+          subtitle="Deploy our turnkey platforms or customize them for your enterprise infrastructure."
+          primaryText="Contact Product Sales"
           primaryLink="/contact"
-          secondaryText="View Our Services"
+          secondaryText="View Engineering Services"
           secondaryLink="/services"
         />
       </PageLayout>

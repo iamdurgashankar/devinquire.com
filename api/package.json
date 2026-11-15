@@ -14,17 +14,17 @@
     "prod": "NODE_ENV=production PORT=8000 node server.js"
   },
   "dependencies": {
-    "@supabase/server": "^1.2.0",
-    "@supabase/supabase-js": "^2.43.4",
+    "@supabase/server": "^1.9.2",
+    "@supabase/supabase-js": "^2.119.0",
     "bcryptjs": "^2.4.3",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "express-rate-limit": "^7.3.1",
-    "helmet": "^7.1.0",
-    "jsonwebtoken": "^9.0.2",
-    "morgan": "^1.10.0",
-    "mysql2": "^3.10.1",
-    "nodemailer": "^6.9.14"
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.10",
+    "express": "^5.3.0",
+    "express-rate-limit": "^8.7.4",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "morgan": "^1.12.1",
+    "mysql2": "^3.24.6",
+    "nodemailer": "^10.5.0"
   }
 }

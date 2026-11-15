@@ -1,7 +1,8 @@
 import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-// API service removed - using PHP backend directly
+import { ArrowLeft, Clock, Calendar, Tag, RefreshCw, BookOpen } from "lucide-react";
 import SEO from '../components/SEO';
+import ModernCTA from '../components/ModernCTA';
 import blogApiService from '../services/blogApiService';
 
 export default function BlogPost() {
@@ -19,7 +20,6 @@ export default function BlogPost() {
       setLoading(true);
       setError(null);
       
-      // Fetch post by slug or ID from external dashboard API
       const postData = await blogApiService.getPost(id);
       
       if (postData) {
@@ -64,10 +64,10 @@ export default function BlogPost() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center pt-24">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading blog post...</p>
+          <div className="animate-spin rounded-full h-10 w-10 border-2 border-[#007AFF] border-t-transparent mx-auto mb-4"></div>
+          <p className="text-[14px] text-[var(--text-secondary)]">Loading article...</p>
         </div>
       </div>
     );
@@ -75,29 +75,33 @@ export default function BlogPost() {
 
   if (error || !post) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto px-4">
-          <div className="text-6xl mb-4">📝</div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            {error ? 'Error Loading Post' : 'Post Not Found'}
+      <div className="min-h-screen flex items-center justify-center pt-24 px-4">
+        <div className="apple-card p-10 text-center max-w-md w-full">
+          <div className="w-12 h-12 rounded-2xl bg-[#FF9500]/15 text-[#FF9500] flex items-center justify-center mx-auto mb-4">
+            <BookOpen className="w-6 h-6" />
+          </div>
+          <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
+            {error ? 'Unable to Load Article' : 'Article Not Found'}
           </h1>
-          <p className="text-gray-600 mb-6">
-            {error || 'The blog post you\'re looking for doesn\'t exist or has been removed.'}
+          <p className="text-[14px] text-[var(--text-secondary)] mb-6">
+            {error || 'The blog post you are looking for does not exist or has been archived.'}
           </p>
-          <div className="space-y-3">
+          <div className="flex flex-wrap gap-3 justify-center">
             {error && (
               <button
                 onClick={() => loadPost()}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 mr-3"
+                className="apple-pill-btn px-5 py-2.5 text-[14px]"
               >
-                Try Again
+                <RefreshCw className="w-4 h-4" />
+                <span>Try Again</span>
               </button>
             )}
             <Link
               to="/blog"
-              className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200"
+              className="apple-secondary-btn px-5 py-2.5 text-[14px]"
             >
-              Back to Blog
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Blog</span>
             </Link>
           </div>
         </div>
@@ -122,128 +126,109 @@ export default function BlogPost() {
         dateModified={post.updated_at || post.created_at}
         articleSection={post.category}
       />
-      <div className="min-h-screen bg-gray-50 pt-20">
-      {/* Hero Section */}
-      <section className="bg-[#4e45e1] text-white py-20 relative overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-white/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        </div>
-        
-        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="flex items-center justify-center space-x-4 mb-6">
+      <div className="min-h-screen pt-28 pb-16">
+        <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Back link */}
+          <div className="mb-8">
             <Link
               to="/blog"
-              className="text-blue-200 hover:text-white transition-colors duration-200 flex items-center space-x-2"
+              className="inline-flex items-center gap-2 text-[14px] font-medium text-[var(--text-secondary)] hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              <span>Back to Blog</span>
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Editorial Feed</span>
             </Link>
           </div>
-          
-          <div className="flex items-center justify-center space-x-4 mb-6">
-            <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-medium">
-              {post.category}
-            </span>
-            <span className="text-blue-200">•</span>
-            <span className="text-blue-200">{post.readTime || '5 min read'}</span>
-          </div>
-          
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
-            {post.title}
-          </h1>
-          
-          <p className="text-xl text-blue-100 max-w-3xl mx-auto mb-8">
-            {post.excerpt}
-          </p>
-          
-          <div className="flex items-center justify-center space-x-4">
-            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-white font-bold">
-              {(post.author_name || 'Admin User').split(' ').map(n => n[0]).join('')}
-            </div>
-            <div className="text-left">
-              <div className="font-medium text-white">{post.author_name || 'Admin User'}</div>
-              <div className="text-blue-200 text-sm">
+
+          {/* Article Header */}
+          <header className="mb-10">
+            <div className="flex flex-wrap items-center gap-3 mb-5">
+              <span className="px-3 py-1 rounded-full text-[12px] font-semibold bg-[#007AFF]/12 text-[#007AFF] dark:text-[#0A84FF]">
+                {post.category}
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-[13px] text-[var(--text-tertiary)]">
+                <Clock className="w-3.5 h-3.5" />
+                {post.readTime || '5 min read'}
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-[13px] text-[var(--text-tertiary)]">
+                <Calendar className="w-3.5 h-3.5" />
                 {post.created_at}
-              </div>
+              </span>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Featured Image */}
-      {post.featured_image && (
-        <section className="py-8 bg-white">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <img
-              src={post.featured_image}
-              alt={`Featured image for article: ${post.title}`}
-              className="w-full h-64 md:h-96 object-cover rounded-2xl shadow-lg"
-            />
-          </div>
-        </section>
-      )}
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-[-0.03em] text-[var(--text-primary)] leading-[1.12] mb-5">
+              {post.title}
+            </h1>
 
-      {/* Content */}
-      <section className="py-16 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="prose prose-lg max-w-none">
-            <div className="whitespace-pre-wrap text-gray-800 leading-relaxed">
-              {post.content}
-            </div>
-          </div>
-          
-          {/* Tags */}
-          {(post.tags || []).length > 0 && (
-            <div className="mt-12 pt-8 border-t border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Tags</h3>
-              <div className="flex flex-wrap gap-2">
-                {(post.tags || []).map((tag, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full hover:bg-blue-200 transition-colors duration-200"
-                  >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-          
-          {/* Author Info */}
-          <div className="mt-12 pt-8 border-t border-gray-200">
-            <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-[#4e45e1] rounded-full flex items-center justify-center text-white font-bold text-xl">
-                {(post.author_name || 'Admin User').split(' ').map(n => n[0]).join('')}
+            {post.excerpt && (
+              <p className="text-lg md:text-xl text-[var(--text-secondary)] leading-relaxed mb-8">
+                {post.excerpt}
+              </p>
+            )}
+
+            <div className="flex items-center gap-3.5 pt-4 border-t border-[var(--border-subtle)]">
+              <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#007AFF] to-[#5E5CE6] flex items-center justify-center text-white font-bold text-[14px]">
+                {(post.author_name || 'DevInquire Team').split(' ').map(n => n[0]).join('')}
               </div>
               <div>
-                <h3 className="text-xl font-semibold text-gray-900">{post.author_name || 'Admin User'}</h3>
-                <p className="text-gray-600">Author at DevInquire</p>
+                <div className="text-[15px] font-semibold text-[var(--text-primary)]">
+                  {post.author_name || 'DevInquire Team'}
+                </div>
+                <div className="text-[12px] text-[var(--text-tertiary)]">
+                  Engineering Editorial • DevInquire
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
+          </header>
 
-      {/* Related Posts */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">More Posts</h2>
-          <div className="text-center">
-            <Link
-              to="/blog"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200 inline-flex items-center space-x-2"
-            >
-              <span>View All Posts</span>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </Link>
+          {/* Featured Image */}
+          {post.featured_image && (
+            <div className="mb-10 rounded-[24px] overflow-hidden apple-card p-2">
+              <img
+                src={post.featured_image}
+                alt={`Featured visual for article: ${post.title}`}
+                className="w-full h-64 md:h-[420px] object-cover rounded-[18px]"
+              />
+            </div>
+          )}
+
+          {/* Reader Content Card */}
+          <div className="apple-card p-8 md:p-12 mb-10">
+            <div className="prose prose-lg max-w-none">
+              <div className="whitespace-pre-wrap text-[var(--text-primary)] leading-relaxed text-[16px]">
+                {post.content}
+              </div>
+            </div>
+
+            {/* Tags */}
+            {(post.tags || []).length > 0 && (
+              <div className="mt-10 pt-8 border-t border-[var(--border-subtle)]">
+                <div className="flex items-center gap-2 text-[13px] font-semibold text-[var(--text-secondary)] mb-3">
+                  <Tag className="w-4 h-4 text-[#007AFF]" />
+                  <span>Topics</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {(post.tags || []).map((tag, index) => (
+                    <span
+                      key={index}
+                      className="apple-subcard px-3 py-1 text-[13px] font-medium text-[var(--text-secondary)] rounded-full"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-      </section>
+        </article>
+
+        <ModernCTA
+          title="Enjoyed This Engineering Breakdown?"
+          subtitle="Explore more technical articles or speak directly with our systems architects."
+          primaryText="Browse All Articles"
+          primaryLink="/blog"
+          secondaryText="Start a Project"
+          secondaryLink="/contact"
+        />
       </div>
     </>
   );
