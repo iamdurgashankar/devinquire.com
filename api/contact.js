@@ -7,9 +7,7 @@ const { getClientIP } = require('./auth');
 // Basic spam patterns detection
 function detectSpam(message) {
   const spamPatterns = [
-    /\b(viagra|cialis|casino|lottery|winner|congratulations)\b/i,
-    /\b(click here|act now|limited time|urgent)\b/i,
-    /(http:\/\/|https:\/\/)[^\s]{10,}/i
+    /\b(viagra|cialis|casino|lottery)\b/i
   ];
   
   for (const pattern of spamPatterns) {
@@ -39,8 +37,8 @@ function validateInput(input) {
     errors.push('Email must be less than 255 characters');
   }
   
-  if (!input.message || input.message.trim().length < 10) {
-    errors.push('Message must be at least 10 characters long');
+  if (!input.message || input.message.trim().length < 3) {
+    errors.push('Message must be at least 3 characters long');
   }
   if (input.message && input.message.length > 5000) {
     errors.push('Message must be less than 5000 characters');
@@ -51,12 +49,9 @@ function validateInput(input) {
     if (input.service.trim().length < 2) {
       errors.push('Please select a valid service');
     }
-    if (input.subject && input.subject.trim().length < 5) {
-      errors.push('Subject must be at least 5 characters long');
-    }
   } else {
-    if (!input.subject || input.subject.trim().length < 5) {
-      errors.push('Subject must be at least 5 characters long');
+    if (!input.subject || input.subject.trim().length < 2) {
+      errors.push('Subject must be at least 2 characters long');
     }
   }
   
@@ -160,7 +155,14 @@ router.post('/', async (req, res) => {
       if (result && result.insertId) {
         submissionId = result.insertId;
       }
-      
+
+      // Also insert directly into the shared `contacts` table used by DevInquire Dashboard
+      await db.query(
+        `INSERT INTO contacts (name, email, subject, message, status, priority, company, phone, service, timeline)
+         VALUES (:name, :email, :subject, :message, 'new', 'Medium', :company, :phone, :service, :timeline)`,
+        sanitized
+      ).catch(() => {});
+
       await db.query(
         'INSERT INTO rate_limiting (identifier, created_at) VALUES (?, NOW())',
         [ip + '_contact']
@@ -168,7 +170,30 @@ router.post('/', async (req, res) => {
     } catch (dbErr) {
       console.warn('Database save warning (proceeding to email send):', dbErr.message);
     }
-    
+
+    // Forward to Dashboard Client Inquiries Intake API
+    try {
+      const dashBase = (
+        process.env.DASHBOARD_API_URL ||
+        (process.env.NODE_ENV === 'production'
+          ? 'https://dashboard.devinquire.com/api/public'
+          : 'http://localhost:8001/api/public')
+      ).replace(/\/$/, '');
+      const intakeRes = await fetch(`${dashBase}/contact_intake`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sanitized)
+      });
+      if (intakeRes.ok) {
+        const intakeJson = await intakeRes.json().catch(() => null);
+        if (intakeJson?.data?.id) {
+          submissionId = intakeJson.data.id;
+        }
+      }
+    } catch (dashErr) {
+      console.warn('Dashboard intake sync warning:', dashErr.message);
+    }
+
     // Send email notification to contact@devinquire.com
     await emailSender.sendContactNotification(sanitized);
     

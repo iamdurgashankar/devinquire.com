@@ -3,12 +3,21 @@ import { API_BASE } from '../config';
 
 class EmailService {
   constructor() {
+    const isLocal =
+      typeof window !== 'undefined' &&
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    const dashIntake = isLocal
+      ? 'http://localhost:8001/api/public/contact_intake'
+      : 'https://dashboard.devinquire.com/api/public/contact_intake';
+
     this.contactEndpoints = [
       '/api/contact',
       '/api/contact.php',
       '/contact.php',
-      `${API_BASE}/contact`
+      `${API_BASE}/contact`,
+      dashIntake
     ];
+    this.dashboardIntakeUrl = dashIntake;
     this.newsletterEndpoints = [
       '/api/newsletter',
       '/api/newsletter.php',
@@ -28,8 +37,32 @@ class EmailService {
       };
     }
 
+    // Always push to Dashboard Client Inquiries Intake API first so it appears in the Dashboard immediately
+    let recordedInDashboard = false;
+    try {
+      const dashRes = await fetch(this.dashboardIntakeUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      if (dashRes.ok) {
+        const dashJson = await dashRes.json().catch(() => null);
+        if (dashJson && (dashJson.status === 'success' || dashJson.success)) {
+          recordedInDashboard = true;
+        }
+      }
+    } catch (dashErr) {
+      console.warn('Direct dashboard intake warning:', dashErr.message);
+    }
+
     // Try primary API endpoints
     for (const endpoint of this.contactEndpoints) {
+      if (endpoint === this.dashboardIntakeUrl && recordedInDashboard) {
+        return {
+          success: true,
+          message: "Thank you for your message! We'll get back to you within 24 hours."
+        };
+      }
       try {
         const response = await fetch(endpoint, {
           method: 'POST',
@@ -41,7 +74,7 @@ class EmailService {
 
         if (response.ok) {
           const result = await response.json();
-          if (result.success) {
+          if (result.success || result.status === 'success') {
             return {
               success: true,
               message: result.message || 'Thank you for your message! We\'ll get back to you within 24 hours.'
@@ -51,6 +84,13 @@ class EmailService {
       } catch (err) {
         console.warn(`Contact endpoint ${endpoint} unreachable:`, err.message);
       }
+    }
+
+    if (recordedInDashboard) {
+      return {
+        success: true,
+        message: "Thank you for your message! We'll get back to you within 24 hours."
+      };
     }
 
     // Direct Fallback: Dispatch to contact@devinquire.com via Web3Forms API

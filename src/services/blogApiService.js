@@ -8,8 +8,13 @@ import { BLOG_API_CONFIG, API_BASE } from '../config';
  */
 class BlogApiService {
   constructor() {
-    this.baseUrl = API_BASE || 'http://localhost:8000';
-    this.dashboardBaseUrl = process.env.REACT_APP_DASHBOARD_API_URL || 'http://localhost:8001/api/public';
+    const isLocal =
+      typeof window !== 'undefined' &&
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    this.baseUrl = API_BASE || (isLocal ? 'http://localhost:8000' : 'https://devinquire.com/api');
+    this.dashboardBaseUrl =
+      process.env.REACT_APP_DASHBOARD_API_URL ||
+      (isLocal ? 'http://localhost:8001/api/public' : 'https://dashboard.devinquire.com/api/public');
     this.apiKey = BLOG_API_CONFIG.apiKey;
   }
 

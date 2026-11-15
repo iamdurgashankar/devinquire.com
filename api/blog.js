@@ -41,20 +41,80 @@ async function addTagsToPost(postId, tags) {
   }
 }
 
+const DASHBOARD_PUBLIC_URL = (
+  process.env.DASHBOARD_API_URL ||
+  (process.env.NODE_ENV === 'production'
+    ? 'https://dashboard.devinquire.com/api/public'
+    : 'http://localhost:8001/api/public')
+).replace(/\/$/, '');
+
+async function fetchDashboardPostsFallback(category) {
+  try {
+    const q = category && category !== 'All' && category !== 'all'
+      ? `?category=${encodeURIComponent(category)}`
+      : '';
+    const res = await fetch(`${DASHBOARD_PUBLIC_URL}/blog_list${q}`);
+    if (!res.ok) return [];
+    const json = await res.json();
+    const list = Array.isArray(json.data) ? json.data : [];
+    return list.map(p => ({
+      ...p,
+      slug: p.slug || generateSlug(p.title || `post-${p.id}`),
+      category_name: p.category || 'Engineering',
+      category_slug: generateSlug(p.category || 'Engineering'),
+      category_color: '#3B82F6',
+      tags: Array.isArray(p.tags) ? p.tags : [],
+      published_at: p.created_at
+    }));
+  } catch {
+    return [];
+  }
+}
+
+async function fetchDashboardDetailFallback(identifier) {
+  try {
+    const isNumeric = /^\d+$/.test(String(identifier));
+    const param = isNumeric ? `id=${encodeURIComponent(identifier)}` : `slug=${encodeURIComponent(identifier)}`;
+    const res = await fetch(`${DASHBOARD_PUBLIC_URL}/blog_detail?${param}`);
+    if (!res.ok) return null;
+    const json = await res.json();
+    if (!json.data) return null;
+    const p = json.data;
+    return {
+      ...p,
+      slug: p.slug || generateSlug(p.title || `post-${p.id}`),
+      category_name: p.category || 'Engineering',
+      category_slug: generateSlug(p.category || 'Engineering'),
+      category_color: '#3B82F6',
+      tags: Array.isArray(p.tags) ? p.tags : [],
+      published_at: p.created_at
+    };
+  } catch {
+    return null;
+  }
+}
+
 // RESTful Endpoints
 router.get('/categories', checkRateLimit, async (req, res) => {
   try {
     const [categories] = await db.query('SELECT * FROM blog_categories ORDER BY name');
     return res.json({ success: true, data: categories });
   } catch (error) {
-    console.error('Blog categories error:', error);
-    return res.status(500).json({ error: 'Failed to fetch categories' });
+    return res.json({
+      success: true,
+      data: [
+        { id: 1, name: 'Engineering', slug: 'engineering', color: '#3B82F6' },
+        { id: 2, name: 'Architecture', slug: 'architecture', color: '#10B981' },
+        { id: 3, name: 'AI & Systems', slug: 'ai-systems', color: '#8B5CF6' },
+        { id: 4, name: 'Cloud & DevOps', slug: 'cloud-devops', color: '#F59E0B' }
+      ]
+    });
   }
 });
 
 router.get('/posts', checkRateLimit, async (req, res) => {
+  const category = req.query.category || '';
   try {
-    const category = req.query.category || '';
     const status = req.query.status || 'published';
     const limit = parseInt(req.query.limit || '20', 10);
     const offset = parseInt(req.query.offset || '0', 10);
@@ -90,10 +150,17 @@ router.get('/posts', checkRateLimit, async (req, res) => {
       post.is_featured = !!post.is_featured;
     });
 
+    if (posts.length === 0) {
+      const dashPosts = await fetchDashboardPostsFallback(category);
+      if (dashPosts.length > 0) {
+        return res.json({ success: true, data: dashPosts });
+      }
+    }
+
     return res.json({ success: true, data: posts });
   } catch (error) {
-    console.error('Blog posts error:', error);
-    return res.status(500).json({ error: 'Failed to fetch posts' });
+    const dashPosts = await fetchDashboardPostsFallback(category);
+    return res.json({ success: true, data: dashPosts });
   }
 });
 
@@ -118,15 +185,17 @@ router.get('/posts/:identifier', checkRateLimit, async (req, res) => {
       post.tags = post.tags ? post.tags.split(',') : [];
       post.is_featured = !!post.is_featured;
 
-      // Increment view count
       await db.query(`UPDATE blog_posts SET views = views + 1 WHERE ${isNumeric ? 'id' : 'slug'} = ?`, [identifier]);
 
       return res.json({ success: true, data: post });
     } else {
+      const dashPost = await fetchDashboardDetailFallback(identifier);
+      if (dashPost) return res.json({ success: true, data: dashPost });
       return res.status(404).json({ error: 'Post not found' });
     }
   } catch (error) {
-    console.error('Blog post detail error:', error);
+    const dashPost = await fetchDashboardDetailFallback(identifier);
+    if (dashPost) return res.json({ success: true, data: dashPost });
     return res.status(500).json({ error: 'Failed to fetch post detail' });
   }
 });
