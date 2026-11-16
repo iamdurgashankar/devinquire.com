@@ -161,12 +161,12 @@ export default function Products() {
 
   const getStatusBadgeStyle = (status) => {
     if (status === "Available") {
-      return "bg-[#28CD41]/15 text-[#28CD41] border border-[#28CD41]/30";
+      return "bg-[#1E8E3E]/95 text-white border border-white/25 shadow-sm";
     }
     if (status === "Beta") {
-      return "bg-[#FF9500]/15 text-[#FF9500] border border-[#FF9500]/30";
+      return "bg-[#D97706]/95 text-white border border-white/25 shadow-sm";
     }
-    return "apple-subcard text-[var(--apple-text-secondary)]";
+    return "bg-[#1D1D1F]/85 text-white border border-white/20 shadow-sm";
   };
 
   return (

@@ -137,18 +137,12 @@ export default function Navbar() {
               onClick={toggleTheme}
               title={theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
               aria-label="Toggle appearance mode"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full apple-subcard text-[12px] font-medium text-[var(--apple-text-primary)] active:scale-95 transition-all"
+              className="w-9 h-9 rounded-full apple-subcard flex items-center justify-center text-[var(--apple-text-primary)] active:scale-95 transition-all"
             >
               {theme === "light" ? (
-                <>
-                  <Moon className="w-3.5 h-3.5 text-[#5856D6]" />
-                  <span className="hidden lg:inline">Dark</span>
-                </>
+                <Moon className="w-4 h-4 text-[#5856D6]" />
               ) : (
-                <>
-                  <Sun className="w-3.5 h-3.5 text-[#FF9F0A]" />
-                  <span className="hidden lg:inline">Light</span>
-                </>
+                <Sun className="w-4 h-4 text-[#FF9F0A]" />
               )}
             </button>
 
