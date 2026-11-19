@@ -62,7 +62,7 @@ const services = [
   {
     image: landingPageImg,
     icon: Layout,
-    tint: "from-[#30D158] to-[#248A3D]",
+    tint: "from-[#6B63F2] to-[#4139BF]",
     title: "Landing Page Development",
     description:
       "High-conversion, ultra-fast landing systems tailored for product launches and growth campaigns.",
@@ -77,7 +77,7 @@ const services = [
   {
     image: maintenanceImg,
     icon: ShieldCheck,
-    tint: "from-[#FF9F0A] to-[#FF9500]",
+    tint: "from-[#6B63F2] to-[#4e45e1]",
     title: "Web Maintenance Plans",
     description:
       "Proactive monthly engineering support to keep your digital infrastructure secure and fast.",
@@ -107,7 +107,7 @@ const services = [
   {
     image: webAppImg,
     icon: Rocket,
-    tint: "from-[#BF5AF2] to-[#8944AB]",
+    tint: "from-[#6B63F2] to-[#4e45e1]",
     title: "Web Application Development",
     description:
       "Full-stack SaaS and enterprise web applications with real-time collaboration and scalability.",
@@ -122,7 +122,7 @@ const services = [
   {
     image: mobileAppImg,
     icon: Smartphone,
-    tint: "from-[#FF375F] to-[#D70015]",
+    tint: "from-[#6B63F2] to-[#4139BF]",
     title: "Mobile Application Development",
     description:
       "Native-grade iOS and Android applications built for fluid touch interactions and offline resilience.",
@@ -137,7 +137,7 @@ const services = [
   {
     image: seoImg,
     icon: Search,
-    tint: "from-[#30D158] to-[#248A3D]",
+    tint: "from-[#6B63F2] to-[#4139BF]",
     title: "SEO & Growth Engineering",
     description:
       "Data-driven search engine optimization and technical schema engineering to dominate rankings.",
@@ -152,7 +152,7 @@ const services = [
   {
     image: brandingImg,
     icon: Palette,
-    tint: "from-[#BF5AF2] via-[#5E5CE6] to-[#4e45e1]",
+    tint: "from-[#6B63F2] to-[#4139BF]",
     title: "Brand & Interface Design",
     description:
       "Cohesive visual identity systems, iconography, and human interface guidelines for modern brands.",
@@ -193,7 +193,7 @@ const ecosystemItems = [
   },
   {
     icon: Layers,
-    tint: "from-[#30D158] to-[#248A3D]",
+    tint: "from-[#6B63F2] to-[#4139BF]",
     title: "CMS Extensions",
     subtitle: "Extend your platform",
     description:
@@ -202,7 +202,7 @@ const ecosystemItems = [
   },
   {
     icon: Zap,
-    tint: "from-[#FF9F0A] to-[#FF9500]",
+    tint: "from-[#6B63F2] to-[#4e45e1]",
     title: "Browser Extensions",
     subtitle: "Productivity first",
     description:
@@ -211,7 +211,7 @@ const ecosystemItems = [
   },
   {
     icon: Puzzle,
-    tint: "from-[#BF5AF2] to-[#8944AB]",
+    tint: "from-[#6B63F2] to-[#4e45e1]",
     title: "Apple UI Kits",
     subtitle: "Jumpstart development",
     description:
@@ -631,7 +631,7 @@ export default function Services() {
                     />
                   </div>
 
-                  <div className="flex gap-3 pt-2">
+                  <div className="apple-btn-pair flex gap-3 pt-2">
                     <button
                       type="button"
                       onClick={() => setIsModalOpen(false)}

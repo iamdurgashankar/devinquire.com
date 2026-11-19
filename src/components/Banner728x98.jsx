@@ -41,7 +41,7 @@ const Banner728x98 = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 shrink-0">
+        <div className="apple-btn-pair flex items-center gap-2.5 shrink-0">
           <Link 
             to={primaryButtonLink}
             className="apple-pill-btn px-4 py-2 text-[13px]"

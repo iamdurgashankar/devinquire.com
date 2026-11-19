@@ -45,7 +45,7 @@ const ModernCTA = ({
             {subtitle}
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-3.5 justify-center w-full sm:w-auto">
+          <div className="apple-btn-pair flex flex-col sm:flex-row gap-3.5 justify-center w-full sm:w-auto">
             <Link
               to={primaryLink}
               className="group apple-pill-btn px-7 py-3.5 rounded-full font-semibold text-[15px] flex items-center justify-center gap-2"

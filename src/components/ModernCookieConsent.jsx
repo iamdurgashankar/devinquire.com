@@ -104,7 +104,7 @@ const ModernCookieConsent = () => {
               </div>
 
               {!showSettings ? (
-                <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+                <div className="apple-btn-pair flex flex-wrap items-center gap-2.5 shrink-0">
                   <button
                     onClick={() => setShowSettings(true)}
                     className="px-3.5 py-2 rounded-full apple-subcard text-[12px] font-medium text-[var(--apple-text-secondary)] hover:text-[var(--apple-text-primary)] inline-flex items-center gap-1.5"

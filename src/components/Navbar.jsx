@@ -193,7 +193,7 @@ export default function Navbar() {
                 )}
               </div>
             ) : (
-              <div className="flex items-center gap-2">
+              <div className="apple-btn-pair flex items-center gap-2">
                 <Link
                   to="/contact"
                   className="px-4 py-1.5 rounded-full apple-secondary-btn text-[13px] font-medium whitespace-nowrap"

@@ -47,7 +47,7 @@ const products = [
   {
     image: analyticsImg,
     icon: BarChart3,
-    tint: "from-[#30D158] to-[#248A3D]",
+    tint: "from-[#6B63F2] to-[#4139BF]",
     title: "Analytics Pro",
     description:
       "Privacy-first telemetry platform for tracking real-time web performance and conversion funnels.",
@@ -66,7 +66,7 @@ const products = [
   {
     image: ecommerceImg,
     icon: ShoppingCart,
-    tint: "from-[#FF9F0A] to-[#FF9500]",
+    tint: "from-[#6B63F2] to-[#4e45e1]",
     title: "E-Commerce Suite",
     description:
       "Complete digital commerce engine with global payment processing and live inventory control.",
@@ -85,7 +85,7 @@ const products = [
   {
     image: aiBotImg,
     icon: Bot,
-    tint: "from-[#BF5AF2] via-[#5E5CE6] to-[#4e45e1]",
+    tint: "from-[#6B63F2] to-[#4139BF]",
     title: "AI Chatbot Builder",
     description:
       "Intelligent conversational AI platform for 24/7 customer support and automated lead intake.",
@@ -104,7 +104,7 @@ const products = [
   {
     image: mobileImg,
     icon: Smartphone,
-    tint: "from-[#5E5CE6] to-[#3634A3]",
+    tint: "from-[#6B63F2] to-[#4e45e1]",
     title: "Mobile App Framework",
     description:
       "Cross-platform mobile starter kit engineered with native gestures and offline-first storage.",
@@ -123,7 +123,7 @@ const products = [
   {
     image: securityImg,
     icon: Shield,
-    tint: "from-[#FF375F] to-[#D70015]",
+    tint: "from-[#6B63F2] to-[#4139BF]",
     title: "Security Shield",
     description:
       "Zero-trust security and rate-limiting suite for enterprise web applications and APIs.",

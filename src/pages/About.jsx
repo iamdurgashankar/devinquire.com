@@ -34,14 +34,14 @@ const About = () => {
     },
     {
       icon: Handshake,
-      tint: "from-[#30D158] to-[#248A3D]",
+      tint: "from-[#6B63F2] to-[#4139BF]",
       title: "Deep Collaboration",
       description:
         "We partner closely with founders and enterprise leaders, ensuring transparent milestones and shared ownership.",
     },
     {
       icon: Gem,
-      tint: "from-[#BF5AF2] to-[#8944AB]",
+      tint: "from-[#6B63F2] to-[#4e45e1]",
       title: "Apple-Grade Craft",
       description:
         "Every line of code and every interface interaction is engineered with obsessive attention to detail and performance.",

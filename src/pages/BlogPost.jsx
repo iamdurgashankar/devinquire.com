@@ -86,7 +86,7 @@ export default function BlogPost() {
           <p className="text-[14px] text-[var(--text-secondary)] mb-6">
             {error || 'The blog post you are looking for does not exist or has been archived.'}
           </p>
-          <div className="flex flex-wrap gap-3 justify-center">
+          <div className="apple-btn-pair flex flex-wrap gap-3 justify-center">
             {error && (
               <button
                 onClick={() => loadPost()}

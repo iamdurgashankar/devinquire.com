@@ -207,6 +207,22 @@ html.dark .border-indigo-100 {
   color: #ffffff !important;
 }
 
+.apple-btn-pair:has(.apple-secondary-btn:hover) .apple-pill-btn,
+.apple-btn-pair:has(.apple-secondary-btn:hover) .apple-pill-btn *,
+.apple-btn-pair:has(.apple-secondary-btn:hover) .apple-pill-btn .badge-white,
+.apple-btn-pair:has(.apple-secondary-btn:focus-visible) .apple-pill-btn,
+.apple-btn-pair:has(.apple-secondary-btn:focus-visible) .apple-pill-btn *,
+.apple-btn-pair:has(.apple-secondary-btn:focus-visible) .apple-pill-btn .badge-white {
+  color: var(--apple-text-primary) !important;
+}
+
+.apple-btn-pair .apple-secondary-btn:hover,
+.apple-btn-pair .apple-secondary-btn:hover *,
+.apple-btn-pair .apple-secondary-btn:focus-visible,
+.apple-btn-pair .apple-secondary-btn:focus-visible * {
+  color: #ffffff !important;
+}
+
 /* =========================================================
  * Keyframe Animations
  * ========================================================= */

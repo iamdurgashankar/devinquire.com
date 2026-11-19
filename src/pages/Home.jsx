@@ -58,7 +58,7 @@ export default function Home() {
     {
       image: mobileDevImg,
       icon: Smartphone,
-      tint: "from-[#30D158] to-[#248A3D]",
+      tint: "from-[#6B63F2] to-[#4139BF]",
       title: "Mobile Experiences",
       description:
         "Fluid native and cross-platform iOS and Android applications designed with human interface precision.",
@@ -67,7 +67,7 @@ export default function Home() {
     {
       image: uiUxImg,
       icon: Palette,
-      tint: "from-[#BF5AF2] to-[#8944AB]",
+      tint: "from-[#6B63F2] to-[#4e45e1]",
       title: "Human Interface Design",
       description:
         "Apple-inspired design systems, spatial clarity, and intuitive user journeys that elevate your brand.",
@@ -79,7 +79,7 @@ export default function Home() {
     {
       image: aiBotImg,
       icon: Bot,
-      tint: "from-[#BF5AF2] via-[#5E5CE6] to-[#4e45e1]",
+      tint: "from-[#6B63F2] to-[#4139BF]",
       badge: "Apple Intelligence Ready",
       title: "AI Business Assistant",
       description:
@@ -99,7 +99,7 @@ export default function Home() {
     {
       image: ecommerceProductImg,
       icon: ShoppingCart,
-      tint: "from-[#30D158] to-[#248A3D]",
+      tint: "from-[#6B63F2] to-[#4139BF]",
       badge: "High Conversion",
       title: "Next-Gen E-Commerce",
       description:
@@ -426,7 +426,7 @@ export default function Home() {
 
             {/* Primary & Secondary Apple Pill CTAs */}
             <motion.div
-              className="flex flex-col sm:flex-row gap-3.5 justify-center items-center mb-16"
+              className="apple-btn-pair flex flex-col sm:flex-row gap-3.5 justify-center items-center mb-16"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65, delay: 0.3 }}
@@ -541,21 +541,21 @@ export default function Home() {
                   label: "Happy Clients",
                   sub: "Enterprise & startups",
                   icon: Smile,
-                  tint: "from-[#30D158] to-[#248A3D]",
+                  tint: "from-[#6B63F2] to-[#4139BF]",
                 },
                 {
                   number: "6+ Yrs",
                   label: "Engineering Excellence",
                   sub: "Full-stack mastery",
                   icon: Settings,
-                  tint: "from-[#FF9F0A] to-[#FF9500]",
+                  tint: "from-[#6B63F2] to-[#4e45e1]",
                 },
                 {
                   number: "100%",
                   label: "Client Satisfaction",
                   sub: "24/7 SLA support",
                   icon: Star,
-                  tint: "from-[#BF5AF2] to-[#8944AB]",
+                  tint: "from-[#6B63F2] to-[#4e45e1]",
                 },
               ].map((stat, index) => (
                 <div
