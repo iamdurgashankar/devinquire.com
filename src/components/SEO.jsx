@@ -21,11 +21,11 @@ const SEO = ({
   articleSection
 }) => {
   const siteTitle = 'DevInquire';
-  const defaultDescription = 'Professional web development, mobile app development, and digital solutions. Expert team delivering custom software solutions for businesses worldwide.';
-  const defaultKeywords = 'web development, mobile app development, software development, digital solutions, custom software, DevInquire, professional development services';
+  const defaultDescription = 'DevInquire helps businesses scale with custom web & mobile apps, enterprise software, cloud hosting, and AI automation built for measurable growth.';
+  const defaultKeywords = 'business software development, custom web development, mobile app development, enterprise digital solutions, AI business automation, cloud hosting, DevInquire';
   const baseUrl = 'https://devinquire.com';
   
-  const pageTitle = title ? `${title} | ${siteTitle}` : `${siteTitle} - Professional Development Services`;
+  const pageTitle = title ? `${title} | ${siteTitle}` : `${siteTitle} | Custom Software, Web & Digital Solutions for Business Growth`;
   const pageDescription = description || defaultDescription;
   const pageKeywords = keywords || defaultKeywords;
   const pageCanonical = canonical || baseUrl;

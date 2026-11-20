@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Printer, ArrowLeft } from "lucide-react";
+import { Printer, ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
 import SEO from "../components/SEO";
 
 function formatMoney(amount, currency = "INR") {
@@ -22,17 +22,43 @@ export default function QuotationView() {
   const [quotation, setQuotation] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [responding, setResponding] = useState(false);
+  const [responseError, setResponseError] = useState(null);
+
+  const isLocal =
+    typeof window !== "undefined" &&
+    (window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1");
+  const dashboardPublicUrl =
+    process.env.REACT_APP_DASHBOARD_API_URL ||
+    (isLocal
+      ? "http://localhost:8001/api/public"
+      : "https://dashboard.devinquire.com/api/public");
+
+  const handleDecision = async (decision) => {
+    if (!slug || responding || quotation?.clientDecision) return;
+    setResponding(true);
+    setResponseError(null);
+    try {
+      const res = await fetch(`${dashboardPublicUrl}/quotation/respond`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug, decision }),
+      });
+      const json = await res.json().catch(() => null);
+      if (!res.ok || !json || json.status !== "success" || !json.data) {
+        throw new Error(json?.message || "Could not save response.");
+      }
+      setQuotation(json.data);
+    } catch (err) {
+      setResponseError(err.message || "Failed to submit response.");
+    } finally {
+      setResponding(false);
+    }
+  };
 
   useEffect(() => {
     let active = true;
-    const isLocal =
-      window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1";
-    const dashboardPublicUrl =
-      process.env.REACT_APP_DASHBOARD_API_URL ||
-      (isLocal
-        ? "http://localhost:8001/api/public"
-        : "https://dashboard.devinquire.com/api/public");
 
     async function load() {
       setLoading(true);
@@ -317,12 +343,68 @@ export default function QuotationView() {
             <strong className="text-[#172033]">{quotation.signatoryName}</strong>
           </div>
           <div className="border-t border-[#aeb6c5] pt-2.5 text-[#667085] text-[12px]">
-            Accepted by {quotation.clientName || "Client"}
-            <br />
-            <br />
-            <strong className="text-[#172033]">
-              {quotation.clientSignatoryLabel || "[Name / Signature / Date]"}
-            </strong>
+            <div>Accepted by {quotation.clientName || "Client"}</div>
+
+            {!quotation.clientDecision ? (
+              <div className="mt-2.5 flex flex-wrap items-center gap-2 print:hidden">
+                <button
+                  type="button"
+                  disabled={responding}
+                  onClick={() => handleDecision("agreed")}
+                  className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[12px] font-semibold border transition cursor-pointer disabled:opacity-60 bg-white text-emerald-700 border-emerald-300 hover:bg-emerald-50"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  Agreed
+                </button>
+                <button
+                  type="button"
+                  disabled={responding}
+                  onClick={() => handleDecision("rejected")}
+                  className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[12px] font-semibold border transition cursor-pointer disabled:opacity-60 bg-white text-rose-700 border-rose-300 hover:bg-rose-50"
+                >
+                  <XCircle className="w-3.5 h-3.5" />
+                  Rejected
+                </button>
+              </div>
+            ) : (
+              <div className="mt-2.5">
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-[0.4px] ${
+                      quotation.clientDecision === "agreed"
+                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                        : "bg-rose-50 text-rose-700 border border-rose-200"
+                    }`}
+                  >
+                    {quotation.clientDecision === "agreed" ? (
+                      <CheckCircle2 className="w-3 h-3" />
+                    ) : (
+                      <XCircle className="w-3 h-3" />
+                    )}
+                    {quotation.clientDecision === "agreed" ? "Agreed" : "Rejected"}
+                  </span>
+                  {quotation.clientDecisionAt && (
+                    <span className="text-[11px] text-[#667085]">
+                      on{" "}
+                      {new Date(quotation.clientDecisionAt).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </span>
+                  )}
+                </div>
+                <div className="mt-1.5 text-[11px] text-[#667085] print:hidden">
+                  Response locked. Please request a new quotation for any changes.
+                </div>
+              </div>
+            )}
+
+            {responseError && (
+              <div className="mt-1.5 text-[11px] text-rose-600 print:hidden">
+                {responseError}
+              </div>
+            )}
           </div>
         </div>
 

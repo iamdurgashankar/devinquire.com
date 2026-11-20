@@ -154,12 +154,12 @@ export default function Home() {
   return (
     <div className="min-h-screen relative">
       <SEO
-        title="Professional Web Development & Digital Solutions"
-        description="DevInquire offers expert web development, mobile app development, and digital solutions. Transform your business with our custom software development services and innovative technology solutions."
-        keywords="web development, mobile app development, custom software, digital solutions, React development, Node.js, professional development services, business automation, e-commerce development"
+        title="Custom Software, Web & Digital Solutions for Business Growth"
+        description="DevInquire helps businesses scale with custom web & mobile apps, enterprise software, cloud hosting, and AI automation built for measurable growth."
+        keywords="business software development, custom web development, mobile app development, digital solutions, React development, Node.js, business automation, e-commerce development"
         canonical="https://devinquire.com"
-        ogTitle="DevInquire - Professional Web Development & Digital Solutions"
-        ogDescription="Transform your business with expert web development, mobile apps, and custom software solutions. Professional development services for modern businesses."
+        ogTitle="DevInquire | Custom Software, Web & Digital Solutions for Business Growth"
+        ogDescription="Scale your business with custom web & mobile apps, enterprise software, cloud infrastructure, and AI automation engineered for measurable ROI."
         ogUrl="https://devinquire.com"
       />
 
