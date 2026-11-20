@@ -23,6 +23,7 @@ import TermsOfService from "./pages/TermsOfService";
 import CookiePolicy from "./pages/CookiePolicy";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import SupportAgent from "./components/SupportAgent";
+import QuotationView from "./pages/QuotationView";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -33,6 +34,15 @@ function ScrollToTop() {
 }
 
 function AppContent() {
+  const { pathname } = useLocation();
+  if (pathname.startsWith("/quotation/")) {
+    return (
+      <Routes>
+        <Route path="/quotation/:slug" element={<QuotationView />} />
+      </Routes>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-transparent text-[var(--apple-text-primary)] relative selection:bg-[#4e45e1]/20 selection:text-[var(--apple-blue)]">
       <ScrollToTop />
@@ -96,14 +106,24 @@ function AppContent() {
   );
 }
 
+function AppShell() {
+  const { pathname } = useLocation();
+  const isStandaloneQuotation = pathname.startsWith("/quotation/");
+  return (
+    <>
+      <AppContent />
+      {!isStandaloneQuotation && <SupportAgent />}
+    </>
+  );
+}
+
 export default function App() {
   return (
     <HelmetProvider>
       <ThemeProvider initialTheme="light">
         <AuthProvider>
           <Router>
-            <AppContent />
-            <SupportAgent />
+            <AppShell />
           </Router>
         </AuthProvider>
       </ThemeProvider>
