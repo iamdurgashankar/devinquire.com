@@ -4,11 +4,11 @@ import { Rocket, ArrowRight, Globe } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const ModernCTA = ({
-  title = "Ready to Start Your Project?",
-  subtitle = "Let's discuss how we can help bring your vision to life with Apple-grade craftsmanship and modern cloud architecture.",
-  primaryText = "Get Started Today",
+  title = "Have an Idea Ready to Launch?",
+  subtitle = "Tell us what you're building—we'll map out a clear plan, timeline, and honest budget with zero tech jargon.",
+  primaryText = "Start Your Project",
   primaryLink = "/contact",
-  secondaryText = "Learn More",
+  secondaryText = "Explore Services",
   secondaryLink = "/services",
 }) => {
   return (
@@ -34,7 +34,7 @@ const ModernCTA = ({
           </div>
 
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full apple-subcard text-[11px] font-semibold uppercase tracking-wider text-[var(--apple-blue)] mb-4">
-            <span>Next-Gen Engineering</span>
+            <span>Let&apos;s Build Together</span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-[-0.03em] text-[var(--apple-text-primary)] mb-5 leading-tight">

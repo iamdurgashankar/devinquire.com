@@ -30,6 +30,7 @@ const IDENT_SQL = [
     email VARCHAR(255) NOT NULL,
     phone VARCHAR(20) DEFAULT NULL,
     company VARCHAR(200) DEFAULT NULL,
+    service VARCHAR(100) DEFAULT NULL,
     subject VARCHAR(255) DEFAULT NULL,
     timeline VARCHAR(100) DEFAULT NULL,
     message TEXT NOT NULL,
@@ -105,6 +106,7 @@ const IDENT_SQL = [
     id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
     name VARCHAR(100) DEFAULT NULL,
+    categories JSON DEFAULT NULL,
     status ENUM('pending','confirmed','unsubscribed','bounced') DEFAULT 'pending',
     frequency ENUM('daily','weekly','monthly') DEFAULT 'weekly',
     confirmation_token VARCHAR(64) DEFAULT NULL,
@@ -189,6 +191,31 @@ const IDENT_SQL = [
     last_login_at TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+
+  `CREATE TABLE IF NOT EXISTS payments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    plan_type ENUM('consultation','service_confirmation') NOT NULL,
+    service_name VARCHAR(200) DEFAULT NULL,
+    customer_name VARCHAR(100) NOT NULL,
+    customer_email VARCHAR(255) NOT NULL,
+    customer_phone VARCHAR(30) DEFAULT NULL,
+    company VARCHAR(200) DEFAULT NULL,
+    notes TEXT DEFAULT NULL,
+    amount INT NOT NULL COMMENT 'Amount in smallest currency unit (paise)',
+    currency VARCHAR(10) NOT NULL DEFAULT 'inr',
+    stripe_session_id VARCHAR(255) DEFAULT NULL UNIQUE,
+    stripe_payment_intent_id VARCHAR(255) DEFAULT NULL,
+    payment_status ENUM('pending','paid','failed','expired','refunded') DEFAULT 'pending',
+    notified BOOLEAN DEFAULT FALSE,
+    ip_address VARCHAR(45) DEFAULT NULL,
+    paid_at TIMESTAMP NULL DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_pay_email (customer_email),
+    INDEX idx_pay_status (payment_status),
+    INDEX idx_pay_plan (plan_type),
+    INDEX idx_pay_created (created_at)
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
 ];
 
@@ -287,6 +314,16 @@ const ALTER_SQL = [
     table: "blog_posts",
     column: "updated_at",
     ddl: `ALTER TABLE blog_posts ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP`,
+  },
+  {
+    table: "contact_submissions",
+    column: "service",
+    ddl: `ALTER TABLE contact_submissions ADD COLUMN service VARCHAR(100) DEFAULT NULL AFTER company`,
+  },
+  {
+    table: "newsletter_subscriptions",
+    column: "categories",
+    ddl: `ALTER TABLE newsletter_subscriptions ADD COLUMN categories JSON DEFAULT NULL AFTER name`,
   },
 ];
 

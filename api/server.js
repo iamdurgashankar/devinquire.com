@@ -66,7 +66,12 @@ if (isProd) {
         useDefaults: true,
         directives: {
           "default-src": ["'self'"],
-          "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+          "script-src": [
+            "'self'",
+            "'unsafe-inline'",
+            "'unsafe-eval'",
+            "https://js.stripe.com",
+          ],
           "style-src": [
             "'self'",
             "'unsafe-inline'",
@@ -79,6 +84,13 @@ if (isProd) {
             "https://devinquire.com",
             "https://dashboard.devinquire.com",
             "https://mcyngpjwkcxodglewdwd.supabase.co",
+            "https://api.stripe.com",
+            "https://checkout.stripe.com",
+          ],
+          "frame-src": [
+            "'self'",
+            "https://js.stripe.com",
+            "https://checkout.stripe.com",
           ],
           "frame-ancestors": [
             "'self'",
@@ -112,6 +124,14 @@ app.use(
   morgan(logFormat, {
     skip: (req, res) => isProd && req.url.startsWith("/api/health"),
   }),
+);
+
+// Stripe server-to-server webhook requires raw Buffer body before express.json() and CORS Origin enforcement
+const paymentRouter = require("./payment");
+app.post(
+  ["/api/payment/webhook", "/api/payment.php/webhook"],
+  express.raw({ type: "application/json", limit: "1mb" }),
+  paymentRouter.handleWebhook,
 );
 
 // Body parser middlewares (with payload limits)
@@ -369,6 +389,12 @@ for (const p of [
   "/api/sync-posts.php",
 ]) {
   app.use(p, syncPostsRouter);
+}
+
+// Stripe Payment Gateway endpoints (Consultation ₹399 / Service Confirmation ₹99)
+const paymentLimiter = createLimiter(15 * 60 * 1000, 40, "payment");
+for (const p of ["/api/payment", "/api/payment.php"]) {
+  app.use(p, paymentLimiter, paymentRouter);
 }
 
 // Base API route check

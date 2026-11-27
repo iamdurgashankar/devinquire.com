@@ -25,6 +25,7 @@ import { useState } from "react";
 import PageLayout from "../components/PageLayout";
 import SEO from "../components/SEO";
 import ModernCTA from "../components/ModernCTA";
+import StripeCheckoutModal from "../components/StripeCheckoutModal";
 import {
   responsiveTypography,
   responsiveSpacing,
@@ -222,6 +223,7 @@ const ecosystemItems = [
 
 export default function Services() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPreBookingOpen, setIsPreBookingOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -239,8 +241,14 @@ export default function Services() {
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
+    setSubmitStatus("");
+    setIsModalOpen(false);
+    setIsPreBookingOpen(true);
+  };
+
+  const handleOptOutServiceSubmit = async () => {
     setIsSubmitting(true);
     setSubmitStatus("");
 
@@ -257,25 +265,31 @@ export default function Services() {
 
       const response = await submitContactForm(payload);
 
+      setIsPreBookingOpen(false);
+      setIsModalOpen(true);
+
       if (response.success) {
         setSubmitStatus("success");
         setFormData({ name: "", email: "", phone: "", service: "", message: "" });
         setTimeout(() => {
           setIsModalOpen(false);
           setSubmitStatus("");
-        }, 2200);
+        }, 2400);
       } else {
         setSubmitStatus("error");
       }
     } catch (error) {
       console.error("Service inquiry submission error:", error);
+      setIsPreBookingOpen(false);
+      setIsModalOpen(true);
       setSubmitStatus("error");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setIsSubmitting(false);
   };
 
   const openModal = (serviceName) => {
+    setSubmitStatus("");
     setFormData((prev) => ({ ...prev, service: serviceName }));
     setIsModalOpen(true);
   };
@@ -368,6 +382,7 @@ export default function Services() {
 
                     <div className="pt-4 border-t border-[var(--apple-border)]">
                       <button
+                        type="button"
                         onClick={() => openModal(service.title)}
                         className="w-full apple-pill-btn py-2.5 px-5 rounded-full font-semibold text-[13px] inline-flex items-center justify-center gap-1.5 group/btn"
                       >
@@ -652,6 +667,18 @@ export default function Services() {
             </motion.div>
           </div>
         )}
+
+        <StripeCheckoutModal
+          isOpen={isPreBookingOpen}
+          onClose={() => {
+            setIsPreBookingOpen(false);
+            setIsModalOpen(true);
+          }}
+          initialPlan="service_confirmation"
+          inquiryData={formData}
+          onOptOutSubmit={handleOptOutServiceSubmit}
+          isSubmittingQuery={isSubmitting}
+        />
       </PageLayout>
     </>
   );

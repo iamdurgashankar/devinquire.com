@@ -24,6 +24,8 @@ import CookiePolicy from "./pages/CookiePolicy";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import SupportAgent from "./components/SupportAgent";
 import QuotationView from "./pages/QuotationView";
+import CmsPage from "./pages/CmsPage";
+import PaymentStatus from "./pages/PaymentStatus";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -95,6 +97,8 @@ function AppContent() {
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/cookie-policy" element={<CookiePolicy />} />
+          <Route path="/payment/status" element={<PaymentStatus />} />
+          <Route path="/:slug" element={<CmsPage />} />
         </Routes>
       </main>
 

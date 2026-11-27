@@ -4,10 +4,12 @@ import { MapPin, Mail, Phone, Globe, Monitor, Clock, CheckCircle2, AlertCircle, 
 import PageLayout from '../components/PageLayout';
 import SEO from '../components/SEO';
 import ModernCTA from '../components/ModernCTA';
+import StripeCheckoutModal from '../components/StripeCheckoutModal';
 import { responsiveSpacing, responsiveContainers } from '../utils/responsive';
 import { submitContactForm } from '../services/emailService';
 
 const Contact = () => {
+  const [isPreBookingOpen, setIsPreBookingOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -115,15 +117,21 @@ const Contact = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
     if (!validateForm()) {
       return;
     }
 
+    setSubmitStatus(null);
+    setIsPreBookingOpen(true);
+  };
+
+  const handleOptOutContactSubmit = async () => {
     const rateCheck = checkRateLimit();
     if (!rateCheck.allowed) {
+      setIsPreBookingOpen(false);
       setSubmitStatus({
         type: 'error',
         message: `Too many submissions. Please try again after ${rateCheck.resetTime.toLocaleTimeString()}`
@@ -137,6 +145,8 @@ const Contact = () => {
 
     try {
       const result = await submitContactForm(formData);
+      setIsPreBookingOpen(false);
+
       if (result.success) {
         setSubmitStatus({
           type: 'success',
@@ -171,6 +181,7 @@ const Contact = () => {
       }
     } catch (error) {
       console.error('Contact form submission error:', error);
+      setIsPreBookingOpen(false);
       let errorMessage = 'An unexpected error occurred. Please try again.';
 
       if (error.name === 'NetworkError' || error.message.includes('fetch')) {
@@ -670,6 +681,15 @@ const Contact = () => {
           primaryLink="#contact-form"
           secondaryText="Explore Services"
           secondaryLink="/services"
+        />
+
+        <StripeCheckoutModal
+          isOpen={isPreBookingOpen}
+          onClose={() => setIsPreBookingOpen(false)}
+          initialPlan="consultation"
+          inquiryData={formData}
+          onOptOutSubmit={handleOptOutContactSubmit}
+          isSubmittingQuery={isSubmitting}
         />
       </PageLayout>
     </>

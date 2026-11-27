@@ -50,28 +50,43 @@ export default function Home() {
       image: webDevImg,
       icon: Monitor,
       tint: "from-[#6B63F2] to-[#4e45e1]",
-      title: "Web Engineering",
+      title: "High-Converting Websites & Web Apps",
       description:
-        "High-performance, responsive web platforms engineered with modern React, Next.js, and cloud-native backends.",
-      features: ["React & Next.js", "Node.js Microservices", "Database Architecture", "API Ecosystems"],
+        "Lightning-fast websites, customer portals, and SaaS platforms designed to turn curious visitors into paying customers.",
+      features: [
+        "Custom Websites & Portals",
+        "Sub-Second Load Speed",
+        "Built-In Google SEO",
+        "Easy Self-Serve Admin",
+      ],
     },
     {
       image: mobileDevImg,
       icon: Smartphone,
       tint: "from-[#6B63F2] to-[#4139BF]",
-      title: "Mobile Experiences",
+      title: "Silky-Smooth iOS & Android Apps",
       description:
-        "Fluid native and cross-platform iOS and Android applications designed with human interface precision.",
-      features: ["React Native & Swift", "60fps Animations", "App Store Launch", "Offline-First Sync"],
+        "Mobile apps your customers actually love opening—with intuitive navigation, instant notifications, and offline reliability.",
+      features: [
+        "One Build for iOS & Android",
+        "Smooth Native Experience",
+        "App Store & Play Store Launch",
+        "Push Alerts & Live Sync",
+      ],
     },
     {
       image: uiUxImg,
       icon: Palette,
       tint: "from-[#6B63F2] to-[#4e45e1]",
-      title: "Human Interface Design",
+      title: "Standout Brand & Product Design",
       description:
-        "Apple-inspired design systems, spatial clarity, and intuitive user journeys that elevate your brand.",
-      features: ["Design Systems", "Interactive Prototypes", "Usability Research", "Brand Identity"],
+        "Clean, modern interfaces and memorable brand identities that make even complex software feel effortless from day one.",
+      features: [
+        "Interactive Figma Previews",
+        "Simple, Clear User Journeys",
+        "Memorable Brand Identity",
+        "Design Systems That Scale",
+      ],
     },
   ];
 
@@ -80,31 +95,46 @@ export default function Home() {
       image: aiBotImg,
       icon: Bot,
       tint: "from-[#6B63F2] to-[#4139BF]",
-      badge: "Apple Intelligence Ready",
-      title: "AI Business Assistant",
+      badge: "Always-On AI",
+      title: "AskNova AI",
+      subtitle: "24/7 Smart Customer Concierge",
       description:
-        "Context-aware conversational AI agents that automate customer support, lead qualification, and workflows.",
-      features: ["Multi-Modal NLP", "24/7 Autonomous Support", "Instant CRM Sync"],
-    },
-    {
-      image: analyticsImg,
-      icon: BarChart3,
-      tint: "from-[#6B63F2] to-[#4139BF]",
-      badge: "Real-Time Telemetry",
-      title: "Data Analytics Suite",
-      description:
-        "Unified telemetry and executive dashboards to track conversion velocity, user retention, and revenue.",
-      features: ["Live Event Streams", "Custom Bento Dashboards", "Predictive Insights"],
+        "Train an AI teammate on your business in minutes so it answers visitor questions, captures leads, and books calls while you sleep.",
+      features: [
+        "Replies in Your Brand Voice",
+        "Web, WhatsApp & Email Ready",
+        "Instant Lead Qualification",
+      ],
     },
     {
       image: ecommerceProductImg,
       icon: ShoppingCart,
       tint: "from-[#6B63F2] to-[#4139BF]",
-      badge: "High Conversion",
-      title: "Next-Gen E-Commerce",
+      badge: "Sell Anywhere",
+      title: "CartFlow",
+      subtitle: "1-Click Storefront & Checkout",
       description:
-        "A complete commerce engine for building ultra-fast, high-converting digital storefronts at scale.",
-      features: ["Inventory Automation", "One-Tap Checkout", "Global Edge CDN"],
+        "Launch a fast, mobile-first online store in days with frictionless UPI & card checkout, live stock alerts, and order tracking.",
+      features: [
+        "UPI, Cards & Wallets Built-In",
+        "Automatic Stock Alerts",
+        "1-Page High-Speed Checkout",
+      ],
+    },
+    {
+      image: analyticsImg,
+      icon: BarChart3,
+      tint: "from-[#6B63F2] to-[#4139BF]",
+      badge: "Live Insights",
+      title: "SightLine",
+      subtitle: "Live Visitor & Sales Radar",
+      description:
+        "Skip messy spreadsheets. See which channels bring real buyers, where people click, and what drives revenue on one clear screen.",
+      features: [
+        "Real-Time Buyer Funnels",
+        "Ad & Traffic ROI Clarity",
+        "Privacy-First Tracking",
+      ],
     },
   ];
 
@@ -397,7 +427,7 @@ export default function Home() {
             >
               <span className="w-2 h-2 rounded-full bg-[#28CD41] shadow-[0_0_8px_#28CD41]" />
               <span className="text-[12px] font-semibold tracking-tight text-[var(--apple-text-secondary)]">
-                DevInquire · Custom Software &amp; AI Engineering
+                DevInquire · Websites, Mobile Apps &amp; Smart AI Tools
               </span>
             </motion.div>
 
@@ -421,7 +451,7 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65, delay: 0.2 }}
             >
-              Full-stack web platforms, native mobile experiences, and intelligent cloud infrastructure crafted with precision, speed, and clarity.
+              We design and build fast websites, intuitive mobile apps, and AI-powered tools that win customers, save your team hours every week, and help your business grow faster.
             </motion.p>
 
             {/* Primary & Secondary Apple Pill CTAs */}
@@ -435,7 +465,7 @@ export default function Home() {
                 to="/services"
                 className="w-full sm:w-auto apple-pill-btn px-8 py-3.5 rounded-full font-semibold text-[15px] inline-flex items-center justify-center gap-2 group"
               >
-                <span className="badge-white">Explore Our Services</span>
+                <span className="badge-white">See What We Build</span>
                 <ArrowRight className="w-4 h-4 badge-white group-hover:translate-x-1 transition-transform" />
               </Link>
 
@@ -443,7 +473,7 @@ export default function Home() {
                 to="/contact"
                 className="w-full sm:w-auto apple-secondary-btn px-8 py-3.5 rounded-full font-semibold text-[15px] inline-flex items-center justify-center gap-2"
               >
-                <span>Start Your Project</span>
+                <span>Talk to Our Team</span>
               </Link>
             </motion.div>
           </div>
@@ -464,7 +494,7 @@ export default function Home() {
                   <span className="w-3 h-3 rounded-full bg-[#27C93F]" />
                 </div>
                 <span className="text-[12px] font-mono text-[var(--apple-text-tertiary)]">
-                  devinquire-cloud-runtime.ts
+                  launch-your-product.ts
                 </span>
                 <span className="text-[11px] font-semibold text-[#28CD41] px-2.5 py-0.5 rounded-full bg-[#28CD41]/10">
                   99.98% Uptime
@@ -473,34 +503,34 @@ export default function Home() {
 
               <div className="p-6 sm:p-8 font-mono text-[13px] sm:text-[14px] space-y-2.5 text-left">
                 <div className="text-[var(--apple-text-tertiary)]">
-                  // Production deployment pipeline
+                  // From rough idea to live product—without the headaches
                 </div>
                 <div>
                   <span className="text-[#AF52DE]">import</span>{" "}
                   <span className="text-[var(--apple-text-primary)]">
-                    &#123; DevInquireCloud, AI Engine &#125;
+                    &#123; Design, Build, Automate &#125;
                   </span>{" "}
                   <span className="text-[#AF52DE]">from</span>{" "}
-                  <span className="text-[#28CD41]">&apos;@devinquire/core&apos;</span>;
+                  <span className="text-[#28CD41]">&apos;@devinquire/studio&apos;</span>;
                 </div>
                 <div className="pt-1">
                   <span className="text-[var(--apple-blue)]">const</span>{" "}
-                  <span className="text-[var(--apple-text-primary)]">platform</span> ={" "}
+                  <span className="text-[var(--apple-text-primary)]">yourGrowth</span> ={" "}
                   <span className="text-[#AF52DE]">await</span>{" "}
                   <span className="text-[var(--apple-text-primary)]">
-                    DevInquireCloud.launch(&#123;
+                    DevInquire.ship(&#123;
                   </span>
                 </div>
                 <div className="pl-5 text-[var(--apple-text-secondary)]">
-                  designSystem:{" "}
-                  <span className="text-[#28CD41]">&apos;Apple Human Interface&apos;</span>,
+                  experience:{" "}
+                  <span className="text-[#28CD41]">&apos;Clean, fast &amp; mobile-ready&apos;</span>,
                 </div>
                 <div className="pl-5 text-[var(--apple-text-secondary)]">
-                  architecture:{" "}
-                  <span className="text-[#28CD41]">&apos;Edge-First Microservices&apos;</span>,
+                  growthEngine:{" "}
+                  <span className="text-[#28CD41]">&apos;Google SEO + 24/7 AI concierge&apos;</span>,
                 </div>
                 <div className="pl-5 text-[var(--apple-text-secondary)]">
-                  performanceScore: <span className="text-[#FF9500]">100</span>,
+                  deliveryTimeline: <span className="text-[#FF9500]">&apos;Weeks, not months&apos;</span>,
                 </div>
                 <div className="text-[var(--apple-text-primary)]">&#125;);</div>
               </div>
@@ -508,12 +538,12 @@ export default function Home() {
               {/* Tech Stack Pills */}
               <div className="px-6 py-4 border-t border-[var(--apple-border)] flex flex-wrap items-center gap-2">
                 {[
-                  { icon: Code, name: "React 18" },
-                  { icon: Zap, name: "Next.js" },
-                  { icon: Settings, name: "Node.js" },
-                  { icon: Palette, name: "Apple HIG" },
-                  { icon: Smartphone, name: "iOS / Android" },
-                  { icon: Globe, name: "Cloud Native" },
+                  { icon: Code, name: "Fast Web Apps" },
+                  { icon: Smartphone, name: "iOS & Android" },
+                  { icon: Zap, name: "AI Automation" },
+                  { icon: Palette, name: "Clean UI/UX" },
+                  { icon: Globe, name: "SEO Built-In" },
+                  { icon: Settings, name: "24/7 Care" },
                 ].map((tech, idx) => (
                   <span
                     key={idx}
@@ -531,29 +561,29 @@ export default function Home() {
               {[
                 {
                   number: "100+",
-                  label: "Projects Delivered",
-                  sub: "Global deployments",
+                  label: "Products Launched",
+                  sub: "Across 12+ industries",
                   icon: Rocket,
                   tint: "from-[#6B63F2] to-[#4e45e1]",
                 },
                 {
                   number: "50+",
-                  label: "Happy Clients",
-                  sub: "Enterprise & startups",
+                  label: "Growing Brands",
+                  sub: "Startups to enterprises",
                   icon: Smile,
                   tint: "from-[#6B63F2] to-[#4139BF]",
                 },
                 {
                   number: "6+ Yrs",
-                  label: "Engineering Excellence",
-                  sub: "Full-stack mastery",
+                  label: "Hands-On Craft",
+                  sub: "Web, mobile & AI",
                   icon: Settings,
                   tint: "from-[#6B63F2] to-[#4e45e1]",
                 },
                 {
                   number: "100%",
-                  label: "Client Satisfaction",
-                  sub: "24/7 SLA support",
+                  label: "On-Time Delivery",
+                  sub: "Dedicated support team",
                   icon: Star,
                   tint: "from-[#6B63F2] to-[#4e45e1]",
                 },
@@ -593,20 +623,20 @@ export default function Home() {
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-4">
             <div>
               <span className="text-[12px] font-semibold uppercase tracking-wider text-[var(--apple-blue)]">
-                Capabilities
+                What We Do Best
               </span>
               <h2
                 id="services-heading"
                 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-[-0.03em] text-[var(--apple-text-primary)] mt-1"
               >
-                Engineered for Scale.
+                Built to Win &amp; Keep Customers.
               </h2>
             </div>
             <Link
               to="/services"
               className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-[var(--apple-blue)] hover:underline group"
             >
-              <span>View All 9 Services</span>
+              <span>Explore All 9 Services</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
@@ -677,20 +707,20 @@ export default function Home() {
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-4">
             <div>
               <span className="text-[12px] font-semibold uppercase tracking-wider text-[var(--apple-purple)]">
-                Product Ecosystem
+                Ready-Made Product Suite
               </span>
               <h2
                 id="products-heading"
                 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-[-0.03em] text-[var(--apple-text-primary)] mt-1"
               >
-                Turnkey Software Platforms.
+                Plug-and-Play Tools for Faster Growth.
               </h2>
             </div>
             <Link
               to="/products"
               className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-[var(--apple-blue)] hover:underline group"
             >
-              <span>Explore All Products</span>
+              <span>See All 6 Products</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
@@ -723,18 +753,25 @@ export default function Home() {
                 </div>
 
                 <div className="p-7 flex-1 flex flex-col">
-                  <div className="flex items-center gap-3 mb-3">
+                  <div className="flex items-center gap-3 mb-2">
                     <div
                       className={`w-9 h-9 rounded-[10px] bg-gradient-to-b ${product.tint} flex items-center justify-center shadow-sm shrink-0`}
                     >
                       <product.icon className="w-4 h-4 text-white badge-white" />
                     </div>
-                    <h3 className="text-xl font-bold text-[var(--apple-text-primary)]">
-                      {product.title}
-                    </h3>
+                    <div>
+                      <h3 className="text-xl font-bold text-[var(--apple-text-primary)] leading-tight">
+                        {product.title}
+                      </h3>
+                      {product.subtitle && (
+                        <div className="text-[12px] font-semibold text-[#4e45e1] dark:text-[#8E87FF]">
+                          {product.subtitle}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
-                  <p className="text-[14px] text-[var(--apple-text-secondary)] leading-relaxed mb-6 flex-1">
+                  <p className="text-[14px] text-[var(--apple-text-secondary)] leading-relaxed mb-6 flex-1 mt-2">
                     {product.description}
                   </p>
 
@@ -750,19 +787,19 @@ export default function Home() {
                     ))}
                   </ul>
 
-                  <div className="pt-4 border-t border-[var(--apple-border)]">
-                    <Link
-                      to="/products"
-                      className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[var(--apple-blue)] group-hover:translate-x-0.5 transition-transform"
-                    >
-                      <span>Learn more</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
+                    <div className="pt-4 border-t border-[var(--apple-border)]">
+                      <Link
+                        to="/products"
+                        className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[var(--apple-blue)] group-hover:translate-x-0.5 transition-transform"
+                      >
+                        <span>Try {product.title}</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              </motion.article>
-            ))}
-          </div>
+                </motion.article>
+              ))}
+            </div>
         </div>
       </section>
 
@@ -781,10 +818,10 @@ export default function Home() {
             id="testimonials-heading"
             className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-[-0.03em] text-[var(--apple-text-primary)] mt-1 mb-3"
           >
-            Trusted by Visionary Teams.
+            Loved by Founders &amp; Growing Teams.
           </h2>
           <p className="text-[16px] text-[var(--apple-text-secondary)]">
-            Real outcomes from leaders who partnered with DevInquire.
+            Real stories from business owners who built, launched, and scaled with DevInquire.
           </p>
         </div>
 
@@ -816,18 +853,18 @@ export default function Home() {
                     <div className="w-10 h-10 rounded-full bg-gradient-to-b from-[#6B63F2] to-[#4e45e1] flex items-center justify-center text-white font-bold text-xs badge-white">
                       {testimonial.avatar}
                     </div>
-                    <div>
-                      <div className="text-[14px] font-semibold text-[var(--apple-text-primary)]">
-                        {testimonial.name}
-                      </div>
-                      <div className="text-[12px] text-[var(--apple-text-tertiary)]">
-                        {testimonial.role}
+                      <div>
+                        <div className="text-[14px] font-semibold text-[var(--apple-text-primary)]">
+                          {testimonial.name}
+                        </div>
+                        <div className="text-[12px] text-[var(--apple-text-tertiary)]">
+                          {testimonial.role}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </article>
-              ))}
-          </div>
+                  </article>
+                ))}
+            </div>
         </div>
       </section>
 

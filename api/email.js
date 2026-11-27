@@ -165,18 +165,20 @@ class EmailSender {
    * Send newsletter confirmation email
    */
   async sendNewsletterConfirmation(email, confirmationToken) {
+    const cfg = this.getLiveConfig();
     const recipient = email || 'contact@devinquire.com';
-    if (this.config.username && this.config.password) {
+    if (cfg.username && cfg.password) {
       try {
+        const transporter = this.createTransporter(cfg);
         const mailOptions = {
-          from: `"${this.config.fromName}" <${this.config.fromEmail}>`,
+          from: `"${cfg.fromName}" <${cfg.fromEmail}>`,
           to: recipient,
           subject: 'Confirm Your Newsletter Subscription - DevInquire',
           html: this.getNewsletterConfirmationTemplate(recipient, confirmationToken),
           text: this.getNewsletterConfirmationTextTemplate(recipient, confirmationToken)
         };
 
-        const info = await this.transporter.sendMail(mailOptions);
+        const info = await transporter.sendMail(mailOptions);
         console.log('Newsletter confirmation sent to %s via SMTP: %s', recipient, info.messageId);
         return { success: true, message: 'Confirmation email sent' };
       } catch (error) {
@@ -186,6 +188,82 @@ class EmailSender {
 
     console.log('📧 Newsletter confirmation recorded for %s with token: %s', recipient, confirmationToken);
     return { success: true, message: 'Confirmation email recorded' };
+  }
+
+  /**
+   * Send payment confirmation notification for Consultation (₹399) or Service Confirmation (₹99)
+   */
+  async sendPaymentNotification(payment) {
+    const cfg = this.getLiveConfig();
+    const recipient = cfg.contactEmail || 'contact@devinquire.com';
+    const planLabel =
+      payment.plan_type === 'consultation'
+        ? '1:1 Technical Consultation (₹399/-)'
+        : `Service Confirmation (₹99/-)${payment.service_name ? ` — ${payment.service_name}` : ''}`;
+    const amountDisplay = `₹${Math.round((Number(payment.amount) || 0) / 100)}/-`;
+    const subject = `Payment Confirmed [${amountDisplay}]: ${planLabel}`;
+
+    const summaryData = {
+      name: payment.customer_name || 'Client',
+      email: payment.customer_email || '',
+      phone: payment.customer_phone || '',
+      company: payment.company || '',
+      subject,
+      message: [
+        `Plan: ${planLabel}`,
+        `Amount Paid: ${amountDisplay} (${(payment.currency || 'inr').toUpperCase()})`,
+        payment.service_name ? `Selected Service: ${payment.service_name}` : null,
+        payment.stripe_payment_intent_id ? `Stripe Payment Intent: ${payment.stripe_payment_intent_id}` : null,
+        payment.stripe_session_id ? `Stripe Session ID: ${payment.stripe_session_id}` : null,
+        payment.notes ? `\nClient Notes:\n${payment.notes}` : null
+      ]
+        .filter(Boolean)
+        .join('\n')
+    };
+
+    if (cfg.username && cfg.password) {
+      try {
+        const transporter = this.createTransporter(cfg);
+        await transporter.sendMail({
+          from: `"${cfg.fromName}" <${cfg.fromEmail}>`,
+          to: recipient,
+          replyTo: summaryData.email || undefined,
+          subject,
+          html: this.getContactEmailTemplate(summaryData),
+          text: this.getContactEmailTextTemplate(summaryData)
+        });
+
+        if (summaryData.email) {
+          await transporter
+            .sendMail({
+              from: `"${cfg.fromName}" <${cfg.fromEmail}>`,
+              to: summaryData.email,
+              subject: `Payment Receipt (${amountDisplay}) — DevInquire`,
+              text: [
+                `Hello ${summaryData.name},`,
+                '',
+                `We have received your payment of ${amountDisplay} for ${planLabel}.`,
+                payment.stripe_payment_intent_id
+                  ? `Reference ID: ${payment.stripe_payment_intent_id}`
+                  : `Session Reference: ${payment.stripe_session_id || 'Confirmed'}`,
+                '',
+                'Our engineering team has locked your priority slot and will reach out shortly with next steps.',
+                '',
+                'Best regards,',
+                'DevInquire Team',
+                'https://devinquire.com'
+              ].join('\n')
+            })
+            .catch(err => console.warn('Client receipt SMTP warning:', err.message));
+        }
+
+        return { success: true, provider: 'smtp' };
+      } catch (err) {
+        console.warn('Payment SMTP send warning:', err.message);
+      }
+    }
+
+    return this.sendContactNotification(summaryData);
   }
 
   getContactEmailTemplate(formData) {
