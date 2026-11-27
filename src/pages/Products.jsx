@@ -226,11 +226,22 @@ export default function Products() {
         : "DevInquire Product Suite";
       const response = await submitContactForm({
         ...demoForm,
+        product: activeProduct?.name || "Product Suite",
         service: productLabel,
+        timeline: activeProduct?.setupTime || "",
+        form_source: "Product Demo",
+        payment_status: "none",
         subject: `Product Demo Request: ${productLabel}`,
         message:
           demoForm.message.trim() ||
           `Interested in a demo account and product link for ${productLabel}.`,
+        form_payload: {
+          product_id: activeProduct?.id || "",
+          product_name: activeProduct?.name || "",
+          product_category: activeProduct?.category || "",
+          product_status: activeProduct?.status || "",
+          setup_time: activeProduct?.setupTime || "",
+        },
       });
 
       if (response.success) {

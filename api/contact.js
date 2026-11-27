@@ -130,13 +130,18 @@ router.post('/', async (req, res) => {
     
     // Sanitize input
     const sanitized = {
+      inquiry_id: input.inquiry_id || input.inquiryId || null,
       name: input.name.trim(),
       email: input.email.trim().toLowerCase(),
       phone: input.phone ? input.phone.trim() : null,
       company: input.company ? input.company.trim() : null,
       service: input.service ? input.service.trim() : null,
+      product: input.product ? String(input.product).trim() : null,
       subject: input.subject.trim(),
       timeline: input.timeline ? input.timeline.trim() : null,
+      form_source: input.form_source || input.formSource || 'Contact Form',
+      payment_status: input.payment_status || 'none',
+      form_payload: input.form_payload || null,
       message: input.message.trim(),
       ip_address: ip,
       user_agent: userAgent

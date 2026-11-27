@@ -217,11 +217,15 @@ function validateCheckoutInput(body) {
     message: errors.join(" "),
     sanitized: {
       planType,
+      inquiryId: body?.inquiryId ? String(body.inquiryId).trim() : null,
       name,
       email,
       phone: phone || null,
       company: company || null,
       service: service || null,
+      timeline: body?.timeline ? String(body.timeline).trim().slice(0, 100) : null,
+      subject: body?.subject ? String(body.subject).trim().slice(0, 200) : null,
+      formSource: body?.formSource ? String(body.formSource).trim().slice(0, 100) : "Contact Form",
       notes: notes || null,
     },
   };
@@ -284,18 +288,45 @@ async function notifyConfirmedOrder(effectiveRecord, plan) {
         ? "https://dashboard.devinquire.com/api/public"
         : "http://localhost:8001/api/public")
     ).replace(/\/$/, "");
-    await fetch(`${dashBase}/contact_intake`, {
+    let parsedPayload = {};
+    if (effectiveRecord.form_payload) {
+      try {
+        parsedPayload =
+          typeof effectiveRecord.form_payload === "string"
+            ? JSON.parse(effectiveRecord.form_payload)
+            : effectiveRecord.form_payload;
+      } catch {
+        parsedPayload = {};
+      }
+    }
+    await fetch(`${dashBase}/payment_confirm`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        inquiry_id: effectiveRecord.inquiry_id || parsedPayload.inquiryId || undefined,
         name: effectiveRecord.customer_name,
         email: effectiveRecord.customer_email,
         phone: effectiveRecord.customer_phone,
         company: effectiveRecord.company,
         service: effectiveRecord.service_name || plan.label,
+        timeline: parsedPayload.timeline || "",
         subject: subjectLine,
         message: fullMessage,
-        priority: "High",
+        form_source: parsedPayload.formSource || "Stripe Pre-Booking",
+        payment_status: "paid",
+        payment_plan: plan.id,
+        payment_amount: Math.round(
+          (Number(effectiveRecord.amount) || plan.amountPaise) / 100
+        ),
+        payment_currency: String(effectiveRecord.currency || "INR").toUpperCase(),
+        payment_reference:
+          effectiveRecord.stripe_payment_intent_id ||
+          effectiveRecord.stripe_session_id ||
+          "",
+        paid_at: effectiveRecord.paid_at
+          ? new Date(effectiveRecord.paid_at).toISOString()
+          : new Date().toISOString(),
+        form_payload: parsedPayload,
       }),
     });
   } catch {
@@ -471,11 +502,23 @@ router.post("/create-checkout-session", async (req, res) => {
   const stripe = getStripeClient();
 
   let paymentDbId = null;
+  const formPayloadStr = JSON.stringify({
+    inquiryId: sanitized.inquiryId,
+    name: sanitized.name,
+    email: sanitized.email,
+    phone: sanitized.phone,
+    company: sanitized.company,
+    service: sanitized.service,
+    timeline: sanitized.timeline,
+    subject: sanitized.subject,
+    formSource: sanitized.formSource,
+    notes: sanitized.notes,
+  });
   try {
     const [result] = await db.query(
       `INSERT INTO payments
-       (plan_type, service_name, customer_name, customer_email, customer_phone, company, notes, amount, currency, payment_status, ip_address)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)`,
+       (plan_type, service_name, customer_name, customer_email, customer_phone, company, notes, amount, currency, payment_status, ip_address, inquiry_id, form_payload)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)`,
       [
         plan.id,
         sanitized.service,
@@ -487,6 +530,8 @@ router.post("/create-checkout-session", async (req, res) => {
         plan.amountPaise,
         plan.currency,
         ip,
+        sanitized.inquiryId,
+        formPayloadStr,
       ]
     );
     paymentDbId = result?.insertId || null;
@@ -549,11 +594,14 @@ router.post("/create-checkout-session", async (req, res) => {
       line_items: [lineItem],
       metadata: {
         payment_db_id: paymentDbId ? String(paymentDbId) : "",
+        inquiry_id: sanitized.inquiryId ? String(sanitized.inquiryId) : "",
         plan_type: plan.id,
         service_name: (sanitized.service || "").slice(0, 200),
         customer_name: sanitized.name.slice(0, 100),
         customer_phone: (sanitized.phone || "").slice(0, 30),
         company: (sanitized.company || "").slice(0, 200),
+        timeline: (sanitized.timeline || "").slice(0, 100),
+        form_source: (sanitized.formSource || "Contact Form").slice(0, 100),
         notes: (sanitized.notes || "").slice(0, 450),
       },
       success_url: `${origin}/payment/status?status=success&session_id={CHECKOUT_SESSION_ID}&plan=${encodeURIComponent(
@@ -665,6 +713,7 @@ router.get("/verify-session", async (req, res) => {
       success: true,
       data: {
         sessionId,
+        inquiryId: record?.inquiry_id || null,
         paymentStatus: "paid",
         isPaid: true,
         planType: plan.id,
@@ -674,6 +723,8 @@ router.get("/verify-session", async (req, res) => {
         currency: plan.currency.toUpperCase(),
         customerName: record?.customer_name || null,
         customerEmail: record?.customer_email || null,
+        customerPhone: record?.customer_phone || null,
+        company: record?.company || null,
         transactionId: sessionId,
         paidAt: record?.paid_at || new Date().toISOString(),
       },

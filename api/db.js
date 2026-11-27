@@ -209,6 +209,8 @@ const IDENT_SQL = [
     payment_status ENUM('pending','paid','failed','expired','refunded') DEFAULT 'pending',
     notified BOOLEAN DEFAULT FALSE,
     ip_address VARCHAR(45) DEFAULT NULL,
+    inquiry_id VARCHAR(64) DEFAULT NULL,
+    form_payload JSON DEFAULT NULL,
     paid_at TIMESTAMP NULL DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -324,6 +326,16 @@ const ALTER_SQL = [
     table: "newsletter_subscriptions",
     column: "categories",
     ddl: `ALTER TABLE newsletter_subscriptions ADD COLUMN categories JSON DEFAULT NULL AFTER name`,
+  },
+  {
+    table: "payments",
+    column: "inquiry_id",
+    ddl: `ALTER TABLE payments ADD COLUMN inquiry_id VARCHAR(64) DEFAULT NULL AFTER ip_address`,
+  },
+  {
+    table: "payments",
+    column: "form_payload",
+    ddl: `ALTER TABLE payments ADD COLUMN form_payload JSON DEFAULT NULL AFTER inquiry_id`,
   },
 ];
 

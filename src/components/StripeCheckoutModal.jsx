@@ -11,6 +11,7 @@ import {
   Send,
 } from "lucide-react";
 import { PAYMENT_PLANS, createStripeCheckout } from "../services/paymentService";
+import { logPreBookingCheckout } from "../services/emailService";
 
 export default function StripeCheckoutModal({
   isOpen,
@@ -53,12 +54,32 @@ export default function StripeCheckoutModal({
     setErrorMessage("");
     setIsRedirecting(true);
 
+    let loggedInquiryId = inquiryData?.inquiryId || null;
+    try {
+      const logged = await logPreBookingCheckout(
+        {
+          ...inquiryData,
+          service: resolvedService,
+        },
+        activePlan
+      );
+      if (logged?.inquiryId) {
+        loggedInquiryId = logged.inquiryId;
+      }
+    } catch {
+      // non-blocking if dashboard intake is temporarily offline
+    }
+
     const payload = {
       planType: activePlan.id,
+      inquiryId: loggedInquiryId,
       name: (inquiryData?.name || "").trim(),
       email: (inquiryData?.email || "").trim(),
       phone: (inquiryData?.phone || "").trim(),
       company: (inquiryData?.company || "").trim(),
+      timeline: (inquiryData?.timeline || "").trim(),
+      subject: (inquiryData?.subject || "").trim(),
+      formSource: inquiryData?.formSource || inquiryData?.form_source || "Contact Form",
       service: resolvedService,
       message: [
         inquiryData?.timeline ? `Timeline: ${inquiryData.timeline}` : null,
@@ -75,8 +96,11 @@ export default function StripeCheckoutModal({
           "devinquire_pending_inquiry",
           JSON.stringify({
             planType: activePlan.id,
+            planAmount: activePlan.amountRupees,
+            inquiryId: loggedInquiryId,
             inquiryData: {
               ...inquiryData,
+              inquiryId: loggedInquiryId,
               service: resolvedService,
             },
           })

@@ -255,6 +255,8 @@ export default function Services() {
     try {
       const payload = {
         ...formData,
+        form_source: "Services Inquiry",
+        payment_status: "opt_out",
         subject: formData.service
           ? `Service Inquiry: ${formData.service}`
           : "General Service Inquiry",
@@ -675,7 +677,7 @@ export default function Services() {
             setIsModalOpen(true);
           }}
           initialPlan="service_confirmation"
-          inquiryData={formData}
+          inquiryData={{ ...formData, formSource: "Services Inquiry" }}
           onOptOutSubmit={handleOptOutServiceSubmit}
           isSubmittingQuery={isSubmitting}
         />

@@ -13,7 +13,7 @@ import {
 import SEO from "../components/SEO";
 import StripeCheckoutModal from "../components/StripeCheckoutModal";
 import { PAYMENT_PLANS, verifyStripeSession } from "../services/paymentService";
-import { submitContactForm } from "../services/emailService";
+import { submitContactForm, confirmInquiryPayment } from "../services/emailService";
 
 export default function PaymentStatus() {
   const [searchParams] = useSearchParams();
@@ -35,32 +35,117 @@ export default function PaymentStatus() {
     PAYMENT_PLANS[planParam] || PAYMENT_PLANS.consultation;
 
   useEffect(() => {
+    let savedInquiry = null;
+    let savedInquiryId = null;
     try {
       const saved = sessionStorage.getItem("devinquire_pending_inquiry");
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed?.inquiryData) {
-          setPendingInquiry(parsed.inquiryData);
+          savedInquiry = {
+            ...parsed.inquiryData,
+            inquiryId: parsed.inquiryId || parsed.inquiryData.inquiryId || null,
+          };
+          savedInquiryId = savedInquiry.inquiryId;
+          setPendingInquiry(savedInquiry);
         }
       }
     } catch {
       // ignore storage errors
     }
-  }, []);
+
+    if (status === "cancelled" && savedInquiry) {
+      confirmInquiryPayment({
+        inquiry_id: savedInquiryId,
+        email: savedInquiry.email,
+        name: savedInquiry.name,
+        phone: savedInquiry.phone,
+        company: savedInquiry.company,
+        service: savedInquiry.service,
+        timeline: savedInquiry.timeline,
+        subject: savedInquiry.subject,
+        message: savedInquiry.message,
+        form_source: savedInquiry.formSource || savedInquiry.form_source || "Contact Form",
+        payment_status: "cancelled",
+        payment_plan: planParam,
+        payment_amount: fallbackPlan.amountRupees,
+        payment_currency: "INR",
+      }).catch(() => {});
+    }
+  }, [status, planParam, fallbackPlan.amountRupees]);
 
   useEffect(() => {
     let active = true;
-    if (status !== "success" || !sessionId) {
+    if (status !== "success") {
       setLoading(false);
       return undefined;
     }
 
     (async () => {
+      let stored = null;
       try {
-        setLoading(true);
-        const data = await verifyStripeSession(sessionId, planParam);
+        const raw = sessionStorage.getItem("devinquire_pending_inquiry");
+        if (raw) stored = JSON.parse(raw);
+      } catch {
+        // ignore
+      }
+      const inq = stored?.inquiryData || null;
+      const inqId = stored?.inquiryId || inq?.inquiryId || null;
+
+      try {
+        setLoading(Boolean(sessionId));
+        let verified = null;
+        if (sessionId && sessionId.startsWith("cs_")) {
+          verified = await verifyStripeSession(sessionId, planParam);
+        }
+
+        const resolvedPlanId = verified?.planType || stored?.planType || planParam;
+        const resolvedPlan =
+          PAYMENT_PLANS[resolvedPlanId] || PAYMENT_PLANS.consultation;
+        const resolvedAmount =
+          verified?.amountRupees || stored?.planAmount || resolvedPlan.amountRupees;
+        const resolvedRef = verified?.transactionId || sessionId || `stripe-${Date.now()}`;
+
+        await confirmInquiryPayment({
+          inquiry_id: verified?.inquiryId || inqId || undefined,
+          name: verified?.customerName || inq?.name || "Client",
+          email: verified?.customerEmail || inq?.email || "",
+          phone: verified?.customerPhone || inq?.phone || "",
+          company: verified?.company || inq?.company || "",
+          service: verified?.serviceName || inq?.service || resolvedPlan.label,
+          timeline: verified?.timeline || inq?.timeline || "",
+          subject: inq?.subject || `${resolvedPlan.label} (${resolvedPlan.displayPrice})`,
+          message: inq?.message || "",
+          form_source: inq?.formSource || inq?.form_source || "Stripe Pre-Booking",
+          payment_status: "paid",
+          payment_plan: resolvedPlan.id,
+          payment_amount: resolvedAmount,
+          payment_currency: verified?.currency || "INR",
+          payment_reference: resolvedRef,
+          paid_at: verified?.paidAt || new Date().toISOString(),
+        });
+
         if (active) {
-          setReceipt(data);
+          setReceipt(
+            verified || {
+              sessionId: resolvedRef,
+              paymentStatus: "paid",
+              isPaid: true,
+              planType: resolvedPlan.id,
+              planLabel: resolvedPlan.label,
+              serviceName: inq?.service || null,
+              amountRupees: resolvedAmount,
+              currency: "INR",
+              customerName: inq?.name || null,
+              customerEmail: inq?.email || null,
+              customerPhone: inq?.phone || null,
+              company: inq?.company || null,
+              timeline: inq?.timeline || null,
+              message: inq?.message || null,
+              transactionId: resolvedRef,
+              paidAt: new Date().toISOString(),
+            }
+          );
           setVerifyError("");
           try {
             sessionStorage.removeItem("devinquire_pending_inquiry");
@@ -69,6 +154,26 @@ export default function PaymentStatus() {
           }
         }
       } catch (err) {
+        if (inq) {
+          await confirmInquiryPayment({
+            inquiry_id: inqId || undefined,
+            name: inq.name || "Client",
+            email: inq.email || "",
+            phone: inq.phone || "",
+            company: inq.company || "",
+            service: inq.service || fallbackPlan.label,
+            timeline: inq.timeline || "",
+            subject: inq.subject || fallbackPlan.label,
+            message: inq.message || "",
+            form_source: inq.formSource || inq.form_source || "Stripe Pre-Booking",
+            payment_status: "paid",
+            payment_plan: fallbackPlan.id,
+            payment_amount: fallbackPlan.amountRupees,
+            payment_currency: "INR",
+            payment_reference: sessionId || `stripe-${Date.now()}`,
+            paid_at: new Date().toISOString(),
+          }).catch(() => {});
+        }
         if (active) {
           setVerifyError(
             err.message ||
@@ -83,7 +188,7 @@ export default function PaymentStatus() {
     return () => {
       active = false;
     };
-  }, [status, sessionId, planParam]);
+  }, [status, sessionId, planParam, fallbackPlan]);
 
   const handleCancelledOptOutSubmit = async () => {
     if (!pendingInquiry) return;
@@ -91,6 +196,9 @@ export default function PaymentStatus() {
     try {
       const result = await submitContactForm({
         ...pendingInquiry,
+        inquiry_id: pendingInquiry.inquiryId || undefined,
+        payment_status: "opt_out",
+        form_source: pendingInquiry.formSource || pendingInquiry.form_source || "Contact Form",
         subject:
           pendingInquiry.subject ||
           (pendingInquiry.service
@@ -306,6 +414,24 @@ export default function PaymentStatus() {
                   <span className="text-[var(--apple-text-secondary)]">Receipt Email</span>
                   <span className="font-medium text-[var(--apple-text-primary)] text-right break-all">
                     {receipt.customerEmail}
+                  </span>
+                </div>
+              )}
+
+              {(receipt?.customerPhone || pendingInquiry?.phone) && (
+                <div className="flex justify-between gap-4">
+                  <span className="text-[var(--apple-text-secondary)]">Phone</span>
+                  <span className="font-medium text-[var(--apple-text-primary)] text-right">
+                    {receipt?.customerPhone || pendingInquiry?.phone}
+                  </span>
+                </div>
+              )}
+
+              {(receipt?.company || pendingInquiry?.company) && (
+                <div className="flex justify-between gap-4">
+                  <span className="text-[var(--apple-text-secondary)]">Company</span>
+                  <span className="font-medium text-[var(--apple-text-primary)] text-right">
+                    {receipt?.company || pendingInquiry?.company}
                   </span>
                 </div>
               )}

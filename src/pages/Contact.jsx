@@ -144,7 +144,11 @@ const Contact = () => {
     setSubmitStatus(null);
 
     try {
-      const result = await submitContactForm(formData);
+      const result = await submitContactForm({
+        ...formData,
+        form_source: 'Contact Form',
+        payment_status: 'opt_out'
+      });
       setIsPreBookingOpen(false);
 
       if (result.success) {
@@ -687,7 +691,7 @@ const Contact = () => {
           isOpen={isPreBookingOpen}
           onClose={() => setIsPreBookingOpen(false)}
           initialPlan="consultation"
-          inquiryData={formData}
+          inquiryData={{ ...formData, formSource: 'Contact Form' }}
           onOptOutSubmit={handleOptOutContactSubmit}
           isSubmittingQuery={isSubmitting}
         />
