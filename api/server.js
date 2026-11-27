@@ -86,6 +86,7 @@ if (isProd) {
             "https://mcyngpjwkcxodglewdwd.supabase.co",
             "https://api.stripe.com",
             "https://checkout.stripe.com",
+            "https://api.web3forms.com",
           ],
           "frame-src": [
             "'self'",

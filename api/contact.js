@@ -133,14 +133,18 @@ router.post('/', async (req, res) => {
       inquiry_id: input.inquiry_id || input.inquiryId || null,
       name: input.name.trim(),
       email: input.email.trim().toLowerCase(),
-      phone: input.phone ? input.phone.trim() : null,
-      company: input.company ? input.company.trim() : null,
-      service: input.service ? input.service.trim() : null,
+      phone: input.phone ? String(input.phone).trim() : null,
+      company: input.company ? String(input.company).trim() : null,
+      service: input.service ? String(input.service).trim() : (input.product ? String(input.product).trim() : null),
       product: input.product ? String(input.product).trim() : null,
       subject: input.subject.trim(),
-      timeline: input.timeline ? input.timeline.trim() : null,
+      timeline: input.timeline ? String(input.timeline).trim() : null,
       form_source: input.form_source || input.formSource || 'Contact Form',
+      page_url: input.page_url || input.pageUrl || null,
       payment_status: input.payment_status || 'none',
+      payment_plan: input.payment_plan || null,
+      payment_amount: input.payment_amount ? Number(input.payment_amount) : null,
+      payment_reference: input.payment_reference || null,
       form_payload: input.form_payload || null,
       message: input.message.trim(),
       ip_address: ip,
@@ -148,6 +152,7 @@ router.post('/', async (req, res) => {
     };
     
     let submissionId = Date.now();
+    let dashEmailSent = false;
 
     // Save to Database (resilient - non-blocking if DB fails)
     try {
@@ -194,16 +199,30 @@ router.post('/', async (req, res) => {
         if (intakeJson?.data?.id) {
           submissionId = intakeJson.data.id;
         }
+        if (intakeJson?.data?.emailSent) {
+          dashEmailSent = true;
+        }
       }
     } catch (dashErr) {
       console.warn('Dashboard intake sync warning:', dashErr.message);
     }
 
-    // Send email notification to contact@devinquire.com
-    await emailSender.sendContactNotification(sanitized);
+    // Send email notification to contact@devinquire.com (unless Dashboard SMTP already dispatched it)
+    let mailResult = { emailSent: dashEmailSent, provider: dashEmailSent ? 'dashboard_smtp' : 'none' };
+    if (!dashEmailSent) {
+      mailResult = await emailSender.sendContactNotification(sanitized);
+    }
+
+    if (mailResult?.emailSent && submissionId) {
+      await db
+        .query('UPDATE contact_submissions SET response_sent = 1 WHERE id = ?', [submissionId])
+        .catch(() => {});
+    }
     
     return res.json({
       success: true,
+      emailSent: Boolean(dashEmailSent || mailResult?.emailSent),
+      provider: mailResult?.provider || 'ledger',
       message: 'Thank you for your message! We\'ll get back to you within 24 hours.',
       id: submissionId
     });
@@ -215,6 +234,18 @@ router.post('/', async (req, res) => {
       message: 'An error occurred. Please try again later.'
     });
   }
+});
+
+router.get('/mail-status', (req, res) => {
+  const cfg = emailSender.getLiveConfig();
+  return res.json({
+    success: true,
+    smtpConfigured: Boolean(cfg.username && cfg.password),
+    smtpHost: cfg.host,
+    smtpPort: cfg.port,
+    recipientEmail: cfg.contactEmail,
+    web3FormsFallbackEnabled: Boolean(cfg.web3FormsEnabled && cfg.web3FormsKey)
+  });
 });
 
 module.exports = router;
